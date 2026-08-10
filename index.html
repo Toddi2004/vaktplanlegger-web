@@ -207,28 +207,59 @@ body:not(.auth-locked) #login-gate {
     position: fixed;
     inset: 0;
     z-index: 9500;
-    display: grid;
-    place-items: center;
-    padding: 1.25rem;
-    background: rgba(0, 0, 43, 0.5);
-    backdrop-filter: blur(3px);
+    pointer-events: none;
 }
 
 .tutorial-overlay[hidden] {
     display: none;
 }
 
+.tutorial-spotlight {
+    position: fixed;
+    z-index: 0;
+    border: 3px solid #ff3658;
+    border-radius: 14px;
+    background: transparent;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 28, 0.62), 0 0 0 7px rgba(255, 54, 88, 0.2);
+    pointer-events: none;
+    transition: left 0.18s ease, top 0.18s ease, width 0.18s ease, height 0.18s ease;
+    animation: tutorial-spotlight-pulse 1.7s ease-in-out infinite;
+}
+
 .tutorial-card {
-    position: relative;
-    width: min(100%, 540px);
-    max-height: 92dvh;
-    padding: 2rem;
+    position: fixed;
+    z-index: 1;
+    width: min(calc(100vw - 24px), 430px);
+    max-height: min(82dvh, 640px);
+    padding: 1.35rem;
     border: 1px solid var(--border-color);
     border-radius: var(--radius-xl);
     background: var(--panel-bg);
     box-shadow: var(--shadow-lg);
-    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    pointer-events: auto;
     animation: tutorial-enter 0.2s ease-out;
+}
+
+.tutorial-steps {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.tutorial-card-centered {
+    left: 50% !important;
+    top: 50% !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: translate(-50%, -50%);
+}
+
+.tutorial-focus-target {
+    outline: 3px solid #ff3658 !important;
+    outline-offset: 4px !important;
 }
 
 .tutorial-close {
@@ -280,8 +311,8 @@ body:not(.auth-locked) #login-gate {
 }
 
 .tutorial-step {
-    min-height: 170px;
-    padding: 1.35rem;
+    min-height: 132px;
+    padding: 1.05rem;
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
     background: linear-gradient(145deg, rgba(218, 13, 43, 0.06), white 55%);
@@ -367,29 +398,86 @@ body:not(.auth-locked) #login-gate {
     to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+@keyframes tutorial-spotlight-pulse {
+    0%, 100% { border-color: #ff3658; }
+    50% { border-color: #ff8ca0; }
+}
+
 @media (max-width: 560px) {
-    .tutorial-overlay {
-        align-items: end;
-        padding: 0;
+    .tutorial-card {
+        width: auto;
+        max-height: min(38dvh, 320px);
+        padding: 1rem;
+        border-radius: 1.1rem;
     }
 
-    .tutorial-card {
-        width: 100%;
-        max-height: 100dvh;
-        padding: 1.35rem;
-        border-right: 0;
-        border-bottom: 0;
-        border-left: 0;
-        border-radius: 1.25rem 1.25rem 0 0;
+    .tutorial-kicker {
+        display: none;
+    }
+
+    .tutorial-card h2 {
+        padding-right: 2.4rem;
+        overflow: hidden;
+        font-size: 1.05rem;
+        line-height: 1.25;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .tutorial-progress {
+        margin: 0.25rem 0 0.55rem;
+        font-size: 0.75rem;
     }
 
     .tutorial-step {
-        min-height: 155px;
-        padding: 1.1rem;
+        min-height: 0;
+        padding: 0.7rem;
+    }
+
+    .tutorial-step-number {
+        width: 2rem;
+        height: 2rem;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .tutorial-step h3 {
+        margin-bottom: 0.3rem;
+        font-size: 1rem;
+    }
+
+    .tutorial-step p {
+        font-size: 0.84rem;
+        line-height: 1.4;
+    }
+
+    .tutorial-dots {
+        flex: 0 0 auto;
+        gap: 0.3rem;
+        margin: 0.55rem 0;
+    }
+
+    .tutorial-dots span {
+        width: 0.45rem;
+        height: 0.45rem;
+    }
+
+    .tutorial-dots span.active {
+        width: 1.1rem;
     }
 
     .tutorial-actions {
+        flex: 0 0 auto;
         align-items: stretch;
+    }
+
+    .tutorial-actions .primary-btn,
+    .tutorial-actions .secondary-btn,
+    .tutorial-skip {
+        min-height: 40px;
+        padding-top: 0.45rem;
+        padding-bottom: 0.45rem;
+        font-size: 0.86rem;
     }
 
     .tutorial-nav-actions {
@@ -399,6 +487,7 @@ body:not(.auth-locked) #login-gate {
 
 @media (prefers-reduced-motion: reduce) {
     .tutorial-card,
+    .tutorial-spotlight,
     .tutorial-dots span,
     .tutorial-help-btn {
         animation: none;
@@ -693,13 +782,16 @@ body:not(.auth-locked) #login-gate {
     justify-content: center;
     z-index: 100;
     opacity: 0;
+    visibility: hidden;
     pointer-events: none;
-    transition: opacity 0.2s ease;
+    transition: opacity 0.2s ease, visibility 0s linear 0.2s;
 }
 
 .modal-overlay.show {
     opacity: 1;
+    visibility: visible;
     pointer-events: auto;
+    transition: opacity 0.2s ease;
 }
 
 .modal-content {
@@ -1319,8 +1411,42 @@ body:not(.auth-locked) #login-gate {
 }
 
 @media (max-width: 800px) {
-    .app-container {
+    body:not(.auth-locked) {
+        zoom: 1;
+        height: auto;
+        min-height: 100vh;
+        min-height: 100dvh;
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+
+    .top-nav {
         flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+        padding: 0.85rem 1rem;
+    }
+
+    .top-nav-actions {
+        width: 100%;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .nav-select-wrapper {
+        flex: 1 1 170px;
+        min-width: 0;
+    }
+
+    .nav-select {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .app-container {
+        flex: none;
+        flex-direction: column;
+        overflow: visible;
     }
 
     .sidebar {
@@ -1328,11 +1454,14 @@ body:not(.auth-locked) #login-gate {
         height: auto;
         border-right: none;
         border-bottom: 1px solid var(--border-color);
+        overflow: visible;
     }
 
     .main-content {
+        flex: none;
         height: auto;
-        overflow-y: visible;
+        padding: 1.25rem;
+        overflow: visible;
     }
 
     .schedule-grid {
@@ -1343,6 +1472,19 @@ body:not(.auth-locked) #login-gate {
 @media (max-width: 500px) {
     .schedule-grid {
         grid-template-columns: 1fr;
+    }
+
+    #archive-months-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    #all-schedules-modal .modal-content {
+        max-height: 92dvh;
+    }
+
+    #all-schedules-modal .modal-body {
+        overflow-y: auto;
+        overscroll-behavior: contain;
     }
 }
 
@@ -1674,38 +1816,64 @@ body:not(.auth-locked) #login-gate {
     </section>
 
     <section id="tutorial-overlay" class="tutorial-overlay" aria-hidden="true" hidden>
-        <div class="tutorial-card" role="dialog" aria-modal="true" aria-labelledby="tutorial-title"
+        <div id="tutorial-spotlight" class="tutorial-spotlight" aria-hidden="true"></div>
+        <div class="tutorial-card" role="dialog" aria-modal="false" aria-labelledby="tutorial-title"
             aria-describedby="tutorial-progress">
             <button id="tutorial-close-btn" class="tutorial-close" type="button" aria-label="Lukk introduksjonen">&times;</button>
             <div class="tutorial-kicker">Kort introduksjon</div>
-            <h2 id="tutorial-title" tabindex="-1">Kom i gang på under ett minutt</h2>
-            <p id="tutorial-progress" class="tutorial-progress" aria-live="polite">Steg 1 av 4</p>
+            <h2 id="tutorial-title" tabindex="-1">Kom i gang på rundt to minutter</h2>
+            <p id="tutorial-progress" class="tutorial-progress" aria-live="polite">Steg 1 av 9</p>
 
             <div class="tutorial-steps" aria-live="polite" aria-atomic="true">
                 <article class="tutorial-step" data-tutorial-step="0">
                     <div class="tutorial-step-number" aria-hidden="true">1</div>
-                    <h3>Legg inn ansatte</h3>
-                    <p>Trykk <strong>+</strong> ved Ansatte. Navnefeltet markeres automatisk, så du kan skrive med én gang. Sett riktig stillingsprosent til høyre.</p>
+                    <h3>Legg til en ansatt</h3>
+                    <p>Trykk den fremhevede <strong>+</strong>-knappen ved Ansatte. Et nytt navnefelt opprettes og markeres automatisk. Har du allerede ansatte, kan du velge Neste.</p>
                 </article>
                 <article class="tutorial-step" data-tutorial-step="1" hidden>
                     <div class="tutorial-step-number" aria-hidden="true">2</div>
-                    <h3>Åpne innstillinger</h3>
-                    <p>Trykk tannhjulet ved en ansatt for å legge inn faste vakter, fast utilgjengelighet eller fravær på bestemte datoer.</p>
+                    <h3>Skriv navn og stillingsprosent</h3>
+                    <p>Den fremhevede raden er den ansatte. Skriv navnet til venstre og riktig stillingsprosent til høyre. Tannhjulet åpner personens egne innstillinger.</p>
                 </article>
                 <article class="tutorial-step" data-tutorial-step="2" hidden>
                     <div class="tutorial-step-number" aria-hidden="true">3</div>
-                    <h3>Lag planen og sjekk timene</h3>
-                    <p>Velg måned, kontroller bemanningsbehovet og trykk <strong>Generer Vaktplan</strong>. Nederst viser Oppsummering <strong>Tildelt</strong> – timene personen faktisk jobber – mot <strong>Planlagt</strong> fra stillingsprosenten.</p>
+                    <h3>Åpne innstillinger</h3>
+                    <p>Trykk det fremhevede tannhjulet. Her samles fast arbeid, fast utilgjengelighet og fri på bestemte datoer.</p>
                 </article>
                 <article class="tutorial-step" data-tutorial-step="3" hidden>
                     <div class="tutorial-step-number" aria-hidden="true">4</div>
+                    <h3>Legg inn fast arbeid</h3>
+                    <p>Skjemaet er åpnet for deg. Velg ukedag og dag-, kveld- eller lørdagsvakt. Fast arbeid prioriteres innenfor stillingsprosenten; fravær overstyrer det.</p>
+                </article>
+                <article class="tutorial-step" data-tutorial-step="4" hidden>
+                    <div class="tutorial-step-number" aria-hidden="true">5</div>
+                    <h3>Gi fri på enkeltdager</h3>
+                    <p>Kalenderen for valgt måned er åpnet. Trykk datoene personen ikke kan jobbe. En markert dato sperrer både dag- og kveldsvakt den dagen.</p>
+                </article>
+                <article class="tutorial-step" data-tutorial-step="5" hidden>
+                    <div class="tutorial-step-number" aria-hidden="true">6</div>
+                    <h3>Legg inn fast utilgjengelighet</h3>
+                    <p>Velg ukedag, klikk starttid og deretter sluttid. Eksempel: Torsdag 15:30–20:00 blokkerer alle vakter som overlapper dette hver torsdag.</p>
+                </article>
+                <article class="tutorial-step" data-tutorial-step="6" hidden>
+                    <div class="tutorial-step-number" aria-hidden="true">7</div>
+                    <h3>Lag vaktplanen</h3>
+                    <p>Velg måned, bemanningsbehov og arbeidstider i venstremenyen. Trykk den fremhevede <strong>Generer Vaktplan</strong>-knappen og marker eventuelle stengte dager.</p>
+                </article>
+                <article class="tutorial-step" data-tutorial-step="7" hidden>
+                    <div class="tutorial-step-number" aria-hidden="true">8</div>
+                    <h3>Sjekk faktiske arbeidstimer</h3>
+                    <p>Etter generering finner du <strong>Oppsummering</strong> nederst i planen. Tildelt er timene personen faktisk jobber; Planlagt er målet fra stillingsprosenten.</p>
+                </article>
+                <article class="tutorial-step" data-tutorial-step="8" hidden>
+                    <div class="tutorial-step-number" aria-hidden="true">9</div>
                     <h3>Kopier til Excel</h3>
-                    <p>Trykk <strong>Kopier til Excel</strong> over planen. Åpne arket, marker cellen øverst til venstre der kalenderen skal starte, og lim inn.</p>
+                    <p>Trykk den fremhevede <strong>Kopier til Excel</strong>-knappen. Åpne arket, marker cellen øverst til venstre og lim inn. Publiser planen hvis du vil beholde den i arkivet.</p>
                 </article>
             </div>
 
             <div class="tutorial-dots" aria-hidden="true">
-                <span class="active"></span><span></span><span></span><span></span>
+                <span class="active"></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
             </div>
             <div class="tutorial-actions">
                 <button id="tutorial-skip-btn" class="tutorial-skip" type="button">Hopp over</button>
@@ -1872,7 +2040,7 @@ body:not(.auth-locked) #login-gate {
                 <button id="publish-btn" class="primary-btn" style="background-color: #10b981; border: none; padding: 0.75rem 2rem; font-size: 1rem; box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);">
                     Publiser Vaktplan for <span id="publish-month-name"></span>
                 </button>
-                <p class="help-text" style="margin-top: 0.5rem;">Dette låser vaktplanen og lagrer den i arkivet.</p>
+                <p class="help-text" style="margin-top: 0.5rem;">Dette lagrer vaktplanen i arkivet. Senere endringer lagres automatisk.</p>
             </div>
         </main>
     </div>
@@ -1970,8 +2138,8 @@ body:not(.auth-locked) #login-gate {
                         <option value="6">Søndag</option>
                     </select>
                 </div>
-                <p class="help-text" style="margin-top: 1rem;">Dra eller klikk for å markere/avmarkere 15-minutters
-                    intervaller (08:00 - 20:00).</p>
+                <p class="help-text" style="margin-top: 1rem;">Klikk først på starttid og deretter på sluttid. Tiden
+                    mellom dem markeres.</p>
                 <div id="time-picker-grid" class="time-grid">
                     <!-- Generated by JS -->
                 </div>
@@ -2512,6 +2680,29 @@ window.VaktApp = window.VaktApp || {};
         };
     }
 
+    function normalizeEmployeeNames(employees, nameMigration) {
+        var usedNames = new Set();
+        employees.forEach(function (employee) {
+            var originalName = String(employee.name || 'Ansatt');
+            var candidate = app.shortenEmployeeName(originalName);
+            var normalized = candidate.toLocaleLowerCase('nb-NO');
+            if (normalized === 'ledig' || normalized === 'mangler folk') candidate = 'Ansatt';
+
+            var baseName = candidate;
+            var suffix = 2;
+            while (usedNames.has(candidate.toLocaleLowerCase('nb-NO'))) {
+                candidate = baseName + ' ' + suffix++;
+            }
+            usedNames.add(candidate.toLocaleLowerCase('nb-NO'));
+            employee.name = candidate;
+
+            var originalNormalized = originalName.trim().toLocaleLowerCase('nb-NO');
+            if (originalNormalized !== 'ledig' && originalNormalized !== 'mangler folk' && !nameMigration[originalName]) {
+                nameMigration[originalName] = candidate;
+            }
+        });
+    }
+
     // ── Persistence ────────────────────────────────────────────────────
     
     app.saveState = function() {
@@ -2555,12 +2746,7 @@ window.VaktApp = window.VaktApp || {};
             var nameMigration = {};
             if (data.employees) {
                 app.state.employees = data.employees.map(normalizeEmployee);
-                app.state.employees.forEach(function (employee) {
-                    nameMigration[employee.name] = app.shortenEmployeeName(employee.name);
-                });
-                app.state.employees.forEach(function (employee) {
-                    employee.name = app.shortenEmployeeName(employee.name);
-                });
+                normalizeEmployeeNames(app.state.employees, nameMigration);
             }
             if (data.requirements) app.state.requirements = data.requirements;
             if (data.standardTimes) app.state.standardTimes = data.standardTimes;
@@ -2705,9 +2891,18 @@ window.VaktApp = window.VaktApp || {};
     var state = app.state;
 
     function timeToMinutes(value) {
-        var parts = String(value || '').split(':').map(Number);
-        if (parts.length !== 2 || !Number.isFinite(parts[0]) || !Number.isFinite(parts[1])) return NaN;
+        var match = String(value || '').match(/^(\d{1,2}):(\d{2})$/);
+        if (!match) return NaN;
+        var parts = [Number(match[1]), Number(match[2])];
+        if (!Number.isFinite(parts[0]) || !Number.isFinite(parts[1]) ||
+            parts[0] < 0 || parts[0] > 23 || parts[1] < 0 || parts[1] > 59) return NaN;
         return parts[0] * 60 + parts[1];
+    }
+
+    function safeRequirement(value) {
+        var parsed = parseInt(value, 10);
+        if (!Number.isFinite(parsed)) parsed = 0;
+        return Math.max(0, Math.min(10, parsed));
     }
 
     function standardTimesAreValid(showMessage) {
@@ -2716,7 +2911,9 @@ window.VaktApp = window.VaktApp || {};
         for (var i = 0; i < types.length; i++) {
             var type = types[i];
             var times = state.standardTimes[type];
-            if (!times || timeToMinutes(times.end) <= timeToMinutes(times.start)) {
+            var startMinutes = times ? timeToMinutes(times.start) : NaN;
+            var endMinutes = times ? timeToMinutes(times.end) : NaN;
+            if (!Number.isFinite(startMinutes) || !Number.isFinite(endMinutes) || endMinutes <= startMinutes) {
                 if (showMessage) alert('Kontroller standard arbeidstid for ' + labels[type] + '. Slutt-tid må være etter start-tid.');
                 return false;
             }
@@ -2734,7 +2931,6 @@ window.VaktApp = window.VaktApp || {};
      */
     app.generateSchedule = function () {
         if (!standardTimesAreValid(true)) return;
-        app.viewingPublishedKey = null;
         var parts = app.elements.monthSelector.value.split('-').map(Number);
         app.renderClosedDaysPicker(parts[0], parts[1]);
         app.elements.closedDaysModal.classList.add('show');
@@ -2905,21 +3101,23 @@ window.VaktApp = window.VaktApp || {};
         days.forEach(function (day) {
             if (day.isHoliday || day.dayOfWeek === 6 || day.isClosed || day.isPadding) return;
             var req = state.requirements[day.dayOfWeek];
+            var dayRequirement = safeRequirement(req && req.dayReq);
+            var eveningRequirement = safeRequirement(req && req.eveReq);
 
-            if (req.dayReq > 0) {
+            if (dayRequirement > 0) {
                 var start = parseTime(state.standardTimes.day.start);
                 var end = parseTime(state.standardTimes.day.end);
-                day.shifts.push({ type: 'day', name: 'Dagvakt', req: req.dayReq, hours: (end - start) / 60, startMin: start, endMin: end, workers: [], customTimes: {} });
+                day.shifts.push({ type: 'day', name: 'Dagvakt', req: dayRequirement, hours: (end - start) / 60, startMin: start, endMin: end, workers: [], customTimes: {} });
             }
-            if (req.eveReq > 0) {
+            if (eveningRequirement > 0) {
                 if (day.dayOfWeek === 5) {
                     var start = parseTime(state.standardTimes.sat.start);
                     var end = parseTime(state.standardTimes.sat.end);
-                    day.shifts.push({ type: 'sat', name: 'Lørdagsvakt', req: req.eveReq, hours: (end - start) / 60, startMin: start, endMin: end, workers: [], customTimes: {} });
+                    day.shifts.push({ type: 'sat', name: 'Lørdagsvakt', req: eveningRequirement, hours: (end - start) / 60, startMin: start, endMin: end, workers: [], customTimes: {} });
                 } else {
                     var start = parseTime(state.standardTimes.eve.start);
                     var end = parseTime(state.standardTimes.eve.end);
-                    day.shifts.push({ type: 'eve', name: 'Kveldsvakt', req: req.eveReq, hours: (end - start) / 60, startMin: start, endMin: end, workers: [], customTimes: {} });
+                    day.shifts.push({ type: 'eve', name: 'Kveldsvakt', req: eveningRequirement, hours: (end - start) / 60, startMin: start, endMin: end, workers: [], customTimes: {} });
                 }
             }
         });
@@ -3256,6 +3454,57 @@ window.VaktApp = window.VaktApp || {};
 
     var state = app.state;
 
+    function ensureScheduleWorker(employee) {
+        if (!app.lastScheduleData) return false;
+        if (!Array.isArray(app.lastScheduleData.workers)) app.lastScheduleData.workers = [];
+        var alreadyIncluded = app.lastScheduleData.workers.some(function (worker) {
+            return worker.name === employee.name;
+        });
+        if (alreadyIncluded) return false;
+
+        var year = Number(app.lastScheduleData.year);
+        var month = Number(app.lastScheduleData.month);
+        var daysInMonth = Number.isInteger(year) && Number.isInteger(month)
+            ? new Date(year, month + 1, 0).getDate()
+            : 30;
+        var percent = Math.max(0, Number(employee.percent) || 0);
+        app.lastScheduleData.workers.push({
+            id: employee.id,
+            name: employee.name,
+            percent: percent,
+            targetHours: app.roundHalf((percent / 100) * 37.5 * (daysInMonth / 7)),
+            assignedHours: 0
+        });
+        return true;
+    }
+
+    function refreshCurrentScheduleStats() {
+        if (!app.lastScheduleData) return;
+        var available = (app.lastScheduleData.workers || []).reduce(function (sum, worker) {
+            return sum + (Number(worker.targetHours) || 0);
+        }, 0);
+        var required = (app.lastScheduleData.days || []).reduce(function (daySum, day) {
+            return daySum + (day.shifts || []).reduce(function (shiftSum, shift) {
+                return shiftSum + ((Number(shift.req) || 0) * (Number(shift.hours) || 0));
+            }, 0);
+        }, 0);
+        app.renderStats(required, available);
+    }
+
+    app.normalizeShiftPlaceholders = function (shift) {
+        if (!shift || !Array.isArray(shift.workers)) return;
+        var required = Math.max(0, Number(shift.req) || 0);
+        var assignedOrOpen = shift.workers.filter(function (workerName) {
+            return workerName !== 'Mangler folk';
+        }).length;
+        shift.workers = shift.workers.filter(function (workerName) {
+            return workerName !== 'Mangler folk';
+        });
+        for (var missing = assignedOrOpen; missing < required; missing++) {
+            shift.workers.push('Mangler folk');
+        }
+    };
+
     app.renderStats = function (required, available) {
         var r = app.roundHalf(required);
         var a = app.roundHalf(available);
@@ -3360,7 +3609,11 @@ window.VaktApp = window.VaktApp || {};
                                     ev.stopPropagation();
                                     var mfIdx = shift.workers.indexOf('Mangler folk');
                                     if (mfIdx !== -1) shift.workers.splice(mfIdx, 1);
+                                    if (shift.customTimes && shift.customTimes[emp.name]) delete shift.customTimes[emp.name];
+                                    ensureScheduleWorker(emp);
                                     shift.workers.push(emp.name);
+                                    app.normalizeShiftPlaceholders(shift);
+                                    refreshCurrentScheduleStats();
                                     app.closeAllMenus();
                                     app.renderGrid(days);
                                     app.persistScheduleEdit();
@@ -3387,20 +3640,42 @@ window.VaktApp = window.VaktApp || {};
                         block.classList.remove('drag-over');
                         var data = JSON.parse(e.dataTransfer.getData('text/plain'));
                         var workerName = data.workerName;
+                        var sourceDay = null;
+                        var sourceShift = null;
+                        var sourceShiftIndex = Number(data.sourceShiftIndex);
 
                         if (data.sourceDayId !== undefined && data.sourceShiftIndex !== undefined) {
-                            var sourceDay = days.find(function (d) { return d.id === data.sourceDayId || ('' + d.id) === ('' + data.sourceDayId); });
-                            if (sourceDay && sourceDay.shifts[data.sourceShiftIndex]) {
-                                var srcShift = sourceDay.shifts[data.sourceShiftIndex];
-                                var idx = srcShift.workers.indexOf(workerName);
-                                if (idx !== -1) srcShift.workers.splice(idx, 1);
+                            sourceDay = days.find(function (d) { return d.id === data.sourceDayId || ('' + d.id) === ('' + data.sourceDayId); });
+                            if (sourceDay && sourceDay.shifts[sourceShiftIndex]) {
+                                sourceShift = sourceDay.shifts[sourceShiftIndex];
                             }
                         }
 
-                        if (!shift.workers.includes(workerName)) {
-                            var mfIdx = shift.workers.indexOf('Mangler folk');
-                            if (mfIdx !== -1) shift.workers.splice(mfIdx, 1);
+                        var sameShift = sourceDay === day && sourceShift === shift;
+                        var alreadyWorksTargetDay = day.shifts.some(function (candidateShift) {
+                            if (candidateShift === sourceShift) return false;
+                            return candidateShift.workers.includes(workerName);
+                        });
+                        if (alreadyWorksTargetDay) {
+                            alert(workerName + ' har allerede en vakt denne dagen.');
+                            return;
+                        }
+
+                        if (!sameShift && sourceShift) {
+                            var sourceWorkerIndex = sourceShift.workers.indexOf(workerName);
+                            if (sourceWorkerIndex !== -1) sourceShift.workers.splice(sourceWorkerIndex, 1);
+                            if (sourceShift.customTimes && sourceShift.customTimes[workerName]) {
+                                delete sourceShift.customTimes[workerName];
+                            }
+                            app.normalizeShiftPlaceholders(sourceShift);
+                        }
+
+                        if (!sameShift && !shift.workers.includes(workerName)) {
+                            var targetMissingIndex = shift.workers.indexOf('Mangler folk');
+                            if (targetMissingIndex !== -1) shift.workers.splice(targetMissingIndex, 1);
+                            if (shift.customTimes && shift.customTimes[workerName]) delete shift.customTimes[workerName];
                             shift.workers.push(workerName);
+                            app.normalizeShiftPlaceholders(shift);
                         }
                         app.renderGrid(days);
                         app.persistScheduleEdit();
@@ -3452,6 +3727,7 @@ window.VaktApp = window.VaktApp || {};
                                 ev.stopPropagation();
                                 var idx = shift.workers.indexOf('Ledig');
                                 if (idx !== -1) shift.workers.splice(idx, 1);
+                                app.normalizeShiftPlaceholders(shift);
                                 app.renderGrid(days);
                                 app.persistScheduleEdit();
                             });
@@ -3586,8 +3862,10 @@ window.VaktApp = window.VaktApp || {};
     var activeEmployeeIndexForModal = null;
     var timeGridSelectionStart = null;
     var selectedTimeSlots = new Set();
-    var START_TIME_MINS = 8 * 60;
-    var END_TIME_MINS = 20 * 60;
+    var DEFAULT_START_TIME_MINS = 8 * 60;
+    var DEFAULT_END_TIME_MINS = 20 * 60;
+    var timeGridStartMins = DEFAULT_START_TIME_MINS;
+    var timeGridEndMins = DEFAULT_END_TIME_MINS;
 
     function getDayName(dayIndex) {
         return ['Mandag', 'Tirsdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lørdag', 'Søndag'][dayIndex];
@@ -3600,7 +3878,10 @@ window.VaktApp = window.VaktApp || {};
     }
 
     function parseTime(time) {
-        var parts = time.split(':').map(Number);
+        var match = String(time || '').match(/^(\d{1,2}):(\d{2})$/);
+        if (!match) return NaN;
+        var parts = [Number(match[1]), Number(match[2])];
+        if (parts[0] < 0 || parts[0] > 23 || parts[1] < 0 || parts[1] > 59) return NaN;
         return (parts[0] * 60) + parts[1];
     }
 
@@ -3697,17 +3978,39 @@ window.VaktApp = window.VaktApp || {};
 
     function renderTimeGrid() {
         app.elements.timePickerGrid.innerHTML = '';
-        var totalIntervals = (END_TIME_MINS - START_TIME_MINS) / 15;
-        for (var i = 0; i < totalIntervals; i++) {
-            var currentMin = START_TIME_MINS + (i * 15);
+        var starts = [DEFAULT_START_TIME_MINS];
+        var ends = [DEFAULT_END_TIME_MINS];
+        ['day', 'eve', 'sat'].forEach(function (shiftType) {
+            var times = state.standardTimes[shiftType];
+            if (!times) return;
+            var start = parseTime(times.start);
+            var end = parseTime(times.end);
+            if (Number.isFinite(start)) starts.push(start);
+            if (Number.isFinite(end)) ends.push(end);
+        });
+        timeGridStartMins = Math.max(0, Math.floor(Math.min.apply(null, starts) / 15) * 15);
+        timeGridEndMins = Math.min(24 * 60, Math.ceil(Math.max.apply(null, ends) / 15) * 15);
+
+        var totalPoints = ((timeGridEndMins - timeGridStartMins) / 15) + 1;
+        for (var i = 0; i < totalPoints; i++) {
+            var currentMin = timeGridStartMins + (i * 15);
             var slot = document.createElement('div');
             slot.className = 'time-slot';
             slot.textContent = formatTime(currentMin);
             slot.dataset.index = i;
             slot.dataset.time = currentMin;
+            slot.tabIndex = 0;
+            slot.setAttribute('role', 'button');
+            slot.setAttribute('aria-pressed', selectedTimeSlots.has(i) ? 'true' : 'false');
             if (selectedTimeSlots.has(i)) slot.classList.add('selected');
             (function (idx) {
                 slot.addEventListener('click', function () { handleTimeSlotClick(idx); });
+                slot.addEventListener('keydown', function (event) {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        handleTimeSlotClick(idx);
+                    }
+                });
             })(i);
             app.elements.timePickerGrid.appendChild(slot);
         }
@@ -3727,8 +4030,9 @@ window.VaktApp = window.VaktApp || {};
         }
         var slots = app.elements.timePickerGrid.querySelectorAll('.time-slot');
         slots.forEach(function (s, i) {
-            if (selectedTimeSlots.has(i)) s.classList.add('selected');
-            else s.classList.remove('selected');
+            var selected = selectedTimeSlots.has(i);
+            s.classList.toggle('selected', selected);
+            s.setAttribute('aria-pressed', selected ? 'true' : 'false');
         });
     }
 
@@ -3737,6 +4041,7 @@ window.VaktApp = window.VaktApp || {};
         timeGridSelectionStart = null;
         renderTimeGrid();
         app.elements.timePickerModal.classList.add('show');
+        app.elements.timePickerDay.focus();
     }
 
     function closeTimePicker() {
@@ -3747,12 +4052,15 @@ window.VaktApp = window.VaktApp || {};
         if (activeEmployeeIndexForModal === null) return;
         var emp = state.employees[activeEmployeeIndexForModal];
         var dayOfWeek = parseInt(app.elements.timePickerDay.value);
-        if (selectedTimeSlots.size === 0) { closeTimePicker(); return; }
+        if (timeGridSelectionStart !== null || selectedTimeSlots.size < 2) {
+            alert('Velg både starttid og sluttid.');
+            return;
+        }
         var slotsArray = Array.from(selectedTimeSlots);
         var minIndex = Math.min.apply(null, slotsArray);
         var maxIndex = Math.max.apply(null, slotsArray);
-        var startMin = START_TIME_MINS + (minIndex * 15);
-        var endMin = START_TIME_MINS + (maxIndex * 15) + 15;
+        var startMin = timeGridStartMins + (minIndex * 15);
+        var endMin = timeGridStartMins + (maxIndex * 15);
         emp.fixedUnavail.push({ dayOfWeek: dayOfWeek, startMin: startMin, endMin: endMin });
         emp.fixedUnavail.sort(function (a, b) {
             return Number(a.dayOfWeek) - Number(b.dayOfWeek) || Number(a.startMin) - Number(b.startMin);
@@ -4308,6 +4616,11 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    function nameIsReserved(name) {
+        var normalized = String(name || '').trim().toLocaleLowerCase('nb-NO');
+        return normalized === 'ledig' || normalized === 'mangler folk';
+    }
+
     function nextNewEmployeeName() {
         var counter = 1;
         var candidate;
@@ -4328,7 +4641,14 @@ document.addEventListener('DOMContentLoaded', function () {
             var row = document.createElement('div');
             row.className = 'employee-row';
 
-            var dateAbsenceCount = emp.dateUnavail ? emp.dateUnavail.size : 0;
+            var selectedMonthPrefix = app.elements.monthSelector && app.elements.monthSelector.value
+                ? app.elements.monthSelector.value + '-'
+                : '';
+            var dateAbsenceCount = emp.dateUnavail
+                ? Array.from(emp.dateUnavail).filter(function (dateKey) {
+                    return !selectedMonthPrefix || String(dateKey).indexOf(selectedMonthPrefix) === 0;
+                }).length
+                : 0;
             var fixedAbsenceCount = emp.fixedUnavail ? emp.fixedUnavail.length : 0;
             var fixedShiftCount = emp.fixedShifts ? emp.fixedShifts.length : 0;
             var badges = '';
@@ -4368,11 +4688,18 @@ document.addEventListener('DOMContentLoaded', function () {
             input.addEventListener('input', function (e) {
                 var idx = parseInt(e.target.dataset.nameIndex, 10);
                 var proposedName = e.target.value.trim() || 'Ansatt';
-                if (!nameIsInUse(proposedName, idx)) state.employees[idx].name = proposedName;
+                if (!nameIsReserved(proposedName) && !nameIsInUse(proposedName, idx)) state.employees[idx].name = proposedName;
             });
             input.addEventListener('change', function (e) {
                 var idx = parseInt(e.target.dataset.nameIndex, 10);
                 var shortName = app.shortenEmployeeName(e.target.value);
+                if (nameIsReserved(shortName)) {
+                    var reservedPreviousName = e.target.dataset.previousName || state.employees[idx].name;
+                    state.employees[idx].name = reservedPreviousName;
+                    e.target.value = reservedPreviousName;
+                    alert('Dette navnet brukes av planleggeren. Velg et annet navn.');
+                    return;
+                }
                 if (nameIsInUse(shortName, idx)) {
                     var previousName = e.target.dataset.previousName || state.employees[idx].name;
                     state.employees[idx].name = previousName;
@@ -4513,6 +4840,20 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    function clampRequirement(value) {
+        var parsed = parseInt(value, 10);
+        if (!Number.isFinite(parsed)) parsed = 0;
+        return Math.max(0, Math.min(10, parsed));
+    }
+
+    function bindRequirementInput(input, requirementIndex, field) {
+        input.addEventListener('input', function () {
+            var value = clampRequirement(input.value);
+            state.requirements[requirementIndex][field] = value;
+            if (input.value !== String(value)) input.value = String(value);
+        });
+    }
+
     // Setup all event listeners
     function setupEventListeners() {
         var mapping = [
@@ -4524,11 +4865,11 @@ document.addEventListener('DOMContentLoaded', function () {
         ];
 
         mapping.forEach(function (m) {
-            m.elDay.addEventListener('input', function (e) { state.requirements[m.idx].dayReq = parseInt(e.target.value) || 0; });
-            m.elEve.addEventListener('input', function (e) { state.requirements[m.idx].eveReq = parseInt(e.target.value) || 0; });
+            bindRequirementInput(m.elDay, m.idx, 'dayReq');
+            bindRequirementInput(m.elEve, m.idx, 'eveReq');
         });
 
-        app.elements.reqInputs.satEve.addEventListener('input', function (e) { state.requirements[5].eveReq = parseInt(e.target.value) || 0; });
+        bindRequirementInput(app.elements.reqInputs.satEve, 5, 'eveReq');
 
         bindStandardTimeInput(app.elements.stdInputs.dayStart, 'day', 'start');
         bindStandardTimeInput(app.elements.stdInputs.dayEnd, 'day', 'end');
@@ -4602,6 +4943,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (!selectedKey) return;
                 app.selectedMonthKey = selectedKey;
                 populateMonthNotes();
+                app.renderEmployees();
                 
                 var parts = selectedKey.split('-');
                 var year = parseInt(parts[0], 10);
@@ -4763,6 +5105,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (idx !== -1) {
                         shift.workers.splice(idx, 1);
                     }
+                    if (shift.customTimes && shift.customTimes[workerName]) {
+                        delete shift.customTimes[workerName];
+                    }
+                    if (app.normalizeShiftPlaceholders) app.normalizeShiftPlaceholders(shift);
                 }
                 app.elements.customTimeModal.classList.remove('show');
                 app.renderGrid(app.lastScheduleData.days);
@@ -4794,14 +5140,20 @@ document.addEventListener('DOMContentLoaded', function () {
     app.openArchiveModal = function() {
         var yearSel = app.elements.archiveYearSelect;
         var currYear = new Date().getFullYear();
+        var years = new Set();
+        for (var defaultYear = currYear - 1; defaultYear <= currYear + 2; defaultYear++) years.add(defaultYear);
+        Object.keys(app.publishedSchedules || {}).forEach(function (key) {
+            var savedYear = parseInt(String(key).split('-')[0], 10);
+            if (Number.isFinite(savedYear)) years.add(savedYear);
+        });
         yearSel.innerHTML = '';
-        for (var y = currYear - 1; y <= currYear + 2; y++) {
+        Array.from(years).sort(function (a, b) { return a - b; }).forEach(function (y) {
             var opt = document.createElement('option');
             opt.value = y;
             opt.textContent = y;
             if (y === currYear) opt.selected = true;
             yearSel.appendChild(opt);
-        }
+        });
         app.renderArchiveGrid();
         app.elements.allSchedulesModal.classList.add('show');
     };
@@ -4914,6 +5266,10 @@ document.addEventListener('DOMContentLoaded', function () {
     function populateInputsFromState() {
         var reqs = state.requirements;
         var rInp = app.elements.reqInputs;
+        reqs.forEach(function (requirement) {
+            requirement.dayReq = clampRequirement(requirement.dayReq);
+            requirement.eveReq = clampRequirement(requirement.eveReq);
+        });
         rInp.monDay.value = reqs[0].dayReq; rInp.monEve.value = reqs[0].eveReq;
         rInp.tueDay.value = reqs[1].dayReq; rInp.tueEve.value = reqs[1].eveReq;
         rInp.wedDay.value = reqs[2].dayReq; rInp.wedEve.value = reqs[2].eveReq;
@@ -4930,10 +5286,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Boot
     populateMonthSelector();
-    var initialMonthKey = app.selectedMonthKey;
-    if (!initialMonthKey && app.lastScheduleData && Number.isInteger(Number(app.lastScheduleData.year)) && Number.isInteger(Number(app.lastScheduleData.month))) {
-        initialMonthKey = Number(app.lastScheduleData.year) + '-' + Number(app.lastScheduleData.month);
+    var restoredScheduleKey = null;
+    if (app.lastScheduleData && Number.isInteger(Number(app.lastScheduleData.year)) && Number.isInteger(Number(app.lastScheduleData.month))) {
+        restoredScheduleKey = Number(app.lastScheduleData.year) + '-' + Number(app.lastScheduleData.month);
     }
+    var initialMonthKey = restoredScheduleKey || app.selectedMonthKey;
     ensureMonthOption(initialMonthKey);
     if (initialMonthKey) app.elements.monthSelector.value = initialMonthKey;
     populateMonthNotes();
@@ -4942,6 +5299,31 @@ document.addEventListener('DOMContentLoaded', function () {
     setupEventListeners();
     
     if (app.lastScheduleData && app.lastScheduleData.days) {
+        var restoredYear = Number(app.lastScheduleData.year);
+        var restoredMonth = Number(app.lastScheduleData.month);
+        var isRestoredPublishedPlan = Boolean(
+            restoredScheduleKey &&
+            app.viewingPublishedKey === restoredScheduleKey &&
+            app.publishedSchedules[restoredScheduleKey]
+        );
+        if (!isRestoredPublishedPlan) app.viewingPublishedKey = null;
+
+        var restoredHeader = document.querySelector('.main-header h2');
+        if (restoredHeader) {
+            restoredHeader.innerHTML = isRestoredPublishedPlan
+                ? '<span style="color:#ef4444; font-size:0.8em; margin-right:0.5rem;">[PUBLISERT]</span> ' + app.escapeHtml(app.monthNames[restoredMonth]) + ' ' + app.escapeHtml(restoredYear)
+                : 'Tentativ Månedsplan';
+        }
+        if (app.elements.publishContainer) {
+            app.elements.publishContainer.style.display = isRestoredPublishedPlan ? 'none' : 'block';
+        }
+        if (!isRestoredPublishedPlan && app.elements.publishMonthName) {
+            var restoredOption = app.elements.monthSelector.options[app.elements.monthSelector.selectedIndex];
+            app.elements.publishMonthName.textContent = restoredOption
+                ? restoredOption.textContent
+                : app.monthNames[restoredMonth] + ' ' + restoredYear;
+        }
+
         var restoredAvailableHours = 0;
         var restoredRequiredHours = 0;
         (app.lastScheduleData.workers || []).forEach(function (worker) {
@@ -4970,9 +5352,13 @@ document.addEventListener('DOMContentLoaded', function () {
 (function () {
     'use strict';
 
-    var TUTORIAL_KEY = 'vaktplanleggerWebTutorialSeen_v2';
+    var TUTORIAL_KEY = 'vaktplanleggerWebTutorialSeen_v4';
     var currentStep = 0;
     var lastFocusedElement = null;
+    var currentTarget = null;
+    var positionTimer = null;
+    var tourUi = null;
+    var guidedEmployeeId = null;
 
     function tutorialHasBeenSeen() {
         try {
@@ -4991,7 +5377,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function initializeTutorial() {
+        var app = window.VaktApp;
         var overlay = document.getElementById('tutorial-overlay');
+        var spotlight = document.getElementById('tutorial-spotlight');
         var card = overlay && overlay.querySelector('.tutorial-card');
         var title = document.getElementById('tutorial-title');
         var progress = document.getElementById('tutorial-progress');
@@ -5000,20 +5388,219 @@ document.addEventListener('DOMContentLoaded', function () {
         var backButton = document.getElementById('tutorial-back-btn');
         var nextButton = document.getElementById('tutorial-next-btn');
         var helpButton = document.getElementById('tutorial-help-btn');
+        var addEmployeeButton = document.getElementById('add-employee-btn');
+        var stepsContainer = overlay ? overlay.querySelector('.tutorial-steps') : null;
         var steps = overlay ? Array.from(overlay.querySelectorAll('[data-tutorial-step]')) : [];
         var dots = overlay ? Array.from(overlay.querySelectorAll('.tutorial-dots span')) : [];
-        var appSurfaces = [document.querySelector('.top-nav'), document.querySelector('.app-container')].filter(Boolean);
 
-        if (!overlay || !card || !title || steps.length === 0) return;
+        if (!app || !overlay || !spotlight || !card || !title || steps.length === 0) return;
 
-        function setAppInert(inert) {
-            appSurfaces.forEach(function (surface) {
-                surface.inert = inert;
-            });
+        function tutorialIsOpen() {
+            return !overlay.hidden;
         }
 
-        function renderStep(index) {
+        function hasGeneratedSchedule() {
+            return Boolean(app.lastScheduleData && Array.isArray(app.lastScheduleData.days));
+        }
+
+        function firstEmployeeRow() {
+            if (guidedEmployeeId !== null) {
+                var employeeIndex = app.state.employees.findIndex(function (employee) {
+                    return String(employee.id) === String(guidedEmployeeId);
+                });
+                if (employeeIndex !== -1) {
+                    var nameInput = document.querySelector('input[data-name-index="' + employeeIndex + '"]');
+                    if (nameInput) return nameInput.closest('.employee-row');
+                }
+            }
+            return document.querySelector('#employees-list .employee-row');
+        }
+
+        function firstSettingsButton() {
+            var row = firstEmployeeRow();
+            return row ? row.querySelector('.calendar-btn') : null;
+        }
+
+        function closeTourTimePicker() {
+            if (!tourUi || !tourUi.openedTimePicker) return;
+            if (app.elements.timePickerModal.classList.contains('show') && app.closeTimePicker) app.closeTimePicker();
+            tourUi.openedTimePicker = false;
+        }
+
+        function closeTourSettings() {
+            if (!tourUi || !tourUi.openedSettings) return;
+            if (app.elements.modal.classList.contains('show') && app.closeModal) app.closeModal();
+            tourUi.openedSettings = false;
+        }
+
+        function closeTourClosedDays() {
+            if (!tourUi || !tourUi.openedClosedDays) return;
+            app.elements.closedDaysModal.classList.remove('show');
+            tourUi.openedClosedDays = false;
+        }
+
+        function ensureSettingsOpen() {
+            if (app.elements.modal.classList.contains('show')) return true;
+            var settingsButton = firstSettingsButton();
+            if (!settingsButton) return false;
+            settingsButton.click();
+            if (!tourUi.settingsWasOpen) tourUi.openedSettings = true;
+            return app.elements.modal.classList.contains('show');
+        }
+
+        function prepareStep(index) {
+            if (index !== 5) closeTourTimePicker();
+            if (index < 3 || index > 5) closeTourSettings();
+            if (index !== 6) closeTourClosedDays();
+
+            if (index === 3 && ensureSettingsOpen()) {
+                if (app.elements.fixedShiftForm.hidden) app.elements.btnAddFixedShift.click();
+            }
+
+            if (index === 4 && ensureSettingsOpen()) {
+                if (app.elements.collapseAbsenceContent.style.display === 'none') {
+                    app.elements.collapseAbsenceHeader.click();
+                }
+            }
+
+            if (index === 5 && ensureSettingsOpen()) {
+                if (!app.elements.timePickerModal.classList.contains('show')) {
+                    app.elements.btnAddFixedTime.click();
+                    if (!tourUi.timePickerWasOpen) tourUi.openedTimePicker = true;
+                }
+            }
+        }
+
+        function resolveTarget(index) {
+            if (index === 0) return addEmployeeButton;
+            if (index === 1) return firstEmployeeRow() || addEmployeeButton;
+            if (index === 2) return firstSettingsButton() || addEmployeeButton;
+            if (index === 3) return document.getElementById('fixed-shift-form') || app.elements.btnAddFixedShift;
+            if (index === 4) {
+                return document.getElementById('collapse-absence-content') || app.elements.collapseAbsenceHeader;
+            }
+            if (index === 5) {
+                return document.getElementById('time-picker-grid') || app.elements.btnAddFixedTime;
+            }
+            if (index === 6) return document.getElementById('generate-btn');
+            if (index === 7) {
+                return document.querySelector('.month-summary h3') ||
+                    document.querySelector('#schedule-grid .empty-state') ||
+                    document.getElementById('schedule-grid');
+            }
+            return document.getElementById('copy-excel-btn');
+        }
+
+        function clearTarget() {
+            if (currentTarget) currentTarget.classList.remove('tutorial-focus-target');
+            currentTarget = null;
+            spotlight.hidden = true;
+        }
+
+        function positionTour() {
+            if (!tutorialIsOpen() || !currentTarget || !currentTarget.isConnected) return;
+            var targetRect = currentTarget.getBoundingClientRect();
+            if (targetRect.width <= 0 || targetRect.height <= 0) {
+                spotlight.hidden = true;
+                card.classList.add('tutorial-card-centered');
+                return;
+            }
+
+            card.classList.remove('tutorial-card-centered');
+            var pageZoom = parseFloat(window.getComputedStyle(document.body).zoom);
+            if (!Number.isFinite(pageZoom) || pageZoom <= 0) pageZoom = 1;
+            var targetLeft = targetRect.left / pageZoom;
+            var targetTop = targetRect.top / pageZoom;
+            var targetWidth = targetRect.width / pageZoom;
+            var targetHeight = targetRect.height / pageZoom;
+            var viewportWidth = window.innerWidth / pageZoom;
+            var viewportHeight = window.innerHeight / pageZoom;
+            var padding = 7;
+            spotlight.hidden = false;
+            spotlight.style.left = Math.max(4, targetLeft - padding) + 'px';
+            spotlight.style.top = Math.max(4, targetTop - padding) + 'px';
+            spotlight.style.width = Math.max(18, targetWidth + (padding * 2)) + 'px';
+            spotlight.style.height = Math.max(18, targetHeight + (padding * 2)) + 'px';
+
+            if (window.innerWidth <= 560) {
+                card.style.left = '0.75rem';
+                card.style.right = '0.75rem';
+                if (currentStep === 4 || currentStep === 5 || targetTop + (targetHeight / 2) >= viewportHeight / 2) {
+                    card.style.top = '0.75rem';
+                    card.style.bottom = 'auto';
+                } else {
+                    card.style.top = 'auto';
+                    card.style.bottom = '0.75rem';
+                }
+                return;
+            }
+
+            card.style.right = 'auto';
+            card.style.bottom = 'auto';
+            var cardWidth = card.offsetWidth;
+            var cardHeight = card.offsetHeight;
+            var gap = 18;
+            var left = targetLeft + (targetWidth / 2) - (cardWidth / 2);
+            var top;
+
+            if (viewportHeight - (targetTop + targetHeight) >= cardHeight + gap + 12) {
+                top = targetTop + targetHeight + gap;
+            } else if (targetTop >= cardHeight + gap + 12) {
+                top = targetTop - cardHeight - gap;
+            } else if (viewportWidth - (targetLeft + targetWidth) >= cardWidth + gap + 12) {
+                left = targetLeft + targetWidth + gap;
+                top = targetTop + (targetHeight / 2) - (cardHeight / 2);
+            } else {
+                left = targetLeft - cardWidth - gap;
+                top = targetTop + (targetHeight / 2) - (cardHeight / 2);
+            }
+
+            left = Math.max(12, Math.min(left, viewportWidth - cardWidth - 12));
+            top = Math.max(12, Math.min(top, viewportHeight - cardHeight - 12));
+            card.style.left = left + 'px';
+            card.style.top = top + 'px';
+        }
+
+        function schedulePosition() {
+            if (!tutorialIsOpen()) return;
+            window.clearTimeout(positionTimer);
+            positionTimer = window.setTimeout(positionTour, 20);
+        }
+
+        function focusTarget(target, keepFocus) {
+            clearTarget();
+            currentTarget = target;
+            if (!target || !target.isConnected) {
+                card.classList.add('tutorial-card-centered');
+                if (!keepFocus) title.focus();
+                return;
+            }
+
+            target.classList.add('tutorial-focus-target');
+            target.scrollIntoView({
+                behavior: 'auto',
+                block: window.innerWidth <= 560 ? 'start' : 'center',
+                inline: 'nearest'
+            });
+            window.requestAnimationFrame(function () {
+                window.requestAnimationFrame(function () {
+                    if (tutorialIsOpen() && currentTarget === target) positionTour();
+                });
+            });
+            if (currentStep === 5) {
+                window.setTimeout(function () {
+                    if (tutorialIsOpen() && currentTarget === target) positionTour();
+                }, 240);
+            }
+            if (!keepFocus) title.focus({ preventScroll: true });
+        }
+
+        function renderStep(index, keepFocus) {
+            if (!tutorialIsOpen() || !tourUi) return;
             currentStep = Math.max(0, Math.min(index, steps.length - 1));
+            prepareStep(currentStep);
+            card.scrollTop = 0;
+            if (stepsContainer) stepsContainer.scrollTop = 0;
             steps.forEach(function (step, stepIndex) {
                 var active = stepIndex === currentStep;
                 step.hidden = !active;
@@ -5024,88 +5611,156 @@ document.addEventListener('DOMContentLoaded', function () {
             });
             progress.textContent = 'Steg ' + (currentStep + 1) + ' av ' + steps.length;
             backButton.hidden = currentStep === 0;
-            nextButton.textContent = currentStep === steps.length - 1 ? 'Start planlegging' : 'Neste';
+
+            var needsEmployee = currentStep === 0 && !firstEmployeeRow();
+            var needsGeneration = currentStep === 6 && !hasGeneratedSchedule();
+            nextButton.disabled = needsEmployee || needsGeneration;
+            if (needsEmployee) nextButton.textContent = 'Trykk + først';
+            else if (needsGeneration) nextButton.textContent = 'Trykk Generer først';
+            else if (currentStep === 2) nextButton.textContent = 'Vis innstillinger';
+            else nextButton.textContent = currentStep === steps.length - 1 ? 'Start planlegging' : 'Neste';
+
+            focusTarget(resolveTarget(currentStep), Boolean(keepFocus));
         }
 
         function openTutorial(force) {
             if (document.body.classList.contains('auth-locked')) return;
             if (!force && tutorialHasBeenSeen()) return;
+            if (tutorialIsOpen()) return;
+
             lastFocusedElement = document.activeElement;
-            renderStep(0);
+            guidedEmployeeId = null;
+            tourUi = {
+                settingsWasOpen: app.elements.modal.classList.contains('show'),
+                timePickerWasOpen: app.elements.timePickerModal.classList.contains('show'),
+                closedDaysWasOpen: app.elements.closedDaysModal.classList.contains('show'),
+                scheduleBeforeGeneration: null,
+                openedSettings: false,
+                openedTimePicker: false,
+                openedClosedDays: false
+            };
             overlay.hidden = false;
             overlay.setAttribute('aria-hidden', 'false');
             document.body.classList.add('tutorial-open');
-            setAppInert(true);
-            title.focus();
+            renderStep(0);
+        }
+
+        function cleanUpTourUi() {
+            closeTourTimePicker();
+            closeTourSettings();
+            closeTourClosedDays();
         }
 
         function closeTutorial(markSeen) {
-            if (overlay.hidden) return;
+            if (!tutorialIsOpen()) return;
             if (markSeen) rememberTutorial();
+            cleanUpTourUi();
+            clearTarget();
             overlay.hidden = true;
             overlay.setAttribute('aria-hidden', 'true');
             document.body.classList.remove('tutorial-open');
-            setAppInert(false);
-            var focusTarget = lastFocusedElement;
-            if (!focusTarget || !focusTarget.isConnected || focusTarget.closest('#login-gate') || focusTarget.closest('[inert]')) {
-                focusTarget = document.getElementById('add-employee-btn') || helpButton;
+            card.style.left = '';
+            card.style.right = '';
+            card.style.top = '';
+            card.style.bottom = '';
+
+            var focusTargetElement = lastFocusedElement;
+            if (!focusTargetElement || !focusTargetElement.isConnected || focusTargetElement.closest('#login-gate')) {
+                focusTargetElement = addEmployeeButton || helpButton;
             }
-            if (!document.body.classList.contains('auth-locked') && focusTarget && typeof focusTarget.focus === 'function') {
-                focusTarget.focus();
+            if (!document.body.classList.contains('auth-locked') && focusTargetElement && typeof focusTargetElement.focus === 'function') {
+                focusTargetElement.focus();
             }
             lastFocusedElement = null;
+            tourUi = null;
         }
 
         function finishOrAdvance() {
+            if (currentStep === 0 && !firstEmployeeRow()) return;
+            if (currentStep === 6 && !hasGeneratedSchedule()) return;
+            if (currentStep === 2) {
+                var settingsButton = firstSettingsButton();
+                if (settingsButton) settingsButton.click();
+                return;
+            }
             if (currentStep < steps.length - 1) {
                 renderStep(currentStep + 1);
-                title.focus();
                 return;
             }
             closeTutorial(true);
         }
 
-        function trapFocus(event) {
-            if (event.key !== 'Tab' || overlay.hidden) return;
-            var focusable = Array.from(card.querySelectorAll('button:not([disabled]):not([hidden])'));
-            if (focusable.length === 0) return;
-            var first = focusable[0];
-            var last = focusable[focusable.length - 1];
-            if (event.shiftKey && document.activeElement === first) {
-                event.preventDefault();
-                last.focus();
-            } else if (!event.shiftKey && document.activeElement === last) {
-                event.preventDefault();
-                first.focus();
-            }
-        }
-
         closeButton.addEventListener('click', function () { closeTutorial(true); });
         skipButton.addEventListener('click', function () { closeTutorial(true); });
-        backButton.addEventListener('click', function () {
-            renderStep(currentStep - 1);
-            title.focus();
-        });
+        backButton.addEventListener('click', function () { renderStep(currentStep - 1); });
         nextButton.addEventListener('click', finishOrAdvance);
         helpButton.addEventListener('click', function () { openTutorial(true); });
-        overlay.addEventListener('click', function (event) {
-            if (event.target === overlay) closeTutorial(true);
+        addEmployeeButton.addEventListener('click', function () {
+            if (!tutorialIsOpen() || currentStep !== 0) return;
+            window.setTimeout(function () {
+                if (!tutorialIsOpen() || !tourUi) return;
+                var newestEmployee = app.state.employees[app.state.employees.length - 1];
+                guidedEmployeeId = newestEmployee ? newestEmployee.id : null;
+                renderStep(1, true);
+            }, 0);
         });
+
+        app.elements.saveTimePickerBtn.addEventListener('click', function () {
+            if (!tutorialIsOpen() || currentStep !== 5) return;
+            window.setTimeout(function () {
+                if (!tutorialIsOpen() || !tourUi || currentStep !== 5) return;
+                if (!app.elements.timePickerModal.classList.contains('show')) renderStep(6);
+            }, 0);
+        });
+
+        document.addEventListener('click', function (event) {
+            if (!tutorialIsOpen()) return;
+            if (currentStep === 2 && event.target.closest('.calendar-btn')) {
+                if (!tourUi.settingsWasOpen) tourUi.openedSettings = true;
+                window.setTimeout(function () {
+                    if (tutorialIsOpen() && tourUi) renderStep(3);
+                }, 0);
+            }
+            if (currentStep === 6 && event.target.closest('#generate-btn')) {
+                if (!tourUi.closedDaysWasOpen) tourUi.openedClosedDays = true;
+                tourUi.scheduleBeforeGeneration = app.lastScheduleData;
+                window.setTimeout(function () {
+                    if (!tutorialIsOpen() || !tourUi || currentStep !== 6) return;
+                    var closedDaysContent = app.elements.closedDaysModal.querySelector('.modal-content');
+                    focusTarget(closedDaysContent || app.elements.closedDaysModal, false);
+                }, 0);
+            }
+        });
+
+        app.elements.closedDaysDoneBtn.addEventListener('click', function () {
+            if (!tutorialIsOpen() || currentStep !== 6) return;
+            function advanceWhenGenerated(attempt) {
+                if (!tutorialIsOpen() || !tourUi || currentStep !== 6) return;
+                if (hasGeneratedSchedule() && app.lastScheduleData !== tourUi.scheduleBeforeGeneration) {
+                    renderStep(7);
+                    return;
+                }
+                if (attempt < 12) window.setTimeout(function () { advanceWhenGenerated(attempt + 1); }, 75);
+            }
+            window.setTimeout(function () { advanceWhenGenerated(0); }, 75);
+        });
+
         document.addEventListener('keydown', function (event) {
-            if (overlay.hidden) return;
+            if (!tutorialIsOpen()) return;
             if (event.key === 'Escape') {
                 event.preventDefault();
                 closeTutorial(true);
-                return;
             }
-            trapFocus(event);
         });
+        document.addEventListener('scroll', schedulePosition, true);
+        window.addEventListener('resize', schedulePosition);
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', schedulePosition);
+            window.visualViewport.addEventListener('scroll', schedulePosition);
+        }
         window.addEventListener('vaktplanlegger:authchange', function (event) {
-            if (event.detail && event.detail.authenticated) {
-                openTutorial(false);
-            } else {
-                closeTutorial(false);
-            }
+            if (event.detail && event.detail.authenticated) openTutorial(false);
+            else closeTutorial(false);
         });
 
         if (document.body.classList.contains('is-authenticated')) openTutorial(false);
