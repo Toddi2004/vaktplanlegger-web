@@ -207,33 +207,46 @@ body:not(.auth-locked) #login-gate {
     position: fixed;
     inset: 0;
     z-index: 9500;
-    pointer-events: none;
+    pointer-events: auto;
 }
 
 .tutorial-overlay[hidden] {
     display: none;
 }
 
+.tutorial-overlay.tutorial-no-target {
+    background: rgba(0, 0, 28, 0.56);
+}
+
 .tutorial-spotlight {
     position: fixed;
     z-index: 0;
-    border: 3px solid #ff3658;
-    border-radius: 14px;
+    margin: 0;
+    padding: 0;
+    border: 2px solid #ff3658;
+    border-radius: 12px;
     background: transparent;
-    box-shadow: 0 0 0 9999px rgba(0, 0, 28, 0.62), 0 0 0 7px rgba(255, 54, 88, 0.2);
-    pointer-events: none;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 28, 0.56);
+    color: transparent;
+    cursor: pointer;
+    font-size: 0;
+    pointer-events: auto;
     transition: left 0.18s ease, top 0.18s ease, width 0.18s ease, height 0.18s ease;
-    animation: tutorial-spotlight-pulse 1.7s ease-in-out infinite;
+}
+
+.tutorial-spotlight:focus-visible {
+    outline: 3px solid white;
+    outline-offset: 3px;
 }
 
 .tutorial-card {
     position: fixed;
     z-index: 1;
-    width: min(calc(100vw - 24px), 430px);
-    max-height: min(82dvh, 640px);
-    padding: 1.35rem;
+    width: min(calc(100vw - 24px), 420px);
+    max-height: min(78dvh, 590px);
+    padding: 1.2rem;
     border: 1px solid var(--border-color);
-    border-radius: var(--radius-xl);
+    border-radius: 1.25rem;
     background: var(--panel-bg);
     box-shadow: var(--shadow-lg);
     display: flex;
@@ -252,6 +265,7 @@ body:not(.auth-locked) #login-gate {
 .tutorial-kicker,
 .tutorial-card h2,
 .tutorial-progress,
+.tutorial-target-hint,
 .tutorial-actions {
     flex: 0 0 auto;
 }
@@ -262,11 +276,6 @@ body:not(.auth-locked) #login-gate {
     right: auto !important;
     bottom: auto !important;
     transform: translate(-50%, -50%);
-}
-
-.tutorial-focus-target {
-    outline: 3px solid #ff3658 !important;
-    outline-offset: 4px !important;
 }
 
 .tutorial-close {
@@ -293,54 +302,6 @@ body:not(.auth-locked) #login-gate {
     outline: 2px solid var(--primary);
 }
 
-.tutorial-minimize {
-    display: none;
-}
-
-.tutorial-card-interactive .tutorial-minimize {
-    position: absolute;
-    top: 0.55rem;
-    right: 3.35rem;
-    display: block;
-    min-height: 36px;
-    padding: 0.35rem 0.65rem;
-    border: 1px solid var(--border-color);
-    border-radius: 999px;
-    background: white;
-    color: var(--primary);
-    font: inherit;
-    font-size: 0.78rem;
-    font-weight: 750;
-    cursor: pointer;
-}
-
-.tutorial-card-interactive:not(.tutorial-card-minimized) h2 {
-    padding-right: 8.5rem;
-}
-
-.tutorial-card.tutorial-card-minimized {
-    width: min(calc(100vw - 24px), 330px);
-    height: 52px;
-    max-height: 52px;
-    padding: 0.4rem 0.65rem;
-    overflow: visible;
-}
-
-.tutorial-card-minimized > :not(.tutorial-close):not(.tutorial-minimize) {
-    display: none !important;
-}
-
-.tutorial-card-minimized .tutorial-minimize {
-    top: 0.45rem;
-    right: auto;
-    left: 0.65rem;
-}
-
-.tutorial-card-minimized .tutorial-close {
-    top: 0.25rem;
-    right: 0.35rem;
-}
-
 .tutorial-kicker {
     margin-bottom: 0.35rem;
     color: var(--primary);
@@ -359,17 +320,24 @@ body:not(.auth-locked) #login-gate {
 }
 
 .tutorial-progress {
-    margin: 0.45rem 0 1.35rem;
+    margin: 0.35rem 0 0.15rem;
     color: var(--text-muted);
     font-size: 0.85rem;
     font-weight: 650;
 }
 
+.tutorial-target-hint {
+    margin: 0 0 0.9rem;
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    line-height: 1.35;
+}
+
 .tutorial-step {
-    padding: 1.05rem;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
-    background: linear-gradient(145deg, rgba(218, 13, 43, 0.06), white 55%);
+    padding: 0.95rem;
+    border: 0;
+    border-radius: 0.9rem;
+    background: #f8fafc;
 }
 
 .tutorial-step h3 {
@@ -412,6 +380,7 @@ body:not(.auth-locked) #login-gate {
 }
 
 .tutorial-skip {
+    flex: 0 0 auto;
     min-height: 44px;
     padding: 0.55rem 0.25rem;
     border: 0;
@@ -422,6 +391,13 @@ body:not(.auth-locked) #login-gate {
     cursor: pointer;
     text-decoration: underline;
     text-underline-offset: 0.2rem;
+    white-space: nowrap;
+}
+
+.tutorial-nav-actions {
+    flex: 1 1 auto;
+    justify-content: flex-end;
+    min-width: 0;
 }
 
 .tutorial-actions .primary-btn,
@@ -431,70 +407,28 @@ body:not(.auth-locked) #login-gate {
     margin-top: 0;
 }
 
+@media (min-width: 561px) {
+    .tutorial-actions .primary-btn,
+    .tutorial-actions .secondary-btn {
+        white-space: nowrap;
+    }
+
+    #tutorial-next-btn {
+        min-width: 9rem;
+    }
+}
+
 @keyframes tutorial-enter {
     from { opacity: 0; transform: translateY(10px) scale(0.985); }
     to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-@keyframes tutorial-spotlight-pulse {
-    0%, 100% { border-color: #ff3658; }
-    50% { border-color: #ff8ca0; }
-}
-
 @media (max-width: 560px) {
     .tutorial-card {
         width: auto;
-        max-height: min(50dvh, 330px);
+        max-height: min(54dvh, 350px);
         padding: 1rem;
         border-radius: 1.1rem;
-    }
-
-    .tutorial-card.tutorial-card-interactive {
-        max-height: min(260px, calc(100dvh - 1.5rem));
-    }
-
-    .tutorial-card-interactive .tutorial-minimize {
-        position: absolute;
-        top: 0.55rem;
-        right: 3.35rem;
-        display: block;
-        min-height: 36px;
-        padding: 0.35rem 0.65rem;
-        border: 1px solid var(--border-color);
-        border-radius: 999px;
-        background: white;
-        color: var(--primary);
-        font: inherit;
-        font-size: 0.78rem;
-        font-weight: 750;
-        cursor: pointer;
-    }
-
-    .tutorial-card-interactive:not(.tutorial-card-minimized) h2 {
-        padding-right: 8.5rem;
-    }
-
-    .tutorial-card.tutorial-card-minimized {
-        width: auto;
-        height: 52px;
-        max-height: 52px;
-        padding: 0.4rem 0.65rem;
-        overflow: visible;
-    }
-
-    .tutorial-card-minimized > :not(.tutorial-close):not(.tutorial-minimize) {
-        display: none !important;
-    }
-
-    .tutorial-card-minimized .tutorial-minimize {
-        top: 0.45rem;
-        right: auto;
-        left: 0.65rem;
-    }
-
-    .tutorial-card-minimized .tutorial-close {
-        top: 0.25rem;
-        right: 0.35rem;
     }
 
     .tutorial-kicker {
@@ -509,8 +443,13 @@ body:not(.auth-locked) #login-gate {
     }
 
     .tutorial-progress {
-        margin: 0.25rem 0 0.55rem;
+        margin: 0.2rem 0 0.1rem;
         font-size: 0.75rem;
+    }
+
+    .tutorial-target-hint {
+        margin-bottom: 0.55rem;
+        font-size: 0.72rem;
     }
 
     .tutorial-step {
@@ -559,12 +498,6 @@ body:not(.auth-locked) #login-gate {
     }
 }
 
-@media (max-width: 560px) and (max-height: 650px) {
-    .tutorial-card.tutorial-card-interactive {
-        max-height: 230px;
-    }
-}
-
 @media (max-height: 520px) {
     .tutorial-card {
         max-height: calc(100dvh - 1.5rem);
@@ -580,7 +513,11 @@ body:not(.auth-locked) #login-gate {
     }
 
     .tutorial-progress {
-        margin: 0.2rem 0 0.45rem;
+        margin: 0.15rem 0 0.05rem;
+    }
+
+    .tutorial-target-hint {
+        margin-bottom: 0.45rem;
     }
 
     .tutorial-step {
@@ -634,6 +571,47 @@ body:not(.auth-locked) #login-gate {
     }
 }
 
+@media (max-height: 520px) and (min-width: 561px) {
+    .tutorial-card {
+        width: min(calc(100vw - 24px), 390px);
+        padding: 0.7rem;
+    }
+
+    .tutorial-card > .tutorial-kicker,
+    .tutorial-card > h2,
+    .tutorial-progress,
+    .tutorial-target-hint {
+        display: none;
+    }
+
+    .tutorial-step {
+        padding: 0.65rem;
+    }
+
+    .tutorial-step h3 {
+        margin-bottom: 0.25rem;
+        font-size: 0.98rem;
+    }
+
+    .tutorial-step p {
+        font-size: 0.79rem;
+        line-height: 1.3;
+    }
+
+    .tutorial-actions {
+        margin-top: 0.45rem;
+    }
+
+    .tutorial-actions .primary-btn,
+    .tutorial-actions .secondary-btn,
+    .tutorial-skip {
+        min-height: 36px;
+        padding-top: 0.35rem;
+        padding-bottom: 0.35rem;
+        font-size: 0.82rem;
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
     .tutorial-card,
     .tutorial-spotlight,
@@ -641,6 +619,10 @@ body:not(.auth-locked) #login-gate {
         animation: none;
         transition: none;
     }
+}
+
+.tutorial-open .modal-overlay.tutorial-preview-modal {
+    background: transparent;
 }
 
 /* Layout */
@@ -780,12 +762,14 @@ body:not(.auth-locked) #login-gate {
 }
 
 .employee-row {
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
-    justify-content: space-between;
+    column-gap: 0.65rem;
+    row-gap: 0.45rem;
     background: var(--bg-color);
     /* Soft grey background */
-    padding: 0.6rem 0.8rem;
+    padding: 0.6rem;
     border-radius: var(--radius-md);
     transition: background 0.2s;
 }
@@ -795,8 +779,6 @@ body:not(.auth-locked) #login-gate {
 }
 
 .employee-name-edit {
-    flex: 1;
-    margin-right: 0.4rem;
     min-width: 0;
 }
 
@@ -811,6 +793,7 @@ body:not(.auth-locked) #login-gate {
     padding: 0.2rem;
     border-radius: 4px;
     transition: all 0.2s;
+    min-width: 0;
 }
 
 .employee-name-edit input:hover {
@@ -853,7 +836,20 @@ body:not(.auth-locked) #login-gate {
 .employee-controls {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    justify-content: flex-end;
+    gap: 0.2rem;
+    white-space: nowrap;
+}
+
+.employee-controls .icon-btn {
+    width: 34px;
+    height: 34px;
+    flex-basis: 34px;
+    font-size: 1rem;
+}
+
+.employee-controls .employee-input input {
+    width: 2.5rem;
 }
 
 .icon-btn {
@@ -879,7 +875,7 @@ body:not(.auth-locked) #login-gate {
 
 .remove-btn:hover {
     background: #fee2e2;
-    color: #ef4444;
+    color: #b91c1c;
 }
 
 .calendar-btn svg {
@@ -890,18 +886,22 @@ body:not(.auth-locked) #login-gate {
 .absent-badge {
     display: inline-block;
     background: #fee2e2;
-    color: #ef4444;
+    color: #b91c1c;
     font-size: 0.7rem;
     font-weight: 700;
     padding: 0.1rem 0.4rem;
     border-radius: 10px;
-    margin-top: 0.2rem;
+    margin-top: 0;
 }
 
 .employee-badges {
+    grid-column: 1 / -1;
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 0.25rem;
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: thin;
 }
 
 .fixed-shift-badge {
@@ -912,7 +912,7 @@ body:not(.auth-locked) #login-gate {
     font-weight: 700;
     padding: 0.1rem 0.4rem;
     border-radius: 10px;
-    margin-top: 0.2rem;
+    margin-top: 0;
 }
 
 /* Modal */
@@ -1386,25 +1386,62 @@ body:not(.auth-locked) #login-gate {
     margin-bottom: 2rem;
     display: flex;
     justify-content: space-between;
-    align-items: flex-end;
+    align-items: flex-start;
+    gap: 1rem;
 }
 
 .main-header h2 {
+    flex: 0 0 auto;
     font-size: 1.45rem;
     /* ~30px keeping previous visual size */
     font-weight: 700;
     color: var(--text-main);
+    white-space: nowrap;
 }
 
 .main-header-tools {
     display: flex;
+    flex: 1 1 0;
     align-items: center;
     justify-content: flex-end;
     flex-wrap: wrap;
     gap: 0.75rem;
+    min-width: 0;
+}
+
+.publish-container {
+    flex: 0 0 auto;
+}
+
+.save-schedule-btn {
+    min-height: 44px;
+    padding: 0.6rem 1rem;
+    border: 1px solid #065f46;
+    border-radius: var(--radius-md);
+    background: #047857;
+    color: white;
+    box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.88rem;
+    font-weight: 750;
+    white-space: nowrap;
+    transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.save-schedule-btn:hover {
+    background: #065f46;
+    box-shadow: 0 7px 12px -4px rgba(5, 150, 105, 0.45);
+    transform: translateY(-1px);
+}
+
+.save-schedule-btn:active {
+    transform: translateY(0);
 }
 
 .summary-stats {
+    flex: 0 0 100%;
+    min-width: 0;
     font-size: 0.95rem;
     color: var(--text-muted);
     background: white;
@@ -1412,6 +1449,10 @@ body:not(.auth-locked) #login-gate {
     border-radius: 20px;
     box-shadow: var(--shadow-sm);
     border: 1px solid var(--border-color);
+}
+
+.summary-stats:empty {
+    display: none;
 }
 
 .schedule-warnings {
@@ -1467,10 +1508,60 @@ body:not(.auth-locked) #login-gate {
 
 /* Shift Blocks */
 .shift-block {
+    position: relative;
     border-radius: var(--radius-md);
-    padding: 0.4rem 0.5rem;
+    padding: 0.4rem 2rem 0.4rem 0.5rem;
     font-size: 0.8rem;
     animation: fadeIn 0.4s ease forwards;
+}
+
+.shift-add-btn {
+    position: absolute;
+    top: 0.38rem;
+    right: 0.38rem;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.45rem;
+    height: 1.45rem;
+    padding: 0;
+    border: 1px solid rgba(15, 23, 42, 0.2);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.92);
+    color: #0f172a;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.18);
+    cursor: pointer;
+    font: inherit;
+    font-size: 1rem;
+    font-weight: 800;
+    line-height: 1;
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.82);
+    transition: opacity 0.16s ease, transform 0.16s ease, background 0.16s ease;
+}
+
+.shift-block:hover .shift-add-btn,
+.shift-block:focus-within .shift-add-btn {
+    opacity: 1;
+    pointer-events: auto;
+    transform: scale(1);
+}
+
+.shift-add-btn:hover,
+.shift-add-btn:focus-visible {
+    background: white;
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+@media (hover: none) {
+    .shift-add-btn {
+        opacity: 1;
+        pointer-events: auto;
+        transform: scale(1);
+    }
 }
 
 .shift-title {
@@ -1901,6 +1992,9 @@ body:not(.auth-locked) #login-gate {
     align-items: center;
     justify-content: center;
     z-index: 200;
+    padding: 1rem;
+    overflow: auto;
+    overscroll-behavior: contain;
 }
 
 .day-context-menu {
@@ -1910,6 +2004,7 @@ body:not(.auth-locked) #login-gate {
     max-width: 300px;
     box-shadow: var(--shadow-lg);
     overflow: hidden;
+    max-height: calc(100dvh - 2rem);
 }
 
 @keyframes modalPop {
@@ -1937,11 +2032,18 @@ body:not(.auth-locked) #login-gate {
 }
 
 .day-menu-item {
+    display: block;
+    width: 100%;
+    min-height: 44px;
     padding: 0.5rem 0.6rem;
+    border: 0;
+    background: transparent;
     font-size: 0.75rem;
     font-weight: 500;
     cursor: pointer;
     color: var(--text-main);
+    font-family: inherit;
+    text-align: left;
     transition: background 0.1s;
 }
 
@@ -1998,6 +2100,13 @@ body:not(.auth-locked) #login-gate {
     color: #0284c7;
 }
 
+.day-menu-empty {
+    margin: 0;
+    padding: 0.75rem 1rem;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
 @media (max-width: 600px) {
     .month-summary {
         padding: 1rem;
@@ -2048,17 +2157,24 @@ body:not(.auth-locked) #login-gate {
         gap: 1rem;
     }
 
+    .main-header h2 {
+        white-space: normal;
+    }
+
     .main-header-tools {
         width: 100%;
         justify-content: stretch;
     }
 
     .excel-copy-btn,
+    .publish-container,
+    .save-schedule-btn,
     .summary-stats {
         width: 100%;
     }
 
-    .excel-copy-btn {
+    .excel-copy-btn,
+    .save-schedule-btn {
         min-height: 44px;
     }
 
@@ -2096,55 +2212,54 @@ body:not(.auth-locked) #login-gate {
         </div>
     </section>
 
-    <section id="tutorial-overlay" class="tutorial-overlay" aria-hidden="true" hidden>
-        <div id="tutorial-spotlight" class="tutorial-spotlight" aria-hidden="true"></div>
-        <div class="tutorial-card" role="dialog" aria-modal="false" aria-labelledby="tutorial-title"
-            aria-describedby="tutorial-progress tutorial-step-1">
+    <section id="tutorial-overlay" class="tutorial-overlay" role="dialog" aria-modal="true"
+        aria-labelledby="tutorial-title" aria-describedby="tutorial-progress tutorial-target-hint tutorial-step-1"
+        aria-hidden="true" hidden>
+        <button id="tutorial-spotlight" class="tutorial-spotlight" type="button"
+            aria-label="Gå til neste steg"></button>
+        <div class="tutorial-card">
             <button id="tutorial-close-btn" class="tutorial-close" type="button" aria-label="Lukk introduksjonen">&times;</button>
-            <button id="tutorial-minimize-btn" class="tutorial-minimize" type="button" aria-controls="tutorial-steps"
-                aria-expanded="true">Skjul</button>
             <div class="tutorial-kicker">Ansatte</div>
             <h2 id="tutorial-title" tabindex="-1">Kjapp intro</h2>
             <p id="tutorial-progress" class="tutorial-progress" aria-live="polite">Steg 1 av 9</p>
+            <p id="tutorial-target-hint" class="tutorial-target-hint">Trykk på det markerte området eller «Neste» for å fortsette.</p>
 
             <div id="tutorial-steps" class="tutorial-steps" aria-live="polite" aria-atomic="true">
                 <article id="tutorial-step-1" class="tutorial-step" data-tutorial-step="0" data-tutorial-context="Ansatte">
                     <h3>Legg til en ansatt</h3>
-                    <p>Trykk den markerte <strong>+</strong>-knappen ved «Ansatte», eller bruk «Legg til ansatt» nedenfor. Vi oppretter en ny rad og setter markøren i navnefeltet.</p>
+                    <p>Her legger du til en ny ansatt. Når introen er ferdig, åpner <strong>+</strong>-knappen en ny rad og setter markøren rett i navnefeltet.</p>
                 </article>
                 <article id="tutorial-step-2" class="tutorial-step" data-tutorial-step="1" data-tutorial-context="Ansatte" hidden>
                     <h3>Navn og stillingsprosent</h3>
-                    <p>Skriv navnet til venstre og stillingsprosenten til høyre. Endringene lagres automatisk i denne nettleseren.</p>
+                    <p>I ansattraden skriver du navnet til venstre og stillingsprosenten til høyre. Endringene lagres automatisk i denne nettleseren.</p>
                 </article>
                 <article id="tutorial-step-3" class="tutorial-step" data-tutorial-step="2" data-tutorial-context="Ansattinnstillinger" hidden>
                     <h3>Åpne ansattinnstillinger</h3>
-                    <p>Trykk «Åpne innstillinger» nederst i veiledningen. Tannhjulet som er markert, gjør det samme senere.</p>
-                    <p class="tutorial-next-note"><strong>Dette åpnes:</strong> Et eget vindu med innstillingene til den markerte ansatte.</p>
+                    <p>Tannhjulet ved hver ansatt åpner et eget vindu for faste vakter og fravær. Neste steg viser en skrivebeskyttet forhåndsvisning.</p>
                 </article>
                 <article id="tutorial-step-4" class="tutorial-step" data-tutorial-step="3" data-tutorial-context="Ansattinnstillinger" hidden>
                     <h3>Faste dager og vakter</h3>
-                    <p>Velg ukedag og vakt, og trykk «Legg til valgt vakt» hvis personen skal jobbe fast. Det påvirker når personen settes opp, ikke total arbeidstid.</p>
+                    <p>Her velger du ukedag og vakt når personen skal jobbe fast. Det påvirker når personen settes opp, ikke total arbeidstid.</p>
                 </article>
                 <article id="tutorial-step-5" class="tutorial-step" data-tutorial-step="4" data-tutorial-context="Ansattinnstillinger" hidden>
                     <h3>Fravær på enkeltdatoer</h3>
-                    <p>Trykk datoene personen ikke kan jobbe. Datoen lagres med én gang; trykk den igjen for å angre.</p>
+                    <p>Her markerer du datoene personen ikke kan jobbe. En markert dato sperrer både dag- og kveldsvakt.</p>
                 </article>
                 <article id="tutorial-step-6" class="tutorial-step" data-tutorial-step="5" data-tutorial-context="Fast utilgjengelighet" hidden>
                     <h3>Fast utilgjengelighet</h3>
-                    <p>Velg ukedag, trykk starttid og deretter sluttid, og trykk «Lagre».</p>
+                    <p>Her velger du ukedag, starttid og sluttid for et tidsrom personen fast ikke kan jobbe.</p>
                 </article>
                 <article id="tutorial-step-7" class="tutorial-step" data-tutorial-step="6" data-tutorial-context="Planlegger" hidden>
                     <h3>Generer vaktplan</h3>
-                    <p>Kontroller måned, bemanningsbehov og arbeidstider. Trykk den markerte «Generer Vaktplan», eller bruk knappen nederst.</p>
-                    <p class="tutorial-next-note"><strong>Dette åpnes:</strong> Marker eventuelle stengte dager og trykk «Fullfør». Har du allerede en plan, kan du velge «Se oppsummering» uten å lage en ny.</p>
+                    <p>Denne knappen lager planen etter at du har kontrollert måned, bemanningsbehov og arbeidstider. Før planen lages, kan du markere stengte dager.</p>
                 </article>
                 <article id="tutorial-step-8" class="tutorial-step" data-tutorial-step="7" data-tutorial-context="Oppsummering" hidden>
                     <h3>Sjekk timer og stillingsprosent</h3>
-                    <p><strong>Her ser du:</strong> «Tildelt» viser timene personen faktisk er satt opp til, og hvilken stillingsandel det tilsvarer. «Stillingsprosent» viser målet du skrev inn, med omtrentlige måltimer for måneden.</p>
+                    <p>Nederst i planen viser «Tildelt» hvor mange timer personen er satt opp til. «Stillingsprosent» viser målet og omtrentlige måltimer for måneden.</p>
                 </article>
                 <article id="tutorial-step-9" class="tutorial-step" data-tutorial-step="8" data-tutorial-context="Eksport" hidden>
                     <h3>Kopier til Excel</h3>
-                    <p>Trykk den markerte «Kopier til Excel». Når knappen viser «Kopiert», åpner du Excel, velger cellen øverst til venstre og limer inn med <strong>Ctrl+V</strong>.</p>
+                    <p>Denne knappen kopierer planen. Åpne Excel, velg cellen øverst til venstre og lim inn med <strong>Ctrl+V</strong>.</p>
                 </article>
             </div>
 
@@ -2294,6 +2409,11 @@ body:not(.auth-locked) #login-gate {
                         title="Kopier månedsplanen som en ferdig Excel-kalender">
                         Kopier til Excel
                     </button>
+                    <div id="publish-container" class="publish-container" style="display: none;">
+                        <button id="publish-btn" class="save-schedule-btn" type="button">
+                            Lagre vaktplan for <span id="publish-month-name"></span>
+                        </button>
+                    </div>
                     <div class="summary-stats" id="summary-stats">
                         <!-- Total shifts needed vs total shifts available -->
                     </div>
@@ -2307,13 +2427,6 @@ body:not(.auth-locked) #login-gate {
                 <div class="empty-state">
                     Oppgi stillingsprosenter og trykk "Generer Vaktplan" for å se resultatet.
                 </div>
-            </div>
-            
-            <div id="publish-container" style="display: none; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color); text-align: center;">
-                <button id="publish-btn" class="primary-btn" style="background-color: #10b981; border: none; padding: 0.75rem 2rem; font-size: 1rem; box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);">
-                    Publiser Vaktplan for <span id="publish-month-name"></span>
-                </button>
-                <p class="help-text" style="margin-top: 0.5rem;">Dette lagrer vaktplanen i arkivet. Senere endringer lagres automatisk.</p>
             </div>
         </main>
     </div>
@@ -2483,7 +2596,7 @@ body:not(.auth-locked) #login-gate {
                 </div>
             </header>
             <div class="modal-body">
-                <p class="help-text" style="margin-bottom: 1.5rem;">Trykk på en måned for å se den publiserte vaktplanen. Grå bokser mangler en publisert plan.</p>
+                <p class="help-text" style="margin-bottom: 1.5rem;">Trykk på en måned for å se den lagrede vaktplanen. Grå bokser mangler en lagret plan.</p>
                 <div class="year-grid" id="archive-months-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;">
                     <!-- JS Generated Months -->
                 </div>
@@ -2875,12 +2988,7 @@ window.VaktApp = window.VaktApp || {};
     app.shortenEmployeeName = function (name) {
         var trimmed = String(name || '').trim().replace(/\s+/g, ' ');
         if (!trimmed) return 'Ansatt';
-        if (trimmed === 'Mangler folk' || trimmed === 'Ledig' || /^Ny ansatt(?: \d+)?$/i.test(trimmed)) return trimmed;
-
-        var parts = trimmed.split(' ');
-        if (parts.length < 2) return trimmed;
-        var surnameInitial = Array.from(parts[parts.length - 1])[0];
-        return parts[0] + ' ' + surnameInitial.toLocaleUpperCase('nb-NO');
+        return trimmed;
     };
 
     function anonymizeFreeText(text, nameMigration) {
@@ -3842,7 +3950,7 @@ window.VaktApp = window.VaktApp || {};
                     block.style.animationDelay = ((typeof day.id === 'number' ? day.id * 0.05 : 0) + (shiftIndex * 0.1)) + 's';
 
                     // Context menu
-                    block.addEventListener('click', function (e) {
+                    function openShiftMenu(e) {
                         e.stopPropagation();
                         app.closeAllMenus();
                         var usedNames = new Set();
@@ -3850,15 +3958,30 @@ window.VaktApp = window.VaktApp || {};
 
                         var menu = document.createElement('div');
                         menu.className = 'day-context-menu';
+                        menu.setAttribute('role', 'dialog');
+                        menu.setAttribute('aria-modal', 'true');
+                        menu.setAttribute('aria-label', day.name + ' — ' + shift.name);
 
                         var hdr = document.createElement('div');
                         hdr.className = 'modal-header';
                         hdr.innerHTML = '<h2>' + app.escapeHtml(day.name) + ' \u2014 ' + app.escapeHtml(shift.name) + '</h2>';
+                        var closeBtn = document.createElement('button');
+                        closeBtn.type = 'button';
+                        closeBtn.className = 'close-modal';
+                        closeBtn.textContent = '\u00d7';
+                        closeBtn.setAttribute('aria-label', 'Lukk');
+                        closeBtn.addEventListener('click', function (ev) {
+                            ev.stopPropagation();
+                            app.closeAllMenus();
+                            addShiftBtn.focus();
+                        });
+                        hdr.appendChild(closeBtn);
                         menu.appendChild(hdr);
 
-                        var ledigBtn = document.createElement('div');
+                        var ledigBtn = document.createElement('button');
+                        ledigBtn.type = 'button';
                         ledigBtn.className = 'day-menu-item ledig-item';
-                        ledigBtn.textContent = '+ Ledig Vakt';
+                        ledigBtn.textContent = '+ Ledig vakt';
                         ledigBtn.addEventListener('click', function (ev) {
                             ev.stopPropagation();
                             shift.workers.push('Ledig');
@@ -3872,7 +3995,8 @@ window.VaktApp = window.VaktApp || {};
                         sep.className = 'day-menu-sep';
                         menu.appendChild(sep);
 
-                        var pickBtn = document.createElement('div');
+                        var pickBtn = document.createElement('button');
+                        pickBtn.type = 'button';
                         pickBtn.className = 'day-menu-item';
                         pickBtn.textContent = 'Velg ansatt \u25B6';
                         var empList = document.createElement('div');
@@ -3888,12 +4012,20 @@ window.VaktApp = window.VaktApp || {};
                         menu.appendChild(pickBtn);
 
                         var sorted = state.employees.slice().sort(function (a, b) { return a.name.localeCompare(b.name, 'nb'); });
+                        if (sorted.length === 0) {
+                            var noEmployees = document.createElement('p');
+                            noEmployees.className = 'day-menu-empty';
+                            noEmployees.textContent = 'Ingen ansatte er lagt til.';
+                            empList.appendChild(noEmployees);
+                        }
                         sorted.forEach(function (emp) {
-                            var item = document.createElement('div');
+                            var item = document.createElement('button');
+                            item.type = 'button';
                             item.className = 'day-menu-item emp-item';
                             item.textContent = emp.name;
                             if (usedNames.has(emp.name)) {
                                 item.classList.add('disabled');
+                                item.disabled = true;
                             } else {
                                 item.addEventListener('click', function (ev) {
                                     ev.stopPropagation();
@@ -3916,11 +4048,37 @@ window.VaktApp = window.VaktApp || {};
                         var overlay = document.createElement('div');
                         overlay.className = 'shift-menu-overlay';
                         overlay.addEventListener('click', function (ev) {
-                            if (ev.target === overlay) app.closeAllMenus();
+                            if (ev.target === overlay) {
+                                app.closeAllMenus();
+                                addShiftBtn.focus();
+                            }
+                        });
+                        overlay.addEventListener('keydown', function (ev) {
+                            if (ev.key === 'Escape') {
+                                ev.preventDefault();
+                                app.closeAllMenus();
+                                addShiftBtn.focus();
+                            }
                         });
                         overlay.appendChild(menu);
                         document.body.appendChild(overlay);
+                        ledigBtn.focus();
+                    }
+
+                    block.addEventListener('click', openShiftMenu);
+
+                    var addShiftBtn = document.createElement('button');
+                    addShiftBtn.type = 'button';
+                    addShiftBtn.className = 'shift-add-btn';
+                    addShiftBtn.textContent = '+';
+                    addShiftBtn.title = 'Legg til ledig vakt eller velg ansatt';
+                    addShiftBtn.setAttribute('aria-label', 'Legg til på ' + shift.name + ', ' + day.name);
+                    addShiftBtn.setAttribute('aria-haspopup', 'dialog');
+                    addShiftBtn.addEventListener('click', function (e) {
+                        e.stopPropagation();
+                        openShiftMenu(e);
                     });
+                    block.appendChild(addShiftBtn);
 
                     // Drag and drop
                     block.addEventListener('dragover', function (e) { e.preventDefault(); block.classList.add('drag-over'); });
@@ -4982,7 +5140,6 @@ document.addEventListener('DOMContentLoaded', function () {
             row.innerHTML =
                 '<div class="employee-name-edit">' +
                 '<input type="text" value="' + safeEmployeeName + '" data-name-index="' + index + '" placeholder="Navn" aria-label="Navn for ' + safeEmployeeName + '">' +
-                badgeRow +
                 '</div>' +
                 '<div class="employee-controls">' +
                 '<button class="icon-btn calendar-btn" type="button" data-index="' + index + '" title="Innstillinger" aria-label="Åpne innstillinger for ' + safeEmployeeName + '">⚙️</button>' +
@@ -4991,7 +5148,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 '<span>%</span>' +
                 '</div>' +
                 '<button class="icon-btn remove-btn" type="button" data-index="' + index + '" title="Fjern ansatt" aria-label="Fjern ' + safeEmployeeName + '">&times;</button>' +
-                '</div>';
+                '</div>' +
+                badgeRow;
             app.elements.employeesList.appendChild(row);
         });
 
@@ -5008,24 +5166,25 @@ document.addEventListener('DOMContentLoaded', function () {
             });
             input.addEventListener('change', function (e) {
                 var idx = parseInt(e.target.dataset.nameIndex, 10);
-                var shortName = app.shortenEmployeeName(e.target.value);
-                if (nameIsReserved(shortName)) {
+                var normalizedName = app.shortenEmployeeName(e.target.value);
+                if (nameIsReserved(normalizedName)) {
                     var reservedPreviousName = e.target.dataset.previousName || state.employees[idx].name;
                     state.employees[idx].name = reservedPreviousName;
                     e.target.value = reservedPreviousName;
                     alert('Dette navnet brukes av planleggeren. Velg et annet navn.');
                     return;
                 }
-                if (nameIsInUse(shortName, idx)) {
+                if (nameIsInUse(normalizedName, idx)) {
                     var previousName = e.target.dataset.previousName || state.employees[idx].name;
                     state.employees[idx].name = previousName;
                     e.target.value = previousName;
                     alert('Hver ansatt må ha et unikt navn.');
                     return;
                 }
-                state.employees[idx].name = shortName;
-                e.target.value = shortName;
-                e.target.dataset.previousName = shortName;
+                state.employees[idx].name = normalizedName;
+                e.target.value = normalizedName;
+                e.target.dataset.previousName = normalizedName;
+                app.renderEmployees();
                 app.saveState();
             });
         });
@@ -5297,7 +5456,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 } else {
                     var mainHeader = document.querySelector('.main-header h2');
                     if (mainHeader) mainHeader.innerHTML = 'Tentativ Månedsplan';
-                    app.elements.scheduleGrid.innerHTML = '<div class="empty-state">Ingen publisert plan for ' + app.escapeHtml(monthName) + '. Trykk "Generer Vaktplan" for å starte.</div>';
+                    app.elements.scheduleGrid.innerHTML = '<div class="empty-state">Ingen lagret plan for ' + app.escapeHtml(monthName) + '. Trykk "Generer Vaktplan" for å starte.</div>';
                     if (app.elements.publishContainer) app.elements.publishContainer.style.display = 'none';
                     if (app.setExcelCopyAvailable) app.setExcelCopyAvailable(false);
                     if (app.renderScheduleWarnings) app.renderScheduleWarnings([]);
@@ -5317,13 +5476,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     app.viewingPublishedKey = val;
                     app.selectedMonthKey = val;
                     app.saveState();
-                    alert('Vaktplanen er nå publisert og lagret i arkivet!');
+                    alert('Vaktplanen er lagret i arkivet!');
                     app.elements.publishContainer.style.display = 'none';
                     
                     var parts = val.split('-');
                     var monthName = app.monthNames[parseInt(parts[1])];
                     var mainHeader = document.querySelector('.main-header h2');
-                    if (mainHeader) mainHeader.innerHTML = '<span style="color:#ef4444; font-size:0.8em; margin-right:0.5rem;">[PUBLISERT]</span>' + app.escapeHtml(monthName) + ' ' + app.escapeHtml(parts[0]);
+                    if (mainHeader) mainHeader.innerHTML = '<span style="color:#15803d; font-size:0.8em; margin-right:0.5rem;">[LAGRET]</span>' + app.escapeHtml(monthName) + ' ' + app.escapeHtml(parts[0]);
                 }
             });
         }
@@ -5528,8 +5687,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 box.style.backgroundColor = '#fae8e8';
                 box.style.color = '#991b1b';
                 box.style.borderColor = '#fca5a5';
-                box.setAttribute('aria-label', app.monthNames[m] + ' ' + year + ', publisert plan');
-                box.innerHTML += '<div style="font-size:0.75rem; margin-top:0.4rem; font-weight:500; background:white; padding:0.15rem 0.6rem; border-radius:12px; box-shadow:0 1px 2px rgba(0,0,0,0.05); color:#dc2626;">✨ Publisert</div>';
+                box.setAttribute('aria-label', app.monthNames[m] + ' ' + year + ', lagret plan');
+                box.innerHTML += '<div style="font-size:0.75rem; margin-top:0.4rem; font-weight:500; background:white; padding:0.15rem 0.6rem; border-radius:12px; box-shadow:0 1px 2px rgba(0,0,0,0.05); color:#15803d;">Lagret</div>';
                 
                 (function(monthKey) {
                     box.addEventListener('click', function() {
@@ -5556,7 +5715,7 @@ document.addEventListener('DOMContentLoaded', function () {
             } else {
                 box.style.backgroundColor = '#f8fafc';
                 box.style.color = '#64748b';
-                box.setAttribute('aria-label', app.monthNames[m] + ' ' + year + ', ingen publisert plan');
+                box.setAttribute('aria-label', app.monthNames[m] + ' ' + year + ', ingen lagret plan');
                 
                 (function(monthKey) {
                     box.addEventListener('click', function() {
@@ -5601,7 +5760,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // Set main title
         var mainHeader = document.querySelector('.main-header h2');
         if (mainHeader) {
-            mainHeader.innerHTML = '<span style="color:#ef4444; font-size:0.8em; margin-right:0.5rem;">[PUBLISERT]</span> ' + app.escapeHtml(monthName) + ' ' + app.escapeHtml(year);
+            mainHeader.innerHTML = '<span style="color:#15803d; font-size:0.8em; margin-right:0.5rem;">[LAGRET]</span> ' + app.escapeHtml(monthName) + ' ' + app.escapeHtml(year);
         }
         
         // Render
@@ -5671,7 +5830,7 @@ document.addEventListener('DOMContentLoaded', function () {
         var restoredHeader = document.querySelector('.main-header h2');
         if (restoredHeader) {
             restoredHeader.innerHTML = isRestoredPublishedPlan
-                ? '<span style="color:#ef4444; font-size:0.8em; margin-right:0.5rem;">[PUBLISERT]</span> ' + app.escapeHtml(app.monthNames[restoredMonth]) + ' ' + app.escapeHtml(restoredYear)
+                ? '<span style="color:#15803d; font-size:0.8em; margin-right:0.5rem;">[LAGRET]</span> ' + app.escapeHtml(app.monthNames[restoredMonth]) + ' ' + app.escapeHtml(restoredYear)
                 : 'Tentativ Månedsplan';
         }
         if (app.elements.publishContainer) {
@@ -5712,13 +5871,12 @@ document.addEventListener('DOMContentLoaded', function () {
 (function () {
     'use strict';
 
-    var TUTORIAL_KEY = 'vaktplanleggerWebTutorialSeen_v5';
+    var TUTORIAL_KEY = 'vaktplanleggerWebTutorialSeen_v6';
     var currentStep = 0;
     var lastFocusedElement = null;
     var currentTarget = null;
     var positionTimer = null;
     var tourUi = null;
-    var guidedEmployeeId = null;
 
     function tutorialHasBeenSeen() {
         try {
@@ -5732,7 +5890,7 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
             localStorage.setItem(TUTORIAL_KEY, '1');
         } catch (error) {
-            // If storage is blocked, the optional tutorial may appear again next time.
+            // The optional introduction may appear again if storage is blocked.
         }
     }
 
@@ -5745,7 +5903,6 @@ document.addEventListener('DOMContentLoaded', function () {
         var title = document.getElementById('tutorial-title');
         var progress = document.getElementById('tutorial-progress');
         var closeButton = document.getElementById('tutorial-close-btn');
-        var minimizeButton = document.getElementById('tutorial-minimize-btn');
         var skipButton = document.getElementById('tutorial-skip-btn');
         var backButton = document.getElementById('tutorial-back-btn');
         var nextButton = document.getElementById('tutorial-next-btn');
@@ -5754,7 +5911,6 @@ document.addEventListener('DOMContentLoaded', function () {
         var generateButton = document.getElementById('generate-btn');
         var stepsContainer = overlay ? overlay.querySelector('.tutorial-steps') : null;
         var steps = overlay ? Array.from(overlay.querySelectorAll('[data-tutorial-step]')) : [];
-        var allowingTourClick = false;
 
         if (!app || !overlay || !spotlight || !card || !title || steps.length === 0) return;
 
@@ -5762,26 +5918,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return !overlay.hidden;
         }
 
-        function hasGeneratedSchedule() {
-            return Boolean(app.lastScheduleData && Array.isArray(app.lastScheduleData.days) &&
-                app.lastScheduleData.days.length > 0 && Array.isArray(app.lastScheduleData.workers));
-        }
-
-        function guidedEmployeeIndex() {
-            if (guidedEmployeeId === null) return -1;
-            return app.state.employees.findIndex(function (employee) {
-                return String(employee.id) === String(guidedEmployeeId);
-            });
-        }
-
         function firstEmployeeRow() {
-            if (guidedEmployeeId !== null) {
-                var employeeIndex = guidedEmployeeIndex();
-                if (employeeIndex !== -1) {
-                    var nameInput = document.querySelector('input[data-name-index="' + employeeIndex + '"]');
-                    if (nameInput) return nameInput.closest('.employee-row');
-                }
-            }
             return document.querySelector('#employees-list .employee-row');
         }
 
@@ -5790,96 +5927,182 @@ document.addEventListener('DOMContentLoaded', function () {
             return row ? row.querySelector('.calendar-btn') : null;
         }
 
-        function closeTourTimePicker() {
-            if (!tourUi || !tourUi.openedTimePicker) return;
-            if (app.elements.timePickerModal.classList.contains('show') && app.closeTimePicker) app.closeTimePicker();
-            tourUi.openedTimePicker = false;
+        function employeeArea() {
+            return firstEmployeeRow() ||
+                (addEmployeeButton && addEmployeeButton.closest('.control-group')) ||
+                document.getElementById('employees-list') ||
+                addEmployeeButton;
         }
 
-        function closeTourSettings() {
-            if (!tourUi || !tourUi.openedSettings) return;
-            if (app.elements.modal.classList.contains('show') && app.closeModal) app.closeModal();
-            tourUi.openedSettings = false;
-        }
-
-        function closeTourClosedDays() {
+        function setBackgroundInert(inert) {
             if (!tourUi) return;
-            if (tourUi.openedClosedDays) app.elements.closedDaysModal.classList.remove('show');
-            tourUi.openedClosedDays = false;
-            tourUi.generationPending = false;
-            tourUi.scheduleBeforeGeneration = null;
+            if (inert) {
+                tourUi.inertRecords = [];
+                Array.from(document.body.children).forEach(function (element) {
+                    if (element === overlay) return;
+                    tourUi.inertRecords.push({ element: element, hadInert: element.hasAttribute('inert') });
+                    element.setAttribute('inert', '');
+                });
+                return;
+            }
+            (tourUi.inertRecords || []).forEach(function (record) {
+                if (!record.element || !record.element.isConnected) return;
+                if (record.hadInert) record.element.setAttribute('inert', '');
+                else record.element.removeAttribute('inert');
+            });
+            tourUi.inertRecords = [];
         }
 
-        function setTutorialMinimized(minimized) {
-            if (!minimizeButton) return;
-            card.classList.toggle('tutorial-card-minimized', Boolean(minimized));
-            minimizeButton.textContent = minimized ? 'Vis forklaring' : 'Skjul';
-            minimizeButton.setAttribute('aria-expanded', minimized ? 'false' : 'true');
-            schedulePosition();
+        function capturePreviewState() {
+            if (!tourUi || tourUi.preview) return;
+            var settingsBody = app.elements.modal.querySelector('.scrollable-body');
+            var timeBody = app.elements.timePickerModal.querySelector('.modal-body');
+            tourUi.preview = {
+                settingsWasOpen: app.elements.modal.classList.contains('show'),
+                settingsHadPreviewClass: app.elements.modal.classList.contains('tutorial-preview-modal'),
+                settingsTitle: app.elements.modalTitle.textContent,
+                settingsScrollTop: settingsBody ? settingsBody.scrollTop : 0,
+                fixedFormHidden: app.elements.fixedShiftForm.hidden,
+                addFixedHidden: app.elements.btnAddFixedShift.hidden,
+                addFixedExpanded: app.elements.btnAddFixedShift.getAttribute('aria-expanded'),
+                absenceDisplay: app.elements.collapseAbsenceContent.style.display,
+                absenceExpanded: app.elements.collapseAbsenceHeader.getAttribute('aria-expanded'),
+                calendarChildren: Array.from(app.elements.calendarGrid.childNodes),
+                timeWasOpen: app.elements.timePickerModal.classList.contains('show'),
+                timeHadPreviewClass: app.elements.timePickerModal.classList.contains('tutorial-preview-modal'),
+                timeGridChildren: Array.from(app.elements.timePickerGrid.childNodes),
+                timeDayValue: app.elements.timePickerDay.value,
+                timeScrollTop: timeBody ? timeBody.scrollTop : 0
+            };
         }
 
-        function ensureSettingsOpen() {
-            var settingsButton = firstSettingsButton();
-            if (!settingsButton) return false;
-            var expectedIndex = Number(settingsButton.dataset.index);
-            if (app.elements.modal.classList.contains('show')) {
-                return typeof app.getActiveEmployeeIndexForModal === 'function' &&
-                    Number(app.getActiveEmployeeIndexForModal()) === expectedIndex;
+        function renderPreviewCalendar() {
+            var grid = app.elements.calendarGrid;
+            var parts = app.elements.monthSelector.value.split('-').map(Number);
+            var year = parts[0];
+            var month = parts[1];
+            var daysInMonth = new Date(year, month + 1, 0).getDate();
+            var firstDow = new Date(year, month, 1).getDay();
+            var padBefore = firstDow === 0 ? 6 : firstDow - 1;
+            var fragment = document.createDocumentFragment();
+
+            ['Ma', 'Ti', 'On', 'To', 'Fr', 'Lø', 'Sø'].forEach(function (dayName) {
+                var header = document.createElement('div');
+                header.className = 'cal-header';
+                header.textContent = dayName;
+                fragment.appendChild(header);
+            });
+            for (var padding = 0; padding < padBefore; padding++) {
+                var empty = document.createElement('div');
+                empty.className = 'cal-day cal-padding';
+                fragment.appendChild(empty);
             }
-            allowingTourClick = true;
-            try {
-                settingsButton.click();
-            } finally {
-                allowingTourClick = false;
+            for (var day = 1; day <= daysInMonth; day++) {
+                var dayButton = document.createElement('button');
+                dayButton.type = 'button';
+                dayButton.className = 'cal-day';
+                dayButton.textContent = day;
+                dayButton.tabIndex = -1;
+                dayButton.setAttribute('aria-disabled', 'true');
+                if (new Date(year, month, day).getDay() === 0) dayButton.style.color = '#dc2626';
+                fragment.appendChild(dayButton);
             }
-            if (!tourUi.settingsWasOpen) tourUi.openedSettings = true;
-            return app.elements.modal.classList.contains('show') &&
-                (!app.getActiveEmployeeIndexForModal || Number(app.getActiveEmployeeIndexForModal()) === expectedIndex);
+            grid.replaceChildren(fragment);
+        }
+
+        function renderPreviewTimeGrid() {
+            var fragment = document.createDocumentFragment();
+            for (var minutes = 8 * 60; minutes <= 20 * 60; minutes += 30) {
+                var hour = Math.floor(minutes / 60).toString().padStart(2, '0');
+                var minute = (minutes % 60).toString().padStart(2, '0');
+                var slot = document.createElement('div');
+                slot.className = 'time-slot';
+                slot.textContent = hour + ':' + minute;
+                slot.setAttribute('role', 'button');
+                slot.setAttribute('aria-disabled', 'true');
+                slot.tabIndex = -1;
+                fragment.appendChild(slot);
+            }
+            app.elements.timePickerGrid.replaceChildren(fragment);
+        }
+
+        function showSettingsPreview(sectionIndex) {
+            capturePreviewState();
+            var settingsBody = app.elements.modal.querySelector('.scrollable-body');
+            app.elements.modal.classList.add('show', 'tutorial-preview-modal');
+            app.elements.modalTitle.textContent = 'Innstillinger: eksempel';
+            app.elements.btnAddFixedShift.hidden = false;
+            app.elements.btnAddFixedShift.setAttribute('aria-expanded', 'false');
+            app.elements.fixedShiftForm.hidden = true;
+            app.elements.collapseAbsenceContent.style.display = 'none';
+            app.elements.collapseAbsenceHeader.setAttribute('aria-expanded', 'false');
+            app.elements.timePickerModal.classList.remove('show');
+
+            if (sectionIndex === 3) {
+                app.elements.btnAddFixedShift.hidden = true;
+                app.elements.btnAddFixedShift.setAttribute('aria-expanded', 'true');
+                app.elements.fixedShiftForm.hidden = false;
+            } else if (sectionIndex === 4) {
+                app.elements.collapseAbsenceContent.style.display = 'block';
+                app.elements.collapseAbsenceHeader.setAttribute('aria-expanded', 'true');
+                renderPreviewCalendar();
+            } else if (sectionIndex === 5) {
+                app.elements.timePickerModal.classList.add('show', 'tutorial-preview-modal');
+                app.elements.timePickerDay.value = '0';
+                renderPreviewTimeGrid();
+                var timeBody = app.elements.timePickerModal.querySelector('.modal-body');
+                if (timeBody) timeBody.scrollTop = 0;
+            }
+            if (settingsBody) settingsBody.scrollTop = 0;
+        }
+
+        function restorePreviewState() {
+            if (!tourUi || !tourUi.preview) return;
+            var preview = tourUi.preview;
+            var settingsBody = app.elements.modal.querySelector('.scrollable-body');
+            var timeBody = app.elements.timePickerModal.querySelector('.modal-body');
+
+            app.elements.modal.classList.toggle('show', preview.settingsWasOpen);
+            app.elements.modal.classList.toggle('tutorial-preview-modal', preview.settingsHadPreviewClass);
+            app.elements.modalTitle.textContent = preview.settingsTitle;
+            app.elements.fixedShiftForm.hidden = preview.fixedFormHidden;
+            app.elements.btnAddFixedShift.hidden = preview.addFixedHidden;
+            if (preview.addFixedExpanded === null) app.elements.btnAddFixedShift.removeAttribute('aria-expanded');
+            else app.elements.btnAddFixedShift.setAttribute('aria-expanded', preview.addFixedExpanded);
+            app.elements.collapseAbsenceContent.style.display = preview.absenceDisplay;
+            if (preview.absenceExpanded === null) app.elements.collapseAbsenceHeader.removeAttribute('aria-expanded');
+            else app.elements.collapseAbsenceHeader.setAttribute('aria-expanded', preview.absenceExpanded);
+            app.elements.calendarGrid.replaceChildren.apply(app.elements.calendarGrid, preview.calendarChildren);
+
+            app.elements.timePickerModal.classList.toggle('show', preview.timeWasOpen);
+            app.elements.timePickerModal.classList.toggle('tutorial-preview-modal', preview.timeHadPreviewClass);
+            app.elements.timePickerGrid.replaceChildren.apply(app.elements.timePickerGrid, preview.timeGridChildren);
+            app.elements.timePickerDay.value = preview.timeDayValue;
+            if (settingsBody) settingsBody.scrollTop = preview.settingsScrollTop;
+            if (timeBody) timeBody.scrollTop = preview.timeScrollTop;
+            tourUi.preview = null;
         }
 
         function prepareStep(index) {
-            if (index !== 5) closeTourTimePicker();
-            if (index < 3 || index > 5) closeTourSettings();
-            if (index !== 6) closeTourClosedDays();
-
-            if (index === 3 && ensureSettingsOpen()) {
-                if (app.elements.fixedShiftForm.hidden) app.elements.btnAddFixedShift.click();
-            }
-
-            if (index === 4 && ensureSettingsOpen()) {
-                if (app.elements.collapseAbsenceContent.style.display === 'none') {
-                    app.elements.collapseAbsenceHeader.click();
-                }
-            }
-
-            if (index === 5 && ensureSettingsOpen()) {
-                if (!app.elements.timePickerModal.classList.contains('show')) {
-                    app.elements.btnAddFixedTime.click();
-                    if (!tourUi.timePickerWasOpen) tourUi.openedTimePicker = true;
-                }
-            }
+            if (index >= 3 && index <= 5) showSettingsPreview(index);
+            else restorePreviewState();
         }
 
         function resolveTarget(index) {
+            var shortViewport = (window.visualViewport ? window.visualViewport.height : window.innerHeight) <= 520;
             if (index === 0) return addEmployeeButton;
-            if (index === 1) return firstEmployeeRow() || addEmployeeButton;
-            if (index === 2) return firstSettingsButton() || addEmployeeButton;
+            if (index === 1) return employeeArea();
+            if (index === 2) return firstSettingsButton() || employeeArea();
             if (index === 3) {
-                var fixedShiftForm = document.getElementById('fixed-shift-form');
-                return fixedShiftForm && !fixedShiftForm.hidden ? fixedShiftForm : app.elements.btnAddFixedShift;
+                return shortViewport
+                    ? app.elements.fixedShiftForm.querySelector('.fixed-shift-controls') || app.elements.fixedShiftForm
+                    : app.elements.fixedShiftForm;
             }
-            if (index === 4) {
-                var absenceContent = document.getElementById('collapse-absence-content');
-                return absenceContent && window.getComputedStyle(absenceContent).display !== 'none'
-                    ? absenceContent
-                    : app.elements.collapseAbsenceHeader;
-            }
+            if (index === 4) return shortViewport ? app.elements.collapseAbsenceHeader : app.elements.collapseAbsenceContent;
             if (index === 5) {
-                if (!app.elements.timePickerModal.classList.contains('show')) return app.elements.btnAddFixedTime;
-                if (window.innerWidth <= 560 || window.innerHeight <= 520) {
-                    return app.elements.timePickerModal.querySelector('.modal-content') || app.elements.timePickerModal;
-                }
-                return document.getElementById('time-picker-grid');
+                return shortViewport
+                    ? app.elements.timePickerModal.querySelector('.form-row') || app.elements.timePickerGrid
+                    : app.elements.timePickerGrid;
             }
             if (index === 6) return generateButton;
             if (index === 7) {
@@ -5894,84 +6117,110 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         function clearTarget() {
-            if (currentTarget) currentTarget.classList.remove('tutorial-focus-target');
             currentTarget = null;
             spotlight.hidden = true;
+            overlay.classList.add('tutorial-no-target');
+        }
+
+        function pageZoom() {
+            var zoom = parseFloat(window.getComputedStyle(document.body).zoom);
+            return Number.isFinite(zoom) && zoom > 0 ? zoom : 1;
+        }
+
+        function rectAtZoom(rect, zoom) {
+            return {
+                left: rect.left / zoom,
+                top: rect.top / zoom,
+                width: rect.width / zoom,
+                height: rect.height / zoom,
+                right: rect.right / zoom,
+                bottom: rect.bottom / zoom
+            };
         }
 
         function positionTour() {
             if (!tutorialIsOpen() || !currentTarget || !currentTarget.isConnected) return;
-            var targetRect = currentTarget.getBoundingClientRect();
-            if (targetRect.width <= 0 || targetRect.height <= 0) {
+            var rawTargetRect = currentTarget.getBoundingClientRect();
+            if (rawTargetRect.width <= 0 || rawTargetRect.height <= 0) {
                 spotlight.hidden = true;
+                overlay.classList.add('tutorial-no-target');
                 card.classList.add('tutorial-card-centered');
                 return;
             }
 
+            overlay.classList.remove('tutorial-no-target');
             card.classList.remove('tutorial-card-centered');
-            var pageZoom = parseFloat(window.getComputedStyle(document.body).zoom);
-            if (!Number.isFinite(pageZoom) || pageZoom <= 0) pageZoom = 1;
-            var targetLeft = targetRect.left / pageZoom;
-            var targetTop = targetRect.top / pageZoom;
-            var targetWidth = targetRect.width / pageZoom;
-            var targetHeight = targetRect.height / pageZoom;
-            var visualViewport = window.visualViewport;
-            var visualLeft = visualViewport ? visualViewport.offsetLeft : 0;
-            var visualTop = visualViewport ? visualViewport.offsetTop : 0;
-            var visualWidth = visualViewport ? visualViewport.width : window.innerWidth;
-            var visualHeight = visualViewport ? visualViewport.height : window.innerHeight;
-            var viewportLeft = visualLeft / pageZoom;
-            var viewportTop = visualTop / pageZoom;
-            var viewportWidth = visualWidth / pageZoom;
-            var viewportHeight = visualHeight / pageZoom;
+            var zoom = pageZoom();
+            var targetRect = rectAtZoom(rawTargetRect, zoom);
+            var avoidElement = currentTarget.closest('.modal-content');
+            var avoidRect = rectAtZoom(avoidElement ? avoidElement.getBoundingClientRect() : rawTargetRect, zoom);
+            var visual = window.visualViewport;
+            var viewportLeft = (visual ? visual.offsetLeft : 0) / zoom;
+            var viewportTop = (visual ? visual.offsetTop : 0) / zoom;
+            var viewportWidth = (visual ? visual.width : window.innerWidth) / zoom;
+            var viewportHeight = (visual ? visual.height : window.innerHeight) / zoom;
             var viewportRight = viewportLeft + viewportWidth;
             var viewportBottom = viewportTop + viewportHeight;
-            var padding = 7;
-            spotlight.hidden = false;
-            spotlight.style.left = Math.max(4, targetLeft - padding) + 'px';
-            spotlight.style.top = Math.max(4, targetTop - padding) + 'px';
-            spotlight.style.width = Math.max(18, targetWidth + (padding * 2)) + 'px';
-            spotlight.style.height = Math.max(18, targetHeight + (padding * 2)) + 'px';
+            var padding = 6;
+            var spotLeft = Math.max(viewportLeft + 4, targetRect.left - padding);
+            var spotTop = Math.max(viewportTop + 4, targetRect.top - padding);
+            var spotRight = Math.min(viewportRight - 4, targetRect.right + padding);
+            var spotBottom = Math.min(viewportBottom - 4, targetRect.bottom + padding);
 
-            if (visualWidth <= 560) {
-                var compactGap = 12 / pageZoom;
+            spotlight.hidden = false;
+            spotlight.style.left = spotLeft + 'px';
+            spotlight.style.top = spotTop + 'px';
+            spotlight.style.width = Math.max(18, spotRight - spotLeft) + 'px';
+            spotlight.style.height = Math.max(18, spotBottom - spotTop) + 'px';
+
+            var compact = viewportWidth <= 560;
+            var gap = 18;
+            if (compact) {
+                var compactGap = 12 / zoom;
                 card.style.left = (viewportLeft + compactGap) + 'px';
                 card.style.right = 'auto';
                 card.style.width = Math.max(0, viewportWidth - (compactGap * 2)) + 'px';
                 card.style.maxWidth = 'none';
-                card.style.minWidth = '0';
                 card.style.bottom = 'auto';
-                var compactCardHeight = card.getBoundingClientRect().height / pageZoom;
-                if (currentStep === 4 || currentStep === 5 || targetTop + (targetHeight / 2) >= viewportTop + (viewportHeight / 2)) {
-                    card.style.top = (viewportTop + compactGap) + 'px';
-                } else {
-                    card.style.top = Math.max(viewportTop + compactGap, viewportBottom - compactCardHeight - compactGap) + 'px';
-                }
+                var compactHeight = card.getBoundingClientRect().height / zoom;
+                var targetCenter = targetRect.top + (targetRect.height / 2);
+                card.style.top = targetCenter >= viewportTop + (viewportHeight / 2)
+                    ? (viewportTop + compactGap) + 'px'
+                    : Math.max(viewportTop + compactGap, viewportBottom - compactHeight - compactGap) + 'px';
                 return;
             }
 
             card.style.width = '';
             card.style.maxWidth = '';
-            card.style.minWidth = '';
             card.style.right = 'auto';
             card.style.bottom = 'auto';
             var cardRect = card.getBoundingClientRect();
-            var cardWidth = cardRect.width / pageZoom;
-            var cardHeight = cardRect.height / pageZoom;
-            var gap = 18;
-            var left = targetLeft + (targetWidth / 2) - (cardWidth / 2);
+            var cardWidth = cardRect.width / zoom;
+            var cardHeight = cardRect.height / zoom;
+            var left;
             var top;
+            var fitsRight = viewportRight - avoidRect.right >= cardWidth + gap + 12;
+            var fitsLeft = avoidRect.left - viewportLeft >= cardWidth + gap + 12;
+            var fitsBelow = viewportBottom - avoidRect.bottom >= cardHeight + gap + 12;
+            var fitsAbove = avoidRect.top - viewportTop >= cardHeight + gap + 12;
 
-            if (viewportBottom - (targetTop + targetHeight) >= cardHeight + gap + 12) {
-                top = targetTop + targetHeight + gap;
-            } else if (targetTop - viewportTop >= cardHeight + gap + 12) {
-                top = targetTop - cardHeight - gap;
-            } else if (viewportRight - (targetLeft + targetWidth) >= cardWidth + gap + 12) {
-                left = targetLeft + targetWidth + gap;
-                top = targetTop + (targetHeight / 2) - (cardHeight / 2);
+            if (fitsRight) {
+                left = avoidRect.right + gap;
+                top = avoidRect.top + (avoidRect.height / 2) - (cardHeight / 2);
+            } else if (fitsLeft) {
+                left = avoidRect.left - cardWidth - gap;
+                top = avoidRect.top + (avoidRect.height / 2) - (cardHeight / 2);
+            } else if (fitsBelow) {
+                left = targetRect.left + (targetRect.width / 2) - (cardWidth / 2);
+                top = avoidRect.bottom + gap;
+            } else if (fitsAbove) {
+                left = targetRect.left + (targetRect.width / 2) - (cardWidth / 2);
+                top = avoidRect.top - cardHeight - gap;
             } else {
-                left = targetLeft - cardWidth - gap;
-                top = targetTop + (targetHeight / 2) - (cardHeight / 2);
+                left = viewportLeft + (viewportWidth - cardWidth) / 2;
+                top = targetRect.top + (targetRect.height / 2) >= viewportTop + (viewportHeight / 2)
+                    ? viewportTop + 12
+                    : viewportBottom - cardHeight - 12;
             }
 
             left = Math.max(viewportLeft + 12, Math.min(left, viewportRight - cardWidth - 12));
@@ -5983,15 +6232,36 @@ document.addEventListener('DOMContentLoaded', function () {
         function schedulePosition() {
             if (!tutorialIsOpen()) return;
             window.clearTimeout(positionTimer);
-            positionTimer = window.setTimeout(function () {
-                if (!tutorialIsOpen()) return;
-                var resolvedTarget = resolveTarget(currentStep);
-                if (resolvedTarget && resolvedTarget !== currentTarget) {
-                    focusTarget(resolvedTarget, true);
-                } else {
-                    positionTour();
-                }
-            }, 20);
+            positionTimer = window.setTimeout(positionTour, 20);
+        }
+
+        function nearestScrollHost(target) {
+            var node = target && target.parentElement;
+            while (node && node !== document.body) {
+                var style = window.getComputedStyle(node);
+                if (/(auto|scroll)/.test(style.overflowY) && node.scrollHeight > node.clientHeight + 4) return node;
+                node = node.parentElement;
+            }
+            return null;
+        }
+
+        function revealTargetVertically(target) {
+            if (!target) return;
+            var host = nearestScrollHost(target);
+            var targetRect = target.getBoundingClientRect();
+            if (host) {
+                var hostRect = host.getBoundingClientRect();
+                host.scrollTop += targetRect.top + (targetRect.height / 2) -
+                    (hostRect.top + (hostRect.height / 2));
+                return;
+            }
+            var visual = window.visualViewport;
+            var top = visual ? visual.offsetTop : 0;
+            var height = visual ? visual.height : window.innerHeight;
+            if (targetRect.top < top + 12 || targetRect.bottom > top + height - 12) {
+                var delta = targetRect.top + (targetRect.height / 2) - (top + (height / 2));
+                window.scrollTo({ left: window.scrollX, top: window.scrollY + delta, behavior: 'auto' });
+            }
         }
 
         function focusTarget(target, keepFocus) {
@@ -5999,299 +6269,152 @@ document.addEventListener('DOMContentLoaded', function () {
             currentTarget = target;
             if (!target || !target.isConnected) {
                 card.classList.add('tutorial-card-centered');
-                if (!keepFocus) title.focus();
+                if (!keepFocus) title.focus({ preventScroll: true });
                 return;
             }
 
-            target.classList.add('tutorial-focus-target');
-            target.scrollIntoView({
-                behavior: 'auto',
-                block: window.innerWidth <= 560 ? 'start' : 'center',
-                inline: 'nearest'
-            });
-            if (currentStep === 5) {
-                var timePickerBody = app.elements.timePickerModal.querySelector('.modal-body');
-                if (timePickerBody) timePickerBody.scrollTop = 0;
-            }
+            overlay.classList.remove('tutorial-no-target');
+            revealTargetVertically(target);
             window.requestAnimationFrame(function () {
                 window.requestAnimationFrame(function () {
-                    if (tutorialIsOpen() && currentTarget === target) {
-                        if (currentStep === 5) {
-                            var activeTimePickerBody = app.elements.timePickerModal.querySelector('.modal-body');
-                            if (activeTimePickerBody) activeTimePickerBody.scrollTop = 0;
-                        }
-                        positionTour();
-                    }
+                    if (tutorialIsOpen() && currentTarget === target) positionTour();
                 });
             });
-            if (currentStep === 5) {
-                window.setTimeout(function () {
-                    if (tutorialIsOpen() && currentTarget === target) positionTour();
-                }, 240);
-            }
+            window.setTimeout(function () {
+                if (tutorialIsOpen() && currentTarget === target) positionTour();
+            }, 240);
             if (!keepFocus) title.focus({ preventScroll: true });
         }
 
         function renderStep(index, keepFocus) {
             if (!tutorialIsOpen() || !tourUi) return;
             currentStep = Math.max(0, Math.min(index, steps.length - 1));
-            if (currentStep > 0 && currentStep <= 5 && !firstEmployeeRow()) currentStep = 0;
             prepareStep(currentStep);
-            card.classList.toggle('tutorial-card-interactive', currentStep === 4 || currentStep === 5);
-            if (currentStep !== 4 && currentStep !== 5) setTutorialMinimized(false);
-            card.scrollTop = 0;
             if (stepsContainer) stepsContainer.scrollTop = 0;
             steps.forEach(function (step, stepIndex) {
                 var active = stepIndex === currentStep;
                 step.hidden = !active;
                 step.setAttribute('aria-hidden', active ? 'false' : 'true');
             });
+
             var activeStep = steps[currentStep];
+            var activeHeading = activeStep.querySelector('h3');
             if (kicker) kicker.textContent = activeStep.dataset.tutorialContext || 'Veiledning';
-            card.setAttribute('aria-describedby', 'tutorial-progress ' + activeStep.id);
+            overlay.setAttribute('aria-describedby', 'tutorial-progress tutorial-target-hint ' + activeStep.id);
             progress.textContent = 'Steg ' + (currentStep + 1) + ' av ' + steps.length;
+            spotlight.setAttribute('aria-label', 'Neste steg' + (activeHeading ? ': ' + activeHeading.textContent : ''));
             backButton.hidden = currentStep === 0;
 
-            nextButton.disabled = currentStep === 6 && Boolean(tourUi.generationPending);
-            if (currentStep === 0) nextButton.textContent = firstEmployeeRow() ? 'Neste' : 'Legg til ansatt';
-            else if (currentStep === 1) nextButton.textContent = 'Vis tannhjulet';
-            else if (currentStep === 2) nextButton.textContent = 'Åpne innstillinger';
-            else if (currentStep === 3) nextButton.textContent = 'Neste: Fravær';
-            else if (currentStep === 4) nextButton.textContent = 'Neste: Tidsvalg';
-            else if (currentStep === 5) nextButton.textContent = 'Neste: Planlegger';
-            else if (currentStep === 6 && tourUi.generationPending) nextButton.textContent = 'Trykk Fullfør først';
-            else if (currentStep === 6) nextButton.textContent = hasGeneratedSchedule() ? 'Se oppsummering' : 'Generer vaktplan';
-            else if (currentStep === 7) nextButton.textContent = 'Neste: Excel';
-            else nextButton.textContent = 'Ferdig';
+            nextButton.textContent = currentStep === steps.length - 1 ? 'Ferdig' : 'Neste';
 
             focusTarget(resolveTarget(currentStep), Boolean(keepFocus));
+        }
+
+        function advanceTutorial() {
+            if (!tutorialIsOpen()) return;
+            if (currentStep < steps.length - 1) renderStep(currentStep + 1);
+            else closeTutorial(true);
         }
 
         function openTutorial(force) {
             if (document.body.classList.contains('auth-locked')) return;
             if (!force && tutorialHasBeenSeen()) return;
             if (tutorialIsOpen()) return;
+            if (document.querySelector('.modal-overlay.show')) return;
 
             lastFocusedElement = document.activeElement;
-            guidedEmployeeId = null;
             tourUi = {
-                settingsWasOpen: app.elements.modal.classList.contains('show'),
-                timePickerWasOpen: app.elements.timePickerModal.classList.contains('show'),
-                closedDaysWasOpen: app.elements.closedDaysModal.classList.contains('show'),
-                scheduleBeforeGeneration: null,
-                generationPending: false,
-                openedSettings: false,
-                openedTimePicker: false,
-                openedClosedDays: false
+                inertRecords: [],
+                preview: null,
+                scrollX: window.scrollX,
+                scrollY: window.scrollY
             };
             overlay.hidden = false;
             overlay.setAttribute('aria-hidden', 'false');
             document.body.classList.add('tutorial-open');
+            setBackgroundInert(true);
             renderStep(0);
-        }
-
-        function cleanUpTourUi() {
-            closeTourTimePicker();
-            closeTourSettings();
-            closeTourClosedDays();
         }
 
         function closeTutorial(markSeen) {
             if (!tutorialIsOpen()) return;
             if (markSeen) rememberTutorial();
-            cleanUpTourUi();
+            window.clearTimeout(positionTimer);
+            restorePreviewState();
             clearTarget();
             overlay.hidden = true;
             overlay.setAttribute('aria-hidden', 'true');
             document.body.classList.remove('tutorial-open');
-            setTutorialMinimized(false);
             card.style.left = '';
             card.style.right = '';
             card.style.top = '';
             card.style.bottom = '';
+            card.style.width = '';
+            card.style.maxWidth = '';
+            setBackgroundInert(false);
+            window.scrollTo({ left: tourUi.scrollX, top: tourUi.scrollY, behavior: 'auto' });
 
-            var focusTargetElement = lastFocusedElement;
-            if (!focusTargetElement || !focusTargetElement.isConnected || focusTargetElement.closest('#login-gate')) {
-                focusTargetElement = addEmployeeButton || helpButton;
-            }
-            if (!document.body.classList.contains('auth-locked') && focusTargetElement && typeof focusTargetElement.focus === 'function') {
-                focusTargetElement.focus();
+            var returnFocus = lastFocusedElement;
+            if (!returnFocus || !returnFocus.isConnected || returnFocus.closest('#login-gate')) {
+                returnFocus = addEmployeeButton || helpButton;
             }
             lastFocusedElement = null;
             tourUi = null;
+            if (!document.body.classList.contains('auth-locked') && returnFocus && typeof returnFocus.focus === 'function') {
+                returnFocus.focus({ preventScroll: true });
+            }
         }
 
-        function finishOrAdvance() {
-            if (currentStep === 0 && !firstEmployeeRow()) {
-                addEmployeeButton.click();
-                return;
-            }
-            if (currentStep > 0 && currentStep <= 5 && !firstEmployeeRow()) {
-                renderStep(0);
-                return;
-            }
-            if (currentStep === 6 && tourUi.generationPending) return;
-            if (currentStep === 6 && !hasGeneratedSchedule()) {
-                generateButton.click();
-                return;
-            }
-            if (currentStep === 2) {
-                var settingsButton = firstSettingsButton();
-                if (settingsButton) settingsButton.click();
-                return;
-            }
-            if (currentStep < steps.length - 1) {
-                renderStep(currentStep + 1);
-                return;
-            }
-            closeTutorial(true);
+        function focusableTutorialElements() {
+            return Array.from(overlay.querySelectorAll('button:not([disabled]), [href], [tabindex]:not([tabindex="-1"])'))
+                .filter(function (element) {
+                    return !element.hidden && window.getComputedStyle(element).display !== 'none' && element.getClientRects().length > 0;
+                });
         }
 
+        spotlight.addEventListener('click', function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            advanceTutorial();
+        });
+        overlay.addEventListener('click', function (event) {
+            if (event.target === overlay) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+        });
         closeButton.addEventListener('click', function () { closeTutorial(true); });
-        if (minimizeButton) {
-            minimizeButton.addEventListener('click', function () {
-                setTutorialMinimized(!card.classList.contains('tutorial-card-minimized'));
-            });
-        }
         skipButton.addEventListener('click', function () { closeTutorial(true); });
         backButton.addEventListener('click', function () { renderStep(currentStep - 1); });
-        nextButton.addEventListener('click', finishOrAdvance);
+        nextButton.addEventListener('click', advanceTutorial);
         helpButton.addEventListener('click', function () { openTutorial(true); });
-        addEmployeeButton.addEventListener('click', function () {
-            if (!tutorialIsOpen() || currentStep !== 0) return;
-            window.setTimeout(function () {
-                if (!tutorialIsOpen() || !tourUi) return;
-                var newestEmployee = app.state.employees[app.state.employees.length - 1];
-                guidedEmployeeId = newestEmployee ? newestEmployee.id : null;
-                renderStep(1, true);
-            }, 0);
-        });
-
-        app.elements.saveTimePickerBtn.addEventListener('click', function () {
-            if (!tutorialIsOpen() || currentStep !== 5) return;
-            window.setTimeout(function () {
-                if (!tutorialIsOpen() || !tourUi || currentStep !== 5) return;
-                if (!app.elements.timePickerModal.classList.contains('show')) renderStep(6);
-            }, 0);
-        });
-
-        app.elements.closeTimePickerBtn.addEventListener('click', function () {
-            if (!tutorialIsOpen() || currentStep !== 5) return;
-            window.setTimeout(function () {
-                if (!tutorialIsOpen() || !tourUi || currentStep !== 5) return;
-                if (!app.elements.timePickerModal.classList.contains('show')) {
-                    focusTarget(app.elements.btnAddFixedTime, false);
-                }
-            }, 0);
-        });
-
-        app.elements.timePickerModal.addEventListener('click', function (event) {
-            if (!tutorialIsOpen() || currentStep !== 5 || event.target !== app.elements.timePickerModal) return;
-            window.setTimeout(function () {
-                if (!tutorialIsOpen() || !tourUi || currentStep !== 5) return;
-                if (!app.elements.timePickerModal.classList.contains('show')) {
-                    focusTarget(app.elements.btnAddFixedTime, false);
-                }
-            }, 0);
-        });
-
-        document.addEventListener('click', function (event) {
-            if (!tutorialIsOpen() || allowingTourClick) return;
-            var clickedSettingsButton = event.target.closest('.calendar-btn');
-            var blockedSettingsClick = clickedSettingsButton &&
-                (currentStep !== 2 || clickedSettingsButton !== firstSettingsButton());
-            var blockedAddClick = event.target.closest('#add-employee-btn') && currentStep !== 0;
-            var blockedGenerateClick = event.target.closest('#generate-btn') && currentStep !== 6;
-            if (blockedSettingsClick || blockedAddClick || blockedGenerateClick) {
-                event.preventDefault();
-                event.stopImmediatePropagation();
-            }
-        }, true);
-
-        document.addEventListener('click', function (event) {
-            if (!tutorialIsOpen()) return;
-            var clickedSettingsButton = event.target.closest('.calendar-btn');
-            if (currentStep === 2 && clickedSettingsButton && clickedSettingsButton === firstSettingsButton()) {
-                var clickedEmployee = app.state.employees[Number(clickedSettingsButton.dataset.index)];
-                if (clickedEmployee) guidedEmployeeId = clickedEmployee.id;
-                if (!tourUi.settingsWasOpen) tourUi.openedSettings = true;
-                window.setTimeout(function () {
-                    if (tutorialIsOpen() && tourUi) renderStep(3);
-                }, 0);
-            }
-            if (currentStep === 5 && event.target.closest('#btn-add-fixed-time')) {
-                window.setTimeout(function () {
-                    if (!tutorialIsOpen() || !tourUi || currentStep !== 5) return;
-                    if (app.elements.timePickerModal.classList.contains('show')) {
-                        focusTarget(app.elements.timePickerGrid, false);
-                    }
-                }, 240);
-            }
-            if (currentStep > 0 && currentStep <= 5 && event.target.closest('#employees-list .remove-btn')) {
-                window.setTimeout(function () {
-                    if (!tutorialIsOpen() || !tourUi) return;
-                    renderStep(firstEmployeeRow() ? currentStep : 0, true);
-                }, 0);
-            }
-            if (currentStep === 6 && event.target.closest('#generate-btn')) {
-                tourUi.scheduleBeforeGeneration = app.lastScheduleData;
-                window.setTimeout(function () {
-                    if (!tutorialIsOpen() || !tourUi || currentStep !== 6) return;
-                    if (!app.elements.closedDaysModal.classList.contains('show')) {
-                        tourUi.generationPending = false;
-                        renderStep(6);
-                        return;
-                    }
-                    if (!tourUi.closedDaysWasOpen) tourUi.openedClosedDays = true;
-                    tourUi.generationPending = true;
-                    nextButton.disabled = true;
-                    nextButton.textContent = 'Trykk Fullfør først';
-                    var closedDaysContent = app.elements.closedDaysModal.querySelector('.modal-content');
-                    focusTarget(closedDaysContent || app.elements.closedDaysModal, false);
-                }, 0);
-            }
-        });
-
-        app.elements.closedDaysDoneBtn.addEventListener('click', function () {
-            if (!tutorialIsOpen() || currentStep !== 6) return;
-            function advanceWhenGenerated(attempt) {
-                if (!tutorialIsOpen() || !tourUi || currentStep !== 6) return;
-                if (hasGeneratedSchedule() && app.lastScheduleData !== tourUi.scheduleBeforeGeneration) {
-                    tourUi.generationPending = false;
-                    tourUi.openedClosedDays = false;
-                    renderStep(7);
-                    return;
-                }
-                if (attempt < 12) {
-                    window.setTimeout(function () { advanceWhenGenerated(attempt + 1); }, 75);
-                } else {
-                    tourUi.generationPending = false;
-                    tourUi.openedClosedDays = false;
-                    renderStep(6);
-                }
-            }
-            window.setTimeout(function () { advanceWhenGenerated(0); }, 75);
-        });
-
-        app.elements.closedDaysModal.addEventListener('click', function (event) {
-            if (!tutorialIsOpen() || currentStep !== 6 || event.target !== app.elements.closedDaysModal) return;
-            window.setTimeout(function () {
-                if (!tutorialIsOpen() || !tourUi || currentStep !== 6) return;
-                if (!app.elements.closedDaysModal.classList.contains('show')) {
-                    tourUi.generationPending = false;
-                    tourUi.openedClosedDays = false;
-                    renderStep(6);
-                }
-            }, 0);
-        });
 
         document.addEventListener('keydown', function (event) {
             if (!tutorialIsOpen()) return;
             if (event.key === 'Escape') {
                 event.preventDefault();
+                event.stopImmediatePropagation();
                 closeTutorial(true);
+                return;
             }
-        });
+            if (event.key !== 'Tab') return;
+            var focusable = focusableTutorialElements();
+            if (focusable.length === 0) {
+                event.preventDefault();
+                title.focus({ preventScroll: true });
+                return;
+            }
+            var first = focusable[0];
+            var last = focusable[focusable.length - 1];
+            if (event.shiftKey && (document.activeElement === first || !overlay.contains(document.activeElement))) {
+                event.preventDefault();
+                last.focus();
+            } else if (!event.shiftKey && (document.activeElement === last || !overlay.contains(document.activeElement))) {
+                event.preventDefault();
+                first.focus();
+            }
+        }, true);
+
         document.addEventListener('scroll', schedulePosition, true);
         window.addEventListener('resize', schedulePosition);
         if (window.visualViewport) {
