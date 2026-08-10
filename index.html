@@ -1678,29 +1678,34 @@ body:not(.auth-locked) #login-gate {
             aria-describedby="tutorial-progress">
             <button id="tutorial-close-btn" class="tutorial-close" type="button" aria-label="Lukk introduksjonen">&times;</button>
             <div class="tutorial-kicker">Kort introduksjon</div>
-            <h2 id="tutorial-title" tabindex="-1">Kom i gang på 30 sekunder</h2>
-            <p id="tutorial-progress" class="tutorial-progress" aria-live="polite">Steg 1 av 3</p>
+            <h2 id="tutorial-title" tabindex="-1">Kom i gang på under ett minutt</h2>
+            <p id="tutorial-progress" class="tutorial-progress" aria-live="polite">Steg 1 av 4</p>
 
             <div class="tutorial-steps" aria-live="polite" aria-atomic="true">
                 <article class="tutorial-step" data-tutorial-step="0">
                     <div class="tutorial-step-number" aria-hidden="true">1</div>
                     <h3>Legg inn ansatte</h3>
-                    <p>Trykk <strong>+</strong> ved Ansatte. Skriv navnet, sett stillingsprosent og bruk tannhjulet for fravær eller faste vakter.</p>
+                    <p>Trykk <strong>+</strong> ved Ansatte. Navnefeltet markeres automatisk, så du kan skrive med én gang. Sett riktig stillingsprosent til høyre.</p>
                 </article>
                 <article class="tutorial-step" data-tutorial-step="1" hidden>
                     <div class="tutorial-step-number" aria-hidden="true">2</div>
-                    <h3>Velg behov og måned</h3>
-                    <p>Velg måned øverst. I venstremenyen angir du bemanningsbehov og kontrollerer arbeidstidene.</p>
+                    <h3>Åpne innstillinger</h3>
+                    <p>Trykk tannhjulet ved en ansatt for å legge inn faste vakter, fast utilgjengelighet eller fravær på bestemte datoer.</p>
                 </article>
                 <article class="tutorial-step" data-tutorial-step="2" hidden>
                     <div class="tutorial-step-number" aria-hidden="true">3</div>
-                    <h3>Lag, juster og kopier</h3>
-                    <p>Trykk <strong>Generer Vaktplan</strong>, marker eventuelle stengte dager og fullfør. Juster ved behov, og bruk <strong>Kopier til Excel</strong> når planen er klar.</p>
+                    <h3>Lag planen og sjekk timene</h3>
+                    <p>Velg måned, kontroller bemanningsbehovet og trykk <strong>Generer Vaktplan</strong>. Nederst viser Oppsummering <strong>Tildelt</strong> – timene personen faktisk jobber – mot <strong>Planlagt</strong> fra stillingsprosenten.</p>
+                </article>
+                <article class="tutorial-step" data-tutorial-step="3" hidden>
+                    <div class="tutorial-step-number" aria-hidden="true">4</div>
+                    <h3>Kopier til Excel</h3>
+                    <p>Trykk <strong>Kopier til Excel</strong> over planen. Åpne arket, marker cellen øverst til venstre der kalenderen skal starte, og lim inn.</p>
                 </article>
             </div>
 
             <div class="tutorial-dots" aria-hidden="true">
-                <span class="active"></span><span></span><span></span>
+                <span class="active"></span><span></span><span></span><span></span>
             </div>
             <div class="tutorial-actions">
                 <button id="tutorial-skip-btn" class="tutorial-skip" type="button">Hopp over</button>
@@ -4965,7 +4970,7 @@ document.addEventListener('DOMContentLoaded', function () {
 (function () {
     'use strict';
 
-    var TUTORIAL_KEY = 'vaktplanleggerWebTutorialSeen_v1';
+    var TUTORIAL_KEY = 'vaktplanleggerWebTutorialSeen_v2';
     var currentStep = 0;
     var lastFocusedElement = null;
 
