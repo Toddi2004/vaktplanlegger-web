@@ -249,6 +249,13 @@ body:not(.auth-locked) #login-gate {
     overscroll-behavior: contain;
 }
 
+.tutorial-kicker,
+.tutorial-card h2,
+.tutorial-progress,
+.tutorial-actions {
+    flex: 0 0 auto;
+}
+
 .tutorial-card-centered {
     left: 50% !important;
     top: 50% !important;
@@ -286,6 +293,54 @@ body:not(.auth-locked) #login-gate {
     outline: 2px solid var(--primary);
 }
 
+.tutorial-minimize {
+    display: none;
+}
+
+.tutorial-card-interactive .tutorial-minimize {
+    position: absolute;
+    top: 0.55rem;
+    right: 3.35rem;
+    display: block;
+    min-height: 36px;
+    padding: 0.35rem 0.65rem;
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    background: white;
+    color: var(--primary);
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 750;
+    cursor: pointer;
+}
+
+.tutorial-card-interactive:not(.tutorial-card-minimized) h2 {
+    padding-right: 8.5rem;
+}
+
+.tutorial-card.tutorial-card-minimized {
+    width: min(calc(100vw - 24px), 330px);
+    height: 52px;
+    max-height: 52px;
+    padding: 0.4rem 0.65rem;
+    overflow: visible;
+}
+
+.tutorial-card-minimized > :not(.tutorial-close):not(.tutorial-minimize) {
+    display: none !important;
+}
+
+.tutorial-card-minimized .tutorial-minimize {
+    top: 0.45rem;
+    right: auto;
+    left: 0.65rem;
+}
+
+.tutorial-card-minimized .tutorial-close {
+    top: 0.25rem;
+    right: 0.35rem;
+}
+
 .tutorial-kicker {
     margin-bottom: 0.35rem;
     color: var(--primary);
@@ -298,7 +353,7 @@ body:not(.auth-locked) #login-gate {
 .tutorial-card h2 {
     margin: 0;
     padding-right: 2.75rem;
-    font-size: clamp(1.45rem, 4vw, 1.9rem);
+    font-size: clamp(1.3rem, 3vw, 1.65rem);
     line-height: 1.2;
     outline: none;
 }
@@ -311,24 +366,10 @@ body:not(.auth-locked) #login-gate {
 }
 
 .tutorial-step {
-    min-height: 132px;
     padding: 1.05rem;
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
     background: linear-gradient(145deg, rgba(218, 13, 43, 0.06), white 55%);
-}
-
-.tutorial-step-number {
-    display: grid;
-    place-items: center;
-    width: 2.5rem;
-    height: 2.5rem;
-    margin-bottom: 0.9rem;
-    border-radius: 0.8rem;
-    background: var(--primary);
-    color: white;
-    font-size: 1.05rem;
-    font-weight: 800;
 }
 
 .tutorial-step h3 {
@@ -340,28 +381,22 @@ body:not(.auth-locked) #login-gate {
     margin: 0;
     color: var(--text-muted);
     font-size: 0.95rem;
-    line-height: 1.6;
+    line-height: 1.5;
 }
 
-.tutorial-dots {
-    display: flex;
-    justify-content: center;
-    gap: 0.45rem;
-    margin: 1.15rem 0;
+.tutorial-step p + p {
+    margin-top: 0.7rem;
 }
 
-.tutorial-dots span {
-    width: 0.55rem;
-    height: 0.55rem;
-    border-radius: 50%;
-    background: #d8d2e5;
-    transition: width 0.2s ease, background 0.2s ease;
+.tutorial-step strong {
+    color: var(--text-main);
 }
 
-.tutorial-dots span.active {
-    width: 1.5rem;
-    border-radius: 1rem;
-    background: var(--primary);
+.tutorial-next-note {
+    padding: 0.65rem 0.75rem;
+    border-left: 3px solid var(--primary);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    background: rgba(218, 13, 43, 0.06);
 }
 
 .tutorial-actions,
@@ -373,6 +408,7 @@ body:not(.auth-locked) #login-gate {
 
 .tutorial-actions {
     justify-content: space-between;
+    margin-top: 1rem;
 }
 
 .tutorial-skip {
@@ -391,6 +427,8 @@ body:not(.auth-locked) #login-gate {
 .tutorial-actions .primary-btn,
 .tutorial-actions .secondary-btn {
     min-height: 44px;
+    min-width: 7.5rem;
+    margin-top: 0;
 }
 
 @keyframes tutorial-enter {
@@ -406,9 +444,57 @@ body:not(.auth-locked) #login-gate {
 @media (max-width: 560px) {
     .tutorial-card {
         width: auto;
-        max-height: min(38dvh, 320px);
+        max-height: min(50dvh, 330px);
         padding: 1rem;
         border-radius: 1.1rem;
+    }
+
+    .tutorial-card.tutorial-card-interactive {
+        max-height: min(260px, calc(100dvh - 1.5rem));
+    }
+
+    .tutorial-card-interactive .tutorial-minimize {
+        position: absolute;
+        top: 0.55rem;
+        right: 3.35rem;
+        display: block;
+        min-height: 36px;
+        padding: 0.35rem 0.65rem;
+        border: 1px solid var(--border-color);
+        border-radius: 999px;
+        background: white;
+        color: var(--primary);
+        font: inherit;
+        font-size: 0.78rem;
+        font-weight: 750;
+        cursor: pointer;
+    }
+
+    .tutorial-card-interactive:not(.tutorial-card-minimized) h2 {
+        padding-right: 8.5rem;
+    }
+
+    .tutorial-card.tutorial-card-minimized {
+        width: auto;
+        height: 52px;
+        max-height: 52px;
+        padding: 0.4rem 0.65rem;
+        overflow: visible;
+    }
+
+    .tutorial-card-minimized > :not(.tutorial-close):not(.tutorial-minimize) {
+        display: none !important;
+    }
+
+    .tutorial-card-minimized .tutorial-minimize {
+        top: 0.45rem;
+        right: auto;
+        left: 0.65rem;
+    }
+
+    .tutorial-card-minimized .tutorial-close {
+        top: 0.25rem;
+        right: 0.35rem;
     }
 
     .tutorial-kicker {
@@ -417,11 +503,9 @@ body:not(.auth-locked) #login-gate {
 
     .tutorial-card h2 {
         padding-right: 2.4rem;
-        overflow: hidden;
         font-size: 1.05rem;
         line-height: 1.25;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        white-space: normal;
     }
 
     .tutorial-progress {
@@ -430,15 +514,7 @@ body:not(.auth-locked) #login-gate {
     }
 
     .tutorial-step {
-        min-height: 0;
         padding: 0.7rem;
-    }
-
-    .tutorial-step-number {
-        width: 2rem;
-        height: 2rem;
-        margin-bottom: 0.5rem;
-        font-size: 0.9rem;
     }
 
     .tutorial-step h3 {
@@ -451,24 +527,10 @@ body:not(.auth-locked) #login-gate {
         line-height: 1.4;
     }
 
-    .tutorial-dots {
-        flex: 0 0 auto;
-        gap: 0.3rem;
-        margin: 0.55rem 0;
-    }
-
-    .tutorial-dots span {
-        width: 0.45rem;
-        height: 0.45rem;
-    }
-
-    .tutorial-dots span.active {
-        width: 1.1rem;
-    }
-
     .tutorial-actions {
         flex: 0 0 auto;
         align-items: stretch;
+        gap: 0.4rem;
     }
 
     .tutorial-actions .primary-btn,
@@ -480,15 +542,101 @@ body:not(.auth-locked) #login-gate {
         font-size: 0.86rem;
     }
 
+    .tutorial-actions .primary-btn,
+    .tutorial-actions .secondary-btn {
+        min-width: 6.1rem;
+        padding-left: 0.6rem;
+        padding-right: 0.6rem;
+    }
+
+    .tutorial-skip {
+        white-space: nowrap;
+    }
+
     .tutorial-nav-actions {
         justify-content: flex-end;
+        gap: 0.4rem;
+    }
+}
+
+@media (max-width: 560px) and (max-height: 650px) {
+    .tutorial-card.tutorial-card-interactive {
+        max-height: 230px;
+    }
+}
+
+@media (max-height: 520px) {
+    .tutorial-card {
+        max-height: calc(100dvh - 1.5rem);
+        padding: 0.8rem;
+    }
+
+    .tutorial-kicker {
+        display: none;
+    }
+
+    .tutorial-card h2 {
+        font-size: 1.05rem;
+    }
+
+    .tutorial-progress {
+        margin: 0.2rem 0 0.45rem;
+    }
+
+    .tutorial-step {
+        padding: 0.65rem;
+    }
+
+    .tutorial-step p {
+        font-size: 0.82rem;
+        line-height: 1.35;
+    }
+
+    .tutorial-actions {
+        margin-top: 0.55rem;
+    }
+
+    .modal-overlay {
+        padding: 0.5rem;
+    }
+
+    .modal-content {
+        display: flex;
+        flex-direction: column;
+        max-height: calc(100dvh - 1rem);
+    }
+
+    .modal-header,
+    .modal-footer {
+        flex: 0 0 auto;
+    }
+
+    .modal-body {
+        min-height: 0;
+        overflow-y: auto;
+    }
+
+    .scrollable-body {
+        max-height: none;
+    }
+
+    #time-picker-modal .modal-body {
+        display: flex;
+        flex: 1 1 auto;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    #time-picker-modal .time-grid {
+        flex: 1 1 auto;
+        min-height: 100px;
+        max-height: none;
     }
 }
 
 @media (prefers-reduced-motion: reduce) {
     .tutorial-card,
     .tutorial-spotlight,
-    .tutorial-dots span,
     .tutorial-help-btn {
         animation: none;
         transition: none;
@@ -552,6 +700,19 @@ body:not(.auth-locked) #login-gate {
     gap: 1rem;
 }
 
+.top-nav-actions > button,
+.top-nav-actions > .nav-select-wrapper {
+    min-height: 44px;
+    margin-top: 0;
+}
+
+.top-nav-actions > .primary-btn,
+.top-nav-actions > .secondary-btn {
+    padding-top: 0.55rem;
+    padding-bottom: 0.55rem;
+    font-size: 0.9rem;
+}
+
 .nav-select-wrapper {
     display: flex;
     align-items: center;
@@ -569,22 +730,6 @@ body:not(.auth-locked) #login-gate {
     font-weight: 500;
     outline: none;
     color: var(--text-dark);
-}
-
-.secondary-btn {
-    background: white;
-    color: var(--text-main);
-    border: 1px solid #cbd5e1;
-    padding: 0.5rem 1rem;
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 0.9rem;
-    transition: all 0.2s;
-}
-
-.secondary-btn:hover {
-    background: #f1f5f9;
 }
 
 .app-brand-box {
@@ -722,8 +867,9 @@ body:not(.auth-locked) #login-gate {
     justify-content: center;
     border-radius: 4px;
     transition: all 0.2s;
-    width: 24px;
-    height: 24px;
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
 }
 
 .icon-btn:hover {
@@ -1184,7 +1330,6 @@ body:not(.auth-locked) #login-gate {
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
-    margin-top: auto;
     box-shadow: var(--shadow-md);
 }
 
@@ -1428,14 +1573,38 @@ body:not(.auth-locked) #login-gate {
     }
 
     .top-nav-actions {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 44px auto;
         width: 100%;
-        flex-wrap: wrap;
         gap: 0.5rem;
     }
 
     .nav-select-wrapper {
-        flex: 1 1 170px;
+        grid-column: 1 / -1;
+        grid-row: 1;
         min-width: 0;
+    }
+
+    #generate-btn {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        width: 100%;
+    }
+
+    #view-published-btn {
+        grid-column: 1;
+        grid-row: 3;
+        min-width: 0;
+    }
+
+    #tutorial-help-btn {
+        grid-column: 2;
+        grid-row: 3;
+    }
+
+    #logout-btn {
+        grid-column: 3;
+        grid-row: 3;
     }
 
     .nav-select {
@@ -1462,6 +1631,43 @@ body:not(.auth-locked) #login-gate {
         height: auto;
         padding: 1.25rem;
         overflow: visible;
+    }
+
+    .modal-overlay {
+        padding: 0.5rem;
+    }
+
+    .modal-content {
+        display: flex;
+        flex-direction: column;
+        max-height: calc(100dvh - 1rem);
+    }
+
+    .modal-header,
+    .modal-footer {
+        flex: 0 0 auto;
+    }
+
+    .modal-body {
+        min-height: 0;
+        overflow-y: auto;
+    }
+
+    .scrollable-body {
+        max-height: none;
+    }
+
+    #time-picker-modal .modal-body {
+        display: flex;
+        flex: 1 1 auto;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    #time-picker-modal .time-grid {
+        flex: 1 1 auto;
+        min-height: 120px;
+        max-height: none;
     }
 
     .schedule-grid {
@@ -1514,7 +1720,10 @@ body:not(.auth-locked) #login-gate {
 }
 
 .summary-row {
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(140px, 2fr) minmax(110px, 1fr) minmax(150px, 1.2fr);
+    align-items: center;
+    gap: 1rem;
     padding: 0.75rem 0;
     border-bottom: 1px solid #f1f5f9;
 }
@@ -1533,18 +1742,36 @@ body:not(.auth-locked) #login-gate {
 }
 
 .s-name {
-    flex: 2;
+    min-width: 0;
     font-weight: 500;
+    overflow-wrap: anywhere;
 }
 
 .s-hours {
-    flex: 1;
     text-align: right;
 }
 
 .s-target {
-    flex: 1;
     text-align: right;
+    color: var(--text-muted);
+}
+
+.s-hours,
+.s-target {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.15rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.s-target strong {
+    color: var(--text-main);
+}
+
+.summary-detail {
+    font-size: 0.78rem;
+    font-weight: 500;
     color: var(--text-muted);
 }
 
@@ -1771,14 +1998,68 @@ body:not(.auth-locked) #login-gate {
     color: #0284c7;
 }
 
+@media (max-width: 600px) {
+    .month-summary {
+        padding: 1rem;
+    }
+
+    .summary-row.header {
+        display: none;
+    }
+
+    .summary-row:not(.header) {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 0.65rem;
+        padding: 0.9rem 0;
+    }
+
+    .summary-row:not(.header) .s-name {
+        grid-column: 1 / -1;
+        font-weight: 750;
+    }
+
+    .summary-row:not(.header) .s-hours,
+    .summary-row:not(.header) .s-target {
+        align-items: flex-start;
+        min-width: 0;
+        padding: 0.65rem;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        background: #f8fafc;
+        text-align: left;
+    }
+
+    .summary-row:not(.header) .s-hours::before,
+    .summary-row:not(.header) .s-target::before {
+        content: attr(data-label);
+        margin-bottom: 0.15rem;
+        color: var(--text-muted);
+        font-size: 0.68rem;
+        font-weight: 750;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+}
+
 @media (max-width: 700px) {
     .main-header {
-        align-items: flex-start;
+        flex-direction: column;
+        align-items: stretch;
         gap: 1rem;
     }
 
     .main-header-tools {
-        justify-content: flex-start;
+        width: 100%;
+        justify-content: stretch;
+    }
+
+    .excel-copy-btn,
+    .summary-stats {
+        width: 100%;
+    }
+
+    .excel-copy-btn {
+        min-height: 44px;
     }
 
     .fixed-shift-controls {
@@ -1818,63 +2099,62 @@ body:not(.auth-locked) #login-gate {
     <section id="tutorial-overlay" class="tutorial-overlay" aria-hidden="true" hidden>
         <div id="tutorial-spotlight" class="tutorial-spotlight" aria-hidden="true"></div>
         <div class="tutorial-card" role="dialog" aria-modal="false" aria-labelledby="tutorial-title"
-            aria-describedby="tutorial-progress">
+            aria-describedby="tutorial-progress tutorial-step-1">
             <button id="tutorial-close-btn" class="tutorial-close" type="button" aria-label="Lukk introduksjonen">&times;</button>
-            <div class="tutorial-kicker">Kort introduksjon</div>
-            <h2 id="tutorial-title" tabindex="-1">Kom i gang på rundt to minutter</h2>
+            <button id="tutorial-minimize-btn" class="tutorial-minimize" type="button" aria-controls="tutorial-steps"
+                aria-expanded="true">Skjul</button>
+            <div class="tutorial-kicker">Ansatte</div>
+            <h2 id="tutorial-title" tabindex="-1">Slik bruker du appen</h2>
             <p id="tutorial-progress" class="tutorial-progress" aria-live="polite">Steg 1 av 9</p>
 
-            <div class="tutorial-steps" aria-live="polite" aria-atomic="true">
-                <article class="tutorial-step" data-tutorial-step="0">
-                    <div class="tutorial-step-number" aria-hidden="true">1</div>
+            <div id="tutorial-steps" class="tutorial-steps" aria-live="polite" aria-atomic="true">
+                <article id="tutorial-step-1" class="tutorial-step" data-tutorial-step="0" data-tutorial-context="Ansatte">
                     <h3>Legg til en ansatt</h3>
-                    <p>Trykk den fremhevede <strong>+</strong>-knappen ved Ansatte. Et nytt navnefelt opprettes og markeres automatisk. Har du allerede ansatte, kan du velge Neste.</p>
+                    <p><strong>Gjør dette:</strong> Trykk den markerte <strong>+</strong>-knappen ved «Ansatte», eller bruk «Legg til ansatt» nedenfor. Vi oppretter en ny rad og setter markøren i navnefeltet.</p>
+                    <p class="tutorial-next-note"><strong>Deretter:</strong> Veiledningen går automatisk videre. Har du allerede ansatte, velger du «Neste».</p>
                 </article>
-                <article class="tutorial-step" data-tutorial-step="1" hidden>
-                    <div class="tutorial-step-number" aria-hidden="true">2</div>
-                    <h3>Skriv navn og stillingsprosent</h3>
-                    <p>Den fremhevede raden er den ansatte. Skriv navnet til venstre og riktig stillingsprosent til høyre. Tannhjulet åpner personens egne innstillinger.</p>
+                <article id="tutorial-step-2" class="tutorial-step" data-tutorial-step="1" data-tutorial-context="Ansatte" hidden>
+                    <h3>Navn og stillingsprosent</h3>
+                    <p><strong>Gjør dette:</strong> Skriv navnet til venstre og stillingsprosenten til høyre. Endringene lagres automatisk i denne nettleseren.</p>
+                    <p class="tutorial-next-note"><strong>Deretter:</strong> Trykk «Neste». Da markerer vi hvor du åpner ansattens innstillinger.</p>
                 </article>
-                <article class="tutorial-step" data-tutorial-step="2" hidden>
-                    <div class="tutorial-step-number" aria-hidden="true">3</div>
-                    <h3>Åpne innstillinger</h3>
-                    <p>Trykk det fremhevede tannhjulet. Her samles fast arbeid, fast utilgjengelighet og fri på bestemte datoer.</p>
+                <article id="tutorial-step-3" class="tutorial-step" data-tutorial-step="2" data-tutorial-context="Ansattinnstillinger" hidden>
+                    <h3>Åpne ansattinnstillinger</h3>
+                    <p><strong>Gjør dette:</strong> Trykk «Åpne innstillinger» nederst i veiledningen. Tannhjulet som er markert, gjør det samme senere.</p>
+                    <p class="tutorial-next-note"><strong>Dette åpnes:</strong> Et eget vindu med innstillingene til den markerte ansatte.</p>
                 </article>
-                <article class="tutorial-step" data-tutorial-step="3" hidden>
-                    <div class="tutorial-step-number" aria-hidden="true">4</div>
-                    <h3>Legg inn fast arbeid</h3>
-                    <p>Skjemaet er åpnet for deg. Velg ukedag og dag-, kveld- eller lørdagsvakt. Fast arbeid prioriteres innenfor stillingsprosenten; fravær overstyrer det.</p>
+                <article id="tutorial-step-4" class="tutorial-step" data-tutorial-step="3" data-tutorial-context="Ansattinnstillinger" hidden>
+                    <h3>Faste dager og vakter</h3>
+                    <p><strong>Gjør dette:</strong> Velg ukedag og vakt, og trykk «Legg til valgt vakt» hvis personen skal jobbe fast. Det påvirker når personen settes opp, ikke total arbeidstid.</p>
+                    <p class="tutorial-next-note"><strong>Deretter:</strong> Trykk «Neste». Kalenderen for fravær åpnes i det samme vinduet.</p>
                 </article>
-                <article class="tutorial-step" data-tutorial-step="4" hidden>
-                    <div class="tutorial-step-number" aria-hidden="true">5</div>
-                    <h3>Gi fri på enkeltdager</h3>
-                    <p>Kalenderen for valgt måned er åpnet. Trykk datoene personen ikke kan jobbe. En markert dato sperrer både dag- og kveldsvakt den dagen.</p>
+                <article id="tutorial-step-5" class="tutorial-step" data-tutorial-step="4" data-tutorial-context="Ansattinnstillinger" hidden>
+                    <h3>Fravær på enkeltdatoer</h3>
+                    <p><strong>Gjør dette:</strong> Trykk datoene personen ikke kan jobbe. Datoen lagres med én gang; trykk den igjen for å angre.</p>
+                    <p class="tutorial-next-note"><strong>Deretter:</strong> Trykk «Neste». Et nytt vindu for fast utilgjengelighet åpnes. På mobil kan du bruke «Skjul» mens du velger.</p>
                 </article>
-                <article class="tutorial-step" data-tutorial-step="5" hidden>
-                    <div class="tutorial-step-number" aria-hidden="true">6</div>
-                    <h3>Legg inn fast utilgjengelighet</h3>
-                    <p>Velg ukedag, klikk starttid og deretter sluttid. Eksempel: Torsdag 15:30–20:00 blokkerer alle vakter som overlapper dette hver torsdag.</p>
+                <article id="tutorial-step-6" class="tutorial-step" data-tutorial-step="5" data-tutorial-context="Fast utilgjengelighet" hidden>
+                    <h3>Fast utilgjengelighet</h3>
+                    <p><strong>Gjør dette:</strong> Velg ukedag, trykk starttid og deretter sluttid, og trykk «Lagre».</p>
+                    <p class="tutorial-next-note"><strong>Deretter:</strong> «Lagre» lukker innstillingene og sender deg til planleggeren. På mobil kan du bruke «Skjul» mens du velger. Vil du ikke legge inn noe nå, trykker du «Neste».</p>
                 </article>
-                <article class="tutorial-step" data-tutorial-step="6" hidden>
-                    <div class="tutorial-step-number" aria-hidden="true">7</div>
-                    <h3>Lag vaktplanen</h3>
-                    <p>Velg måned, bemanningsbehov og arbeidstider i venstremenyen. Trykk den fremhevede <strong>Generer Vaktplan</strong>-knappen og marker eventuelle stengte dager.</p>
+                <article id="tutorial-step-7" class="tutorial-step" data-tutorial-step="6" data-tutorial-context="Planlegger" hidden>
+                    <h3>Generer vaktplan</h3>
+                    <p><strong>Gjør dette:</strong> Kontroller måned, bemanningsbehov og arbeidstider. Trykk den markerte «Generer Vaktplan», eller bruk knappen nederst.</p>
+                    <p class="tutorial-next-note"><strong>Dette åpnes:</strong> Marker eventuelle stengte dager og trykk «Fullfør». Har du allerede en plan, kan du velge «Se oppsummering» uten å lage en ny.</p>
                 </article>
-                <article class="tutorial-step" data-tutorial-step="7" hidden>
-                    <div class="tutorial-step-number" aria-hidden="true">8</div>
-                    <h3>Sjekk faktiske arbeidstimer</h3>
-                    <p>Etter generering finner du <strong>Oppsummering</strong> nederst i planen. Tildelt er timene personen faktisk jobber; Planlagt er målet fra stillingsprosenten.</p>
+                <article id="tutorial-step-8" class="tutorial-step" data-tutorial-step="7" data-tutorial-context="Oppsummering" hidden>
+                    <h3>Sjekk timer og stillingsprosent</h3>
+                    <p><strong>Her ser du:</strong> «Tildelt» viser timene personen faktisk er satt opp til, og hvilken stillingsandel det tilsvarer. «Stillingsprosent» viser målet du skrev inn, med omtrentlige måltimer for måneden.</p>
+                    <p class="tutorial-next-note"><strong>Deretter:</strong> Trykk «Neste». Vi markerer Excel-knappen øverst i planen.</p>
                 </article>
-                <article class="tutorial-step" data-tutorial-step="8" hidden>
-                    <div class="tutorial-step-number" aria-hidden="true">9</div>
+                <article id="tutorial-step-9" class="tutorial-step" data-tutorial-step="8" data-tutorial-context="Eksport" hidden>
                     <h3>Kopier til Excel</h3>
-                    <p>Trykk den fremhevede <strong>Kopier til Excel</strong>-knappen. Åpne arket, marker cellen øverst til venstre og lim inn. Publiser planen hvis du vil beholde den i arkivet.</p>
+                    <p><strong>Gjør dette:</strong> Trykk den markerte «Kopier til Excel». Når knappen viser «Kopiert», åpner du Excel og velger cellen øverst til venstre.</p>
+                    <p class="tutorial-next-note"><strong>Deretter:</strong> Lim inn med <strong>Ctrl+V</strong>, og trykk «Ferdig» i veiledningen.</p>
                 </article>
             </div>
 
-            <div class="tutorial-dots" aria-hidden="true">
-                <span class="active"></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
-            </div>
             <div class="tutorial-actions">
                 <button id="tutorial-skip-btn" class="tutorial-skip" type="button">Hopp over</button>
                 <div class="tutorial-nav-actions">
@@ -1910,8 +2190,8 @@ body:not(.auth-locked) #login-gate {
                 <div
                     style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
                     <h2 style="margin: 0; border: none; padding: 0;">Ansatte</h2>
-                    <button id="add-employee-btn" class="icon-btn" title="Legg til ansatt"
-                        style="background:var(--primary); color:white; width:28px; height:28px; border-radius:50%; font-size:1.2rem; display:flex; align-items:center; justify-content:center;">+</button>
+                    <button id="add-employee-btn" class="icon-btn" type="button" title="Legg til ny ansatt" aria-label="Legg til ny ansatt"
+                        style="background:var(--primary); color:white; width:40px; height:40px; border-radius:50%; font-size:1.2rem; display:flex; align-items:center; justify-content:center;">+</button>
                 </div>
                 <div id="employees-list" class="employees-list">
                     <!-- Employees will be generated here -->
@@ -1924,44 +2204,44 @@ body:not(.auth-locked) #login-gate {
                 <div class="daily-requirements">
                     <div class="daily-req-row">
                         <div class="req-day-label">Mandag</div>
-                        <div class="req-input-group"><span>Dag</span><input type="number" id="req-mon-day" value="1"
+                        <div class="req-input-group"><span>Dag</span><input type="number" id="req-mon-day" value="1" aria-label="Bemanningsbehov mandag dag"
                                 min="0" max="10"></div>
-                        <div class="req-input-group"><span>Kveld</span><input type="number" id="req-mon-eve" value="2"
+                        <div class="req-input-group"><span>Kveld</span><input type="number" id="req-mon-eve" value="2" aria-label="Bemanningsbehov mandag kveld"
                                 min="0" max="10"></div>
                     </div>
                     <div class="daily-req-row">
                         <div class="req-day-label">Tirsdag</div>
-                        <div class="req-input-group"><span>Dag</span><input type="number" id="req-tue-day" value="1"
+                        <div class="req-input-group"><span>Dag</span><input type="number" id="req-tue-day" value="1" aria-label="Bemanningsbehov tirsdag dag"
                                 min="0" max="10"></div>
-                        <div class="req-input-group"><span>Kveld</span><input type="number" id="req-tue-eve" value="3"
+                        <div class="req-input-group"><span>Kveld</span><input type="number" id="req-tue-eve" value="3" aria-label="Bemanningsbehov tirsdag kveld"
                                 min="0" max="10"></div>
                     </div>
                     <div class="daily-req-row">
                         <div class="req-day-label">Onsdag</div>
-                        <div class="req-input-group"><span>Dag</span><input type="number" id="req-wed-day" value="1"
+                        <div class="req-input-group"><span>Dag</span><input type="number" id="req-wed-day" value="1" aria-label="Bemanningsbehov onsdag dag"
                                 min="0" max="10"></div>
-                        <div class="req-input-group"><span>Kveld</span><input type="number" id="req-wed-eve" value="2"
+                        <div class="req-input-group"><span>Kveld</span><input type="number" id="req-wed-eve" value="2" aria-label="Bemanningsbehov onsdag kveld"
                                 min="0" max="10"></div>
                     </div>
                     <div class="daily-req-row">
                         <div class="req-day-label">Torsdag</div>
-                        <div class="req-input-group"><span>Dag</span><input type="number" id="req-thu-day" value="1"
+                        <div class="req-input-group"><span>Dag</span><input type="number" id="req-thu-day" value="1" aria-label="Bemanningsbehov torsdag dag"
                                 min="0" max="10"></div>
-                        <div class="req-input-group"><span>Kveld</span><input type="number" id="req-thu-eve" value="3"
+                        <div class="req-input-group"><span>Kveld</span><input type="number" id="req-thu-eve" value="3" aria-label="Bemanningsbehov torsdag kveld"
                                 min="0" max="10"></div>
                     </div>
                     <div class="daily-req-row">
                         <div class="req-day-label">Fredag</div>
-                        <div class="req-input-group"><span>Dag</span><input type="number" id="req-fri-day" value="1"
+                        <div class="req-input-group"><span>Dag</span><input type="number" id="req-fri-day" value="1" aria-label="Bemanningsbehov fredag dag"
                                 min="0" max="10"></div>
-                        <div class="req-input-group"><span>Kveld</span><input type="number" id="req-fri-eve" value="2"
+                        <div class="req-input-group"><span>Kveld</span><input type="number" id="req-fri-eve" value="2" aria-label="Bemanningsbehov fredag kveld"
                                 min="0" max="10"></div>
                     </div>
                     <div class="daily-req-row">
                         <div class="req-day-label">Lørdag</div>
-                        <div class="req-input-group"><span>Dag</span><input type="number" id="req-sat-day" value="0"
+                        <div class="req-input-group"><span>Dag</span><input type="number" id="req-sat-day" value="0" aria-label="Bemanningsbehov lørdag dag"
                                 min="0" max="10" disabled style="opacity:0.3" title="Lørdag er felles vakt"></div>
-                        <div class="req-input-group"><span>Helvakt</span><input type="number" id="req-sat-eve" value="3"
+                        <div class="req-input-group"><span>Helvakt</span><input type="number" id="req-sat-eve" value="3" aria-label="Bemanningsbehov lørdag helvakt"
                                 min="0" max="10"></div>
                     </div>
                 </div>
@@ -2046,11 +2326,11 @@ body:not(.auth-locked) #login-gate {
     </div>
 
     <!-- Detailed Employee Settings Modal -->
-    <div id="unavailability-modal" class="modal-overlay">
+    <div id="unavailability-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
         <div class="modal-content">
             <header class="modal-header">
                 <h2 id="modal-title">Innstillinger: Ansatt</h2>
-                <button class="close-modal">&times;</button>
+                <button class="close-modal" aria-label="Lukk ansattinnstillinger">&times;</button>
             </header>
             <div class="modal-body scrollable-body">
                 <div class="modal-section">
@@ -2086,7 +2366,7 @@ body:not(.auth-locked) #login-gate {
                 </div>
 
                 <div class="modal-section">
-                    <h3>Fast Utilgjengelighet</h3>
+                    <h3>Fast utilgjengelighet</h3>
                     <div id="modal-fixed-unavail-list"
                         style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem;">
                         <!-- Generated by JS -->
@@ -2096,7 +2376,7 @@ body:not(.auth-locked) #login-gate {
                 </div>
 
                 <div class="modal-section">
-                    <h3>Ekstraordinært fravær (Enkeltdatoer)</h3>
+                    <h3>Fravær på enkeltdatoer</h3>
                     <button class="settings-action-btn settings-collapse-btn" id="collapse-absence-header"
                         type="button" aria-expanded="false" aria-controls="collapse-absence-content">
                         <span class="collapse-label-open">+ Legg til fraværsdatoer</span>
@@ -2119,15 +2399,15 @@ body:not(.auth-locked) #login-gate {
     </div> <!-- End of unavailability-modal -->
 
     <!-- Time Picker Modal (Secondary) -->
-    <div id="time-picker-modal" class="modal-overlay" style="z-index: 105;">
+    <div id="time-picker-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="time-picker-title" style="z-index: 105;">
         <div class="modal-content" style="max-width: 500px;">
             <header class="modal-header">
-                <h2>Velg tid for utilgjengelighet</h2>
-                <button id="close-time-picker-btn" class="close-modal">&times;</button>
+                <h2 id="time-picker-title">Velg tid for utilgjengelighet</h2>
+                <button id="close-time-picker-btn" class="close-modal" aria-label="Lukk tidsvelger">&times;</button>
             </header>
             <div class="modal-body">
                 <div class="form-row">
-                    <label>Velg ukedag:</label>
+                    <label for="time-picker-day">Velg ukedag:</label>
                     <select id="time-picker-day">
                         <option value="0">Mandag</option>
                         <option value="1">Tirsdag</option>
@@ -2151,10 +2431,10 @@ body:not(.auth-locked) #login-gate {
     </div>
 
     <!-- Closed Days Picker Modal -->
-    <div id="closed-days-modal" class="modal-overlay">
+    <div id="closed-days-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="closed-days-title">
         <div class="modal-content" style="max-width: 700px;">
             <header class="modal-header">
-                <h2>Marker stengte dager</h2>
+                <h2 id="closed-days-title">Marker stengte dager</h2>
             </header>
             <div class="modal-body">
                 <p class="help-text" style="margin-bottom:1rem;">Klikk på dager bedriften holder stengt. Disse dagene
@@ -2169,11 +2449,11 @@ body:not(.auth-locked) #login-gate {
         </div>
     </div>
 
-    <div id="custom-time-modal" class="modal-overlay" style="z-index: 110;">
+    <div id="custom-time-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="custom-time-title" style="z-index: 110;">
         <div class="modal-content" style="max-width: 400px;">
             <header class="modal-header">
-                <h2>Juster Vakt</h2>
-                <button id="close-custom-time-btn" class="close-modal">&times;</button>
+                <h2 id="custom-time-title">Juster vakt</h2>
+                <button id="close-custom-time-btn" class="close-modal" aria-label="Lukk vaktjustering">&times;</button>
             </header>
             <div class="modal-body">
                 <p id="custom-time-desc" class="help-text" style="margin-bottom:1rem;"></p>
@@ -2200,13 +2480,13 @@ body:not(.auth-locked) #login-gate {
     </div>
 
     <!-- All Published Schedules Modal -->
-    <div id="all-schedules-modal" class="modal-overlay" style="z-index: 100;">
+    <div id="all-schedules-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="archive-title" style="z-index: 100;">
         <div class="modal-content" style="max-width: 800px;">
             <header class="modal-header">
-                <h2>Vaktplanarkiv</h2>
+                <h2 id="archive-title">Vaktplanarkiv</h2>
                 <div style="display:flex; gap:0.5rem; align-items:center;">
                     <select id="archive-year-select" style="padding: 0.3rem; border-radius: 4px; border: 1px solid #cbd5e1;"></select>
-                    <button id="close-all-schedules-btn" class="close-modal">&times;</button>
+                    <button id="close-all-schedules-btn" class="close-modal" aria-label="Lukk vaktplanarkiv">&times;</button>
                 </div>
             </header>
             <div class="modal-body">
@@ -2931,9 +3211,12 @@ window.VaktApp = window.VaktApp || {};
      */
     app.generateSchedule = function () {
         if (!standardTimesAreValid(true)) return;
+        app.closedDaysReturnFocus = document.activeElement;
         var parts = app.elements.monthSelector.value.split('-').map(Number);
         app.renderClosedDaysPicker(parts[0], parts[1]);
         app.elements.closedDaysModal.classList.add('show');
+        var firstDayButton = app.elements.closedDaysGrid.querySelector('button');
+        (firstDayButton || app.elements.closedDaysDoneBtn).focus();
     };
 
     // ════════════════════════════════════════════════════════════════════
@@ -2977,13 +3260,16 @@ window.VaktApp = window.VaktApp || {};
         // Actual month days (clickable)
         for (var d = 1; d <= daysInMonth; d++) {
             (function (d) {
-                var btn = document.createElement('div');
+                var btn = document.createElement('button');
                 var dateKey = year + '-' + month + '-' + d;
                 var isHoliday = holidays.has(dateKey);
                 var isSunday = new Date(year, month, d).getDay() === 0;
 
+                btn.type = 'button';
                 btn.textContent = d;
-                btn.style.cssText = 'text-align:center; padding:0.4rem; border-radius:6px; cursor:pointer; font-size:0.8rem; font-weight:500; border:1px solid #e2e8f0; transition:all 0.15s;';
+                btn.setAttribute('aria-label', d + '. ' + app.monthNames[month] + (app.closedDays.has(dateKey) ? ', stengt' : ', åpen'));
+                btn.setAttribute('aria-pressed', app.closedDays.has(dateKey) ? 'true' : 'false');
+                btn.style.cssText = 'text-align:center; padding:0.4rem; border-radius:6px; cursor:pointer; font:inherit; font-size:0.8rem; font-weight:500; border:1px solid #e2e8f0; background:white; transition:all 0.15s;';
 
                 if (isHoliday || isSunday) {
                     btn.style.color = '#dc2626';
@@ -3009,6 +3295,8 @@ window.VaktApp = window.VaktApp || {};
                         btn.style.color = 'white';
                         btn.style.border = '1px solid #1e293b';
                     }
+                    btn.setAttribute('aria-pressed', app.closedDays.has(dateKey) ? 'true' : 'false');
+                    btn.setAttribute('aria-label', d + '. ' + app.monthNames[month] + (app.closedDays.has(dateKey) ? ', stengt' : ', åpen'));
                     app.saveState();
                 });
                 grid.appendChild(btn);
@@ -3824,10 +4112,16 @@ window.VaktApp = window.VaktApp || {};
         var sortedWorkers = workers.slice().sort(function (a, b) { return b.assignedHours - a.assignedHours; });
         var summaryContainer = document.createElement('div');
         summaryContainer.className = 'month-summary';
-        var html = '<h3>Oppsummering</h3><div class="summary-table"><div class="summary-row header"><div class="s-name">Ansatt</div><div class="s-hours">Tildelt</div><div class="s-target">Planlagt</div></div>';
+        var html = '<h3>Oppsummering</h3><div class="summary-table"><div class="summary-row header"><div class="s-name">Ansatt</div><div class="s-hours">Tildelt</div><div class="s-target">Stillingsprosent</div></div>';
         sortedWorkers.forEach(function (w) {
             var actualPct = w.targetHours > 0 ? ((w.assignedHours / w.targetHours) * w.percent).toFixed(1) : '0.0';
-            html += '<div class="summary-row"><div class="s-name">' + app.escapeHtml(w.name) + '</div><div class="s-hours"><strong>' + app.escapeHtml(w.assignedHours) + 't</strong> (' + app.escapeHtml(actualPct) + '%)</div><div class="s-target">' + app.escapeHtml(app.roundHalf(w.targetHours)) + 't (' + app.escapeHtml(w.percent) + '%)</div></div>';
+            var assignedHours = String(w.assignedHours).replace('.', ',');
+            var actualPercent = String(actualPct).replace('.', ',');
+            var targetHours = String(app.roundHalf(w.targetHours)).replace('.', ',');
+            var positionPercent = String(w.percent).replace('.', ',');
+            html += '<div class="summary-row"><div class="s-name">' + app.escapeHtml(w.name) + '</div>' +
+                '<div class="s-hours" data-label="Tildelt"><strong>' + app.escapeHtml(assignedHours) + ' t</strong><span class="summary-detail">tilsvarer ' + app.escapeHtml(actualPercent) + ' %</span></div>' +
+                '<div class="s-target" data-label="Stillingsprosent"><strong>' + app.escapeHtml(positionPercent) + ' %</strong><span class="summary-detail">ca. ' + app.escapeHtml(targetHours) + ' t mål</span></div></div>';
         });
         html += '</div>';
         summaryContainer.innerHTML = html;
@@ -3862,6 +4156,8 @@ window.VaktApp = window.VaktApp || {};
     var activeEmployeeIndexForModal = null;
     var timeGridSelectionStart = null;
     var selectedTimeSlots = new Set();
+    var modalReturnFocus = null;
+    var timePickerReturnFocus = null;
     var DEFAULT_START_TIME_MINS = 8 * 60;
     var DEFAULT_END_TIME_MINS = 20 * 60;
     var timeGridStartMins = DEFAULT_START_TIME_MINS;
@@ -3905,7 +4201,7 @@ window.VaktApp = window.VaktApp || {};
             var div = document.createElement('div');
             div.className = 'fixed-unavail-item';
             div.innerHTML = '<span><strong>' + getDayName(Number(item.dayOfWeek)) + '</strong>: ' + getShiftName(item.shiftType) + '</span>' +
-                '<button class="icon-btn remove-btn" style="color:#ef4444;" title="Fjern fast vakt">&times;</button>';
+                '<button class="icon-btn remove-btn" type="button" style="color:#ef4444;" title="Fjern fast vakt" aria-label="Fjern fast vakt på ' + getDayName(Number(item.dayOfWeek)) + '">&times;</button>';
             div.querySelector('button').addEventListener('click', function () {
                 emp.fixedShifts.splice(originalIndex, 1);
                 renderFixedShiftList(emp);
@@ -3965,7 +4261,7 @@ window.VaktApp = window.VaktApp || {};
             var div = document.createElement('div');
             div.className = 'fixed-unavail-item';
             div.innerHTML = '<span><strong>' + getDayName(item.dayOfWeek) + '</strong>: ' + formatTime(item.startMin) + ' - ' + formatTime(item.endMin) + '</span>' +
-                '<button class="icon-btn remove-btn" style="color:#ef4444;" title="Fjern">&times;</button>';
+                '<button class="icon-btn remove-btn" type="button" style="color:#ef4444;" title="Fjern" aria-label="Fjern fast utilgjengelighet på ' + getDayName(item.dayOfWeek) + '">&times;</button>';
             div.querySelector('button').addEventListener('click', function () {
                 emp.fixedUnavail.splice(index, 1);
                 renderFixedUnavailList(emp);
@@ -4037,15 +4333,20 @@ window.VaktApp = window.VaktApp || {};
     }
 
     function openTimePicker() {
+        if (!app.elements.timePickerModal.classList.contains('show')) timePickerReturnFocus = document.activeElement;
         selectedTimeSlots.clear();
         timeGridSelectionStart = null;
         renderTimeGrid();
+        var modalBody = app.elements.timePickerModal.querySelector('.modal-body');
+        if (modalBody) modalBody.scrollTop = 0;
         app.elements.timePickerModal.classList.add('show');
         app.elements.timePickerDay.focus();
     }
 
     function closeTimePicker() {
         app.elements.timePickerModal.classList.remove('show');
+        if (timePickerReturnFocus && timePickerReturnFocus.isConnected) timePickerReturnFocus.focus();
+        timePickerReturnFocus = null;
     }
 
     function saveTimePicker() {
@@ -4083,6 +4384,7 @@ window.VaktApp = window.VaktApp || {};
     }
 
     app.openModal = function (employeeIndex) {
+        if (!app.elements.modal.classList.contains('show')) modalReturnFocus = document.activeElement;
         activeEmployeeIndexForModal = employeeIndex;
         var emp = state.employees[employeeIndex];
         if (!emp.fixedShifts) emp.fixedShifts = [];
@@ -4126,8 +4428,11 @@ window.VaktApp = window.VaktApp || {};
             (function (d) {
                 var dateKey = calYear + '-' + calMonth + '-' + d;
                 var dayBtn = document.createElement('button');
+                dayBtn.type = 'button';
                 dayBtn.className = 'cal-day';
                 dayBtn.textContent = d;
+                dayBtn.setAttribute('aria-label', d + '. ' + app.monthNames[calMonth] + (emp.dateUnavail.has(dateKey) ? ', utilgjengelig' : ', tilgjengelig'));
+                dayBtn.setAttribute('aria-pressed', emp.dateUnavail.has(dateKey) ? 'true' : 'false');
                 var jsDow = new Date(calYear, calMonth, d).getDay();
                 if (jsDow === 0) dayBtn.style.color = '#dc2626';
                 if (emp.dateUnavail.has(dateKey)) dayBtn.classList.add('unavailable');
@@ -4139,6 +4444,8 @@ window.VaktApp = window.VaktApp || {};
                         emp.dateUnavail.add(dateKey);
                         dayBtn.classList.add('unavailable');
                     }
+                    dayBtn.setAttribute('aria-pressed', emp.dateUnavail.has(dateKey) ? 'true' : 'false');
+                    dayBtn.setAttribute('aria-label', d + '. ' + app.monthNames[calMonth] + (emp.dateUnavail.has(dateKey) ? ', utilgjengelig' : ', tilgjengelig'));
                     app.renderEmployees();
                     app.saveState();
                 });
@@ -4147,6 +4454,8 @@ window.VaktApp = window.VaktApp || {};
         }
 
         app.elements.modal.classList.add('show');
+        var closeButton = app.elements.modal.querySelector('.close-modal');
+        if (closeButton) closeButton.focus();
     };
 
     app.closeModal = function () {
@@ -4156,6 +4465,8 @@ window.VaktApp = window.VaktApp || {};
             app.saveState();
         }
         app.elements.modal.classList.remove('show');
+        if (modalReturnFocus && modalReturnFocus.isConnected) modalReturnFocus.focus();
+        modalReturnFocus = null;
     };
 
     // Expose for event listeners setup
@@ -4164,6 +4475,7 @@ window.VaktApp = window.VaktApp || {};
     app.saveTimePicker = saveTimePicker;
     app.updateFixedShiftTypeOptions = updateFixedShiftTypeOptions;
     app.addFixedShift = addFixedShift;
+    app.getActiveEmployeeIndexForModal = function () { return activeEmployeeIndexForModal; };
 
 })(window.VaktApp);
 
@@ -4502,6 +4814,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     var app = window.VaktApp;
     var state = app.state;
+    var archiveReturnFocus = null;
 
     // DOM element references (available to all modules via app.elements)
     app.elements = {
@@ -4662,19 +4975,20 @@ document.addEventListener('DOMContentLoaded', function () {
                 badges += '<span class="fixed-shift-badge" title="Faste vakter">' + fixedShiftCount + (fixedShiftCount === 1 ? ' fast vakt' : ' faste vakter') + '</span>';
             }
             var badgeRow = badges ? '<div class="employee-badges">' + badges + '</div>' : '';
+            var safeEmployeeName = app.escapeHtml(emp.name);
 
             row.innerHTML =
                 '<div class="employee-name-edit">' +
-                '<input type="text" value="' + app.escapeHtml(emp.name) + '" data-name-index="' + index + '" placeholder="Navn">' +
+                '<input type="text" value="' + safeEmployeeName + '" data-name-index="' + index + '" placeholder="Navn" aria-label="Navn for ' + safeEmployeeName + '">' +
                 badgeRow +
                 '</div>' +
                 '<div class="employee-controls">' +
-                '<button class="icon-btn calendar-btn" data-index="' + index + '" title="Innstillinger">⚙️</button>' +
+                '<button class="icon-btn calendar-btn" type="button" data-index="' + index + '" title="Innstillinger" aria-label="Åpne innstillinger for ' + safeEmployeeName + '">⚙️</button>' +
                 '<div class="employee-input">' +
-                '<input type="number" min="0" max="100" step="5" value="' + emp.percent + '" data-index="' + index + '">' +
+                '<input type="number" min="0" max="100" step="5" value="' + emp.percent + '" data-index="' + index + '" aria-label="Stillingsprosent for ' + safeEmployeeName + '">' +
                 '<span>%</span>' +
                 '</div>' +
-                '<button class="icon-btn remove-btn" data-index="' + index + '" title="Fjern ansatt">&times;</button>' +
+                '<button class="icon-btn remove-btn" type="button" data-index="' + index + '" title="Fjern ansatt" aria-label="Fjern ' + safeEmployeeName + '">&times;</button>' +
                 '</div>';
             app.elements.employeesList.appendChild(row);
         });
@@ -4924,16 +5238,42 @@ document.addEventListener('DOMContentLoaded', function () {
             if (e.target === app.elements.modal) app.closeModal();
             if (e.target === app.elements.timePickerModal) app.closeTimePicker();
             if (e.target === app.elements.customTimeModal) app.elements.customTimeModal.classList.remove('show');
-            if (e.target === app.elements.allSchedulesModal) app.elements.allSchedulesModal.classList.remove('show');
+            if (e.target === app.elements.allSchedulesModal) app.closeArchiveModal();
         });
         
         window.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
-                app.closeModal();
                 if (app.closeTimePicker) app.closeTimePicker();
+                app.closeModal();
                 if (app.elements.customTimeModal) app.elements.customTimeModal.classList.remove('show');
-                if (app.elements.allSchedulesModal) app.elements.allSchedulesModal.classList.remove('show');
-                if (app.elements.closedDaysModal) app.elements.closedDaysModal.classList.remove('show');
+                if (app.elements.allSchedulesModal && app.elements.allSchedulesModal.classList.contains('show')) app.closeArchiveModal();
+                if (app.elements.closedDaysModal && app.elements.closedDaysModal.classList.contains('show')) {
+                    app.elements.closedDaysModal.classList.remove('show');
+                    if (app.closedDaysReturnFocus && app.closedDaysReturnFocus.isConnected) app.closedDaysReturnFocus.focus();
+                    app.closedDaysReturnFocus = null;
+                }
+            }
+            if (e.key === 'Tab') {
+                var tutorialOverlay = document.getElementById('tutorial-overlay');
+                if (tutorialOverlay && !tutorialOverlay.hidden) return;
+                var visibleModals = Array.from(document.querySelectorAll('.modal-overlay.show'));
+                var activeModal = visibleModals[visibleModals.length - 1];
+                if (!activeModal) return;
+                var focusable = Array.from(activeModal.querySelectorAll('button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'))
+                    .filter(function (element) { return element.getClientRects().length > 0; });
+                if (focusable.length === 0) return;
+                var firstFocusable = focusable[0];
+                var lastFocusable = focusable[focusable.length - 1];
+                if (e.shiftKey && document.activeElement === firstFocusable) {
+                    e.preventDefault();
+                    lastFocusable.focus();
+                } else if (!e.shiftKey && document.activeElement === lastFocusable) {
+                    e.preventDefault();
+                    firstFocusable.focus();
+                } else if (!activeModal.contains(document.activeElement)) {
+                    e.preventDefault();
+                    firstFocusable.focus();
+                }
             }
         });
         
@@ -4994,7 +5334,7 @@ document.addEventListener('DOMContentLoaded', function () {
         
         if (app.elements.closeAllSchedulesBtn) {
             app.elements.closeAllSchedulesBtn.addEventListener('click', function() {
-                app.elements.allSchedulesModal.classList.remove('show');
+                app.closeArchiveModal();
             });
         }
         
@@ -5029,6 +5369,8 @@ document.addEventListener('DOMContentLoaded', function () {
         // Closed days modal
         app.elements.closedDaysDoneBtn.addEventListener('click', function () {
             app.elements.closedDaysModal.classList.remove('show');
+            if (app.closedDaysReturnFocus && app.closedDaysReturnFocus.isConnected) app.closedDaysReturnFocus.focus();
+            app.closedDaysReturnFocus = null;
             app.elements.scheduleGrid.innerHTML = '<div class="empty-state">Genererer vaktplan...</div>';
             setTimeout(function () { app.buildSchedule(); }, 300);
         });
@@ -5036,6 +5378,8 @@ document.addEventListener('DOMContentLoaded', function () {
         window.addEventListener('click', function (e) {
             if (e.target === app.elements.closedDaysModal) {
                 app.elements.closedDaysModal.classList.remove('show');
+                if (app.closedDaysReturnFocus && app.closedDaysReturnFocus.isConnected) app.closedDaysReturnFocus.focus();
+                app.closedDaysReturnFocus = null;
             }
         });
 
@@ -5135,9 +5479,11 @@ document.addEventListener('DOMContentLoaded', function () {
         app.elements.customShiftEnd.value = formatTime(ctime.endMin);
 
         app.elements.customTimeModal.classList.add('show');
+        app.elements.customShiftStart.focus();
     };
 
     app.openArchiveModal = function() {
+        archiveReturnFocus = document.activeElement;
         var yearSel = app.elements.archiveYearSelect;
         var currYear = new Date().getFullYear();
         var years = new Set();
@@ -5156,6 +5502,13 @@ document.addEventListener('DOMContentLoaded', function () {
         });
         app.renderArchiveGrid();
         app.elements.allSchedulesModal.classList.add('show');
+        app.elements.archiveYearSelect.focus();
+    };
+
+    app.closeArchiveModal = function (restoreFocus) {
+        app.elements.allSchedulesModal.classList.remove('show');
+        if (restoreFocus !== false && archiveReturnFocus && archiveReturnFocus.isConnected) archiveReturnFocus.focus();
+        archiveReturnFocus = null;
     };
 
     app.renderArchiveGrid = function() {
@@ -5164,19 +5517,21 @@ document.addEventListener('DOMContentLoaded', function () {
         grid.innerHTML = '';
         for (var m = 0; m < 12; m++) {
             var key = year + '-' + m;
-            var box = document.createElement('div');
-            box.style.cssText = 'display:flex; flex-direction:column; justify-content:center; align-items:center; min-height:95px; padding:1rem; border-radius:8px; text-align:center; cursor:pointer; border:1px solid #cbd5e1; font-weight:600; font-size:0.95rem; transition:all 0.2s;';
+            var box = document.createElement('button');
+            box.type = 'button';
+            box.style.cssText = 'display:flex; flex-direction:column; justify-content:center; align-items:center; min-height:95px; padding:1rem; border-radius:8px; text-align:center; cursor:pointer; border:1px solid #cbd5e1; font:inherit; font-weight:600; font-size:0.95rem; transition:all 0.2s;';
             box.textContent = app.monthNames[m];
             
             if (app.publishedSchedules[key]) {
                 box.style.backgroundColor = '#fae8e8';
                 box.style.color = '#991b1b';
                 box.style.borderColor = '#fca5a5';
+                box.setAttribute('aria-label', app.monthNames[m] + ' ' + year + ', publisert plan');
                 box.innerHTML += '<div style="font-size:0.75rem; margin-top:0.4rem; font-weight:500; background:white; padding:0.15rem 0.6rem; border-radius:12px; box-shadow:0 1px 2px rgba(0,0,0,0.05); color:#dc2626;">✨ Publisert</div>';
                 
                 (function(monthKey) {
                     box.addEventListener('click', function() {
-                        app.elements.allSchedulesModal.classList.remove('show');
+                        app.closeArchiveModal(false);
                         
                         var sel = app.elements.monthSelector;
                         var exists = Array.from(sel.options).some(function(o) { return o.value === monthKey; });
@@ -5189,6 +5544,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         }
                         sel.value = monthKey;
                         sel.dispatchEvent(new Event('change'));
+                        sel.focus();
                     });
                 })(key);
                 
@@ -5198,10 +5554,11 @@ document.addEventListener('DOMContentLoaded', function () {
             } else {
                 box.style.backgroundColor = '#f8fafc';
                 box.style.color = '#64748b';
+                box.setAttribute('aria-label', app.monthNames[m] + ' ' + year + ', ingen publisert plan');
                 
                 (function(monthKey) {
                     box.addEventListener('click', function() {
-                        app.elements.allSchedulesModal.classList.remove('show');
+                        app.closeArchiveModal(false);
                         
                         var sel = app.elements.monthSelector;
                         var exists = Array.from(sel.options).some(function(o) { return o.value === monthKey; });
@@ -5214,6 +5571,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         }
                         sel.value = monthKey;
                         sel.dispatchEvent(new Event('change'));
+                        sel.focus();
                         
                         // Delay opening closed-days to allow DOM to clear out the background visually first
                         setTimeout(function() {
@@ -5352,7 +5710,7 @@ document.addEventListener('DOMContentLoaded', function () {
 (function () {
     'use strict';
 
-    var TUTORIAL_KEY = 'vaktplanleggerWebTutorialSeen_v4';
+    var TUTORIAL_KEY = 'vaktplanleggerWebTutorialSeen_v5';
     var currentStep = 0;
     var lastFocusedElement = null;
     var currentTarget = null;
@@ -5381,17 +5739,20 @@ document.addEventListener('DOMContentLoaded', function () {
         var overlay = document.getElementById('tutorial-overlay');
         var spotlight = document.getElementById('tutorial-spotlight');
         var card = overlay && overlay.querySelector('.tutorial-card');
+        var kicker = overlay && overlay.querySelector('.tutorial-kicker');
         var title = document.getElementById('tutorial-title');
         var progress = document.getElementById('tutorial-progress');
         var closeButton = document.getElementById('tutorial-close-btn');
+        var minimizeButton = document.getElementById('tutorial-minimize-btn');
         var skipButton = document.getElementById('tutorial-skip-btn');
         var backButton = document.getElementById('tutorial-back-btn');
         var nextButton = document.getElementById('tutorial-next-btn');
         var helpButton = document.getElementById('tutorial-help-btn');
         var addEmployeeButton = document.getElementById('add-employee-btn');
+        var generateButton = document.getElementById('generate-btn');
         var stepsContainer = overlay ? overlay.querySelector('.tutorial-steps') : null;
         var steps = overlay ? Array.from(overlay.querySelectorAll('[data-tutorial-step]')) : [];
-        var dots = overlay ? Array.from(overlay.querySelectorAll('.tutorial-dots span')) : [];
+        var allowingTourClick = false;
 
         if (!app || !overlay || !spotlight || !card || !title || steps.length === 0) return;
 
@@ -5400,14 +5761,20 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         function hasGeneratedSchedule() {
-            return Boolean(app.lastScheduleData && Array.isArray(app.lastScheduleData.days));
+            return Boolean(app.lastScheduleData && Array.isArray(app.lastScheduleData.days) &&
+                app.lastScheduleData.days.length > 0 && Array.isArray(app.lastScheduleData.workers));
+        }
+
+        function guidedEmployeeIndex() {
+            if (guidedEmployeeId === null) return -1;
+            return app.state.employees.findIndex(function (employee) {
+                return String(employee.id) === String(guidedEmployeeId);
+            });
         }
 
         function firstEmployeeRow() {
             if (guidedEmployeeId !== null) {
-                var employeeIndex = app.state.employees.findIndex(function (employee) {
-                    return String(employee.id) === String(guidedEmployeeId);
-                });
+                var employeeIndex = guidedEmployeeIndex();
                 if (employeeIndex !== -1) {
                     var nameInput = document.querySelector('input[data-name-index="' + employeeIndex + '"]');
                     if (nameInput) return nameInput.closest('.employee-row');
@@ -5434,18 +5801,38 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         function closeTourClosedDays() {
-            if (!tourUi || !tourUi.openedClosedDays) return;
-            app.elements.closedDaysModal.classList.remove('show');
+            if (!tourUi) return;
+            if (tourUi.openedClosedDays) app.elements.closedDaysModal.classList.remove('show');
             tourUi.openedClosedDays = false;
+            tourUi.generationPending = false;
+            tourUi.scheduleBeforeGeneration = null;
+        }
+
+        function setTutorialMinimized(minimized) {
+            if (!minimizeButton) return;
+            card.classList.toggle('tutorial-card-minimized', Boolean(minimized));
+            minimizeButton.textContent = minimized ? 'Vis forklaring' : 'Skjul';
+            minimizeButton.setAttribute('aria-expanded', minimized ? 'false' : 'true');
+            schedulePosition();
         }
 
         function ensureSettingsOpen() {
-            if (app.elements.modal.classList.contains('show')) return true;
             var settingsButton = firstSettingsButton();
             if (!settingsButton) return false;
-            settingsButton.click();
+            var expectedIndex = Number(settingsButton.dataset.index);
+            if (app.elements.modal.classList.contains('show')) {
+                return typeof app.getActiveEmployeeIndexForModal === 'function' &&
+                    Number(app.getActiveEmployeeIndexForModal()) === expectedIndex;
+            }
+            allowingTourClick = true;
+            try {
+                settingsButton.click();
+            } finally {
+                allowingTourClick = false;
+            }
             if (!tourUi.settingsWasOpen) tourUi.openedSettings = true;
-            return app.elements.modal.classList.contains('show');
+            return app.elements.modal.classList.contains('show') &&
+                (!app.getActiveEmployeeIndexForModal || Number(app.getActiveEmployeeIndexForModal()) === expectedIndex);
         }
 
         function prepareStep(index) {
@@ -5475,16 +5862,29 @@ document.addEventListener('DOMContentLoaded', function () {
             if (index === 0) return addEmployeeButton;
             if (index === 1) return firstEmployeeRow() || addEmployeeButton;
             if (index === 2) return firstSettingsButton() || addEmployeeButton;
-            if (index === 3) return document.getElementById('fixed-shift-form') || app.elements.btnAddFixedShift;
+            if (index === 3) {
+                var fixedShiftForm = document.getElementById('fixed-shift-form');
+                return fixedShiftForm && !fixedShiftForm.hidden ? fixedShiftForm : app.elements.btnAddFixedShift;
+            }
             if (index === 4) {
-                return document.getElementById('collapse-absence-content') || app.elements.collapseAbsenceHeader;
+                var absenceContent = document.getElementById('collapse-absence-content');
+                return absenceContent && window.getComputedStyle(absenceContent).display !== 'none'
+                    ? absenceContent
+                    : app.elements.collapseAbsenceHeader;
             }
             if (index === 5) {
-                return document.getElementById('time-picker-grid') || app.elements.btnAddFixedTime;
+                if (!app.elements.timePickerModal.classList.contains('show')) return app.elements.btnAddFixedTime;
+                if (window.innerWidth <= 560 || window.innerHeight <= 520) {
+                    return app.elements.timePickerModal.querySelector('.modal-content') || app.elements.timePickerModal;
+                }
+                return document.getElementById('time-picker-grid');
             }
-            if (index === 6) return document.getElementById('generate-btn');
+            if (index === 6) return generateButton;
             if (index === 7) {
-                return document.querySelector('.month-summary h3') ||
+                var summaryHeader = document.querySelector('.month-summary .summary-row.header');
+                if (summaryHeader && summaryHeader.getClientRects().length > 0) return summaryHeader;
+                return document.querySelector('.month-summary .summary-row:not(.header)') ||
+                    document.querySelector('.month-summary h3') ||
                     document.querySelector('#schedule-grid .empty-state') ||
                     document.getElementById('schedule-grid');
             }
@@ -5564,7 +5964,15 @@ document.addEventListener('DOMContentLoaded', function () {
         function schedulePosition() {
             if (!tutorialIsOpen()) return;
             window.clearTimeout(positionTimer);
-            positionTimer = window.setTimeout(positionTour, 20);
+            positionTimer = window.setTimeout(function () {
+                if (!tutorialIsOpen()) return;
+                var resolvedTarget = resolveTarget(currentStep);
+                if (resolvedTarget && resolvedTarget !== currentTarget) {
+                    focusTarget(resolvedTarget, true);
+                } else {
+                    positionTour();
+                }
+            }, 20);
         }
 
         function focusTarget(target, keepFocus) {
@@ -5582,9 +5990,19 @@ document.addEventListener('DOMContentLoaded', function () {
                 block: window.innerWidth <= 560 ? 'start' : 'center',
                 inline: 'nearest'
             });
+            if (currentStep === 5) {
+                var timePickerBody = app.elements.timePickerModal.querySelector('.modal-body');
+                if (timePickerBody) timePickerBody.scrollTop = 0;
+            }
             window.requestAnimationFrame(function () {
                 window.requestAnimationFrame(function () {
-                    if (tutorialIsOpen() && currentTarget === target) positionTour();
+                    if (tutorialIsOpen() && currentTarget === target) {
+                        if (currentStep === 5) {
+                            var activeTimePickerBody = app.elements.timePickerModal.querySelector('.modal-body');
+                            if (activeTimePickerBody) activeTimePickerBody.scrollTop = 0;
+                        }
+                        positionTour();
+                    }
                 });
             });
             if (currentStep === 5) {
@@ -5598,7 +6016,10 @@ document.addEventListener('DOMContentLoaded', function () {
         function renderStep(index, keepFocus) {
             if (!tutorialIsOpen() || !tourUi) return;
             currentStep = Math.max(0, Math.min(index, steps.length - 1));
+            if (currentStep > 0 && currentStep <= 5 && !firstEmployeeRow()) currentStep = 0;
             prepareStep(currentStep);
+            card.classList.toggle('tutorial-card-interactive', currentStep === 4 || currentStep === 5);
+            if (currentStep !== 4 && currentStep !== 5) setTutorialMinimized(false);
             card.scrollTop = 0;
             if (stepsContainer) stepsContainer.scrollTop = 0;
             steps.forEach(function (step, stepIndex) {
@@ -5606,19 +6027,23 @@ document.addEventListener('DOMContentLoaded', function () {
                 step.hidden = !active;
                 step.setAttribute('aria-hidden', active ? 'false' : 'true');
             });
-            dots.forEach(function (dot, dotIndex) {
-                dot.classList.toggle('active', dotIndex === currentStep);
-            });
+            var activeStep = steps[currentStep];
+            if (kicker) kicker.textContent = activeStep.dataset.tutorialContext || 'Veiledning';
+            card.setAttribute('aria-describedby', 'tutorial-progress ' + activeStep.id);
             progress.textContent = 'Steg ' + (currentStep + 1) + ' av ' + steps.length;
             backButton.hidden = currentStep === 0;
 
-            var needsEmployee = currentStep === 0 && !firstEmployeeRow();
-            var needsGeneration = currentStep === 6 && !hasGeneratedSchedule();
-            nextButton.disabled = needsEmployee || needsGeneration;
-            if (needsEmployee) nextButton.textContent = 'Trykk + først';
-            else if (needsGeneration) nextButton.textContent = 'Trykk Generer først';
-            else if (currentStep === 2) nextButton.textContent = 'Vis innstillinger';
-            else nextButton.textContent = currentStep === steps.length - 1 ? 'Start planlegging' : 'Neste';
+            nextButton.disabled = currentStep === 6 && Boolean(tourUi.generationPending);
+            if (currentStep === 0) nextButton.textContent = firstEmployeeRow() ? 'Neste' : 'Legg til ansatt';
+            else if (currentStep === 1) nextButton.textContent = 'Vis tannhjulet';
+            else if (currentStep === 2) nextButton.textContent = 'Åpne innstillinger';
+            else if (currentStep === 3) nextButton.textContent = 'Neste: Fravær';
+            else if (currentStep === 4) nextButton.textContent = 'Neste: Tidsvalg';
+            else if (currentStep === 5) nextButton.textContent = 'Neste: Planlegger';
+            else if (currentStep === 6 && tourUi.generationPending) nextButton.textContent = 'Trykk Fullfør først';
+            else if (currentStep === 6) nextButton.textContent = hasGeneratedSchedule() ? 'Se oppsummering' : 'Generer vaktplan';
+            else if (currentStep === 7) nextButton.textContent = 'Neste: Excel';
+            else nextButton.textContent = 'Ferdig';
 
             focusTarget(resolveTarget(currentStep), Boolean(keepFocus));
         }
@@ -5635,6 +6060,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 timePickerWasOpen: app.elements.timePickerModal.classList.contains('show'),
                 closedDaysWasOpen: app.elements.closedDaysModal.classList.contains('show'),
                 scheduleBeforeGeneration: null,
+                generationPending: false,
                 openedSettings: false,
                 openedTimePicker: false,
                 openedClosedDays: false
@@ -5659,6 +6085,7 @@ document.addEventListener('DOMContentLoaded', function () {
             overlay.hidden = true;
             overlay.setAttribute('aria-hidden', 'true');
             document.body.classList.remove('tutorial-open');
+            setTutorialMinimized(false);
             card.style.left = '';
             card.style.right = '';
             card.style.top = '';
@@ -5676,8 +6103,19 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         function finishOrAdvance() {
-            if (currentStep === 0 && !firstEmployeeRow()) return;
-            if (currentStep === 6 && !hasGeneratedSchedule()) return;
+            if (currentStep === 0 && !firstEmployeeRow()) {
+                addEmployeeButton.click();
+                return;
+            }
+            if (currentStep > 0 && currentStep <= 5 && !firstEmployeeRow()) {
+                renderStep(0);
+                return;
+            }
+            if (currentStep === 6 && tourUi.generationPending) return;
+            if (currentStep === 6 && !hasGeneratedSchedule()) {
+                generateButton.click();
+                return;
+            }
             if (currentStep === 2) {
                 var settingsButton = firstSettingsButton();
                 if (settingsButton) settingsButton.click();
@@ -5691,6 +6129,11 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         closeButton.addEventListener('click', function () { closeTutorial(true); });
+        if (minimizeButton) {
+            minimizeButton.addEventListener('click', function () {
+                setTutorialMinimized(!card.classList.contains('tutorial-card-minimized'));
+            });
+        }
         skipButton.addEventListener('click', function () { closeTutorial(true); });
         backButton.addEventListener('click', function () { renderStep(currentStep - 1); });
         nextButton.addEventListener('click', finishOrAdvance);
@@ -5713,19 +6156,77 @@ document.addEventListener('DOMContentLoaded', function () {
             }, 0);
         });
 
+        app.elements.closeTimePickerBtn.addEventListener('click', function () {
+            if (!tutorialIsOpen() || currentStep !== 5) return;
+            window.setTimeout(function () {
+                if (!tutorialIsOpen() || !tourUi || currentStep !== 5) return;
+                if (!app.elements.timePickerModal.classList.contains('show')) {
+                    focusTarget(app.elements.btnAddFixedTime, false);
+                }
+            }, 0);
+        });
+
+        app.elements.timePickerModal.addEventListener('click', function (event) {
+            if (!tutorialIsOpen() || currentStep !== 5 || event.target !== app.elements.timePickerModal) return;
+            window.setTimeout(function () {
+                if (!tutorialIsOpen() || !tourUi || currentStep !== 5) return;
+                if (!app.elements.timePickerModal.classList.contains('show')) {
+                    focusTarget(app.elements.btnAddFixedTime, false);
+                }
+            }, 0);
+        });
+
+        document.addEventListener('click', function (event) {
+            if (!tutorialIsOpen() || allowingTourClick) return;
+            var clickedSettingsButton = event.target.closest('.calendar-btn');
+            var blockedSettingsClick = clickedSettingsButton &&
+                (currentStep !== 2 || clickedSettingsButton !== firstSettingsButton());
+            var blockedAddClick = event.target.closest('#add-employee-btn') && currentStep !== 0;
+            var blockedGenerateClick = event.target.closest('#generate-btn') && currentStep !== 6;
+            if (blockedSettingsClick || blockedAddClick || blockedGenerateClick) {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+            }
+        }, true);
+
         document.addEventListener('click', function (event) {
             if (!tutorialIsOpen()) return;
-            if (currentStep === 2 && event.target.closest('.calendar-btn')) {
+            var clickedSettingsButton = event.target.closest('.calendar-btn');
+            if (currentStep === 2 && clickedSettingsButton && clickedSettingsButton === firstSettingsButton()) {
+                var clickedEmployee = app.state.employees[Number(clickedSettingsButton.dataset.index)];
+                if (clickedEmployee) guidedEmployeeId = clickedEmployee.id;
                 if (!tourUi.settingsWasOpen) tourUi.openedSettings = true;
                 window.setTimeout(function () {
                     if (tutorialIsOpen() && tourUi) renderStep(3);
                 }, 0);
             }
+            if (currentStep === 5 && event.target.closest('#btn-add-fixed-time')) {
+                window.setTimeout(function () {
+                    if (!tutorialIsOpen() || !tourUi || currentStep !== 5) return;
+                    if (app.elements.timePickerModal.classList.contains('show')) {
+                        focusTarget(app.elements.timePickerGrid, false);
+                    }
+                }, 240);
+            }
+            if (currentStep > 0 && currentStep <= 5 && event.target.closest('#employees-list .remove-btn')) {
+                window.setTimeout(function () {
+                    if (!tutorialIsOpen() || !tourUi) return;
+                    renderStep(firstEmployeeRow() ? currentStep : 0, true);
+                }, 0);
+            }
             if (currentStep === 6 && event.target.closest('#generate-btn')) {
-                if (!tourUi.closedDaysWasOpen) tourUi.openedClosedDays = true;
                 tourUi.scheduleBeforeGeneration = app.lastScheduleData;
                 window.setTimeout(function () {
                     if (!tutorialIsOpen() || !tourUi || currentStep !== 6) return;
+                    if (!app.elements.closedDaysModal.classList.contains('show')) {
+                        tourUi.generationPending = false;
+                        renderStep(6);
+                        return;
+                    }
+                    if (!tourUi.closedDaysWasOpen) tourUi.openedClosedDays = true;
+                    tourUi.generationPending = true;
+                    nextButton.disabled = true;
+                    nextButton.textContent = 'Trykk Fullfør først';
                     var closedDaysContent = app.elements.closedDaysModal.querySelector('.modal-content');
                     focusTarget(closedDaysContent || app.elements.closedDaysModal, false);
                 }, 0);
@@ -5737,12 +6238,32 @@ document.addEventListener('DOMContentLoaded', function () {
             function advanceWhenGenerated(attempt) {
                 if (!tutorialIsOpen() || !tourUi || currentStep !== 6) return;
                 if (hasGeneratedSchedule() && app.lastScheduleData !== tourUi.scheduleBeforeGeneration) {
+                    tourUi.generationPending = false;
+                    tourUi.openedClosedDays = false;
                     renderStep(7);
                     return;
                 }
-                if (attempt < 12) window.setTimeout(function () { advanceWhenGenerated(attempt + 1); }, 75);
+                if (attempt < 12) {
+                    window.setTimeout(function () { advanceWhenGenerated(attempt + 1); }, 75);
+                } else {
+                    tourUi.generationPending = false;
+                    tourUi.openedClosedDays = false;
+                    renderStep(6);
+                }
             }
             window.setTimeout(function () { advanceWhenGenerated(0); }, 75);
+        });
+
+        app.elements.closedDaysModal.addEventListener('click', function (event) {
+            if (!tutorialIsOpen() || currentStep !== 6 || event.target !== app.elements.closedDaysModal) return;
+            window.setTimeout(function () {
+                if (!tutorialIsOpen() || !tourUi || currentStep !== 6) return;
+                if (!app.elements.closedDaysModal.classList.contains('show')) {
+                    tourUi.generationPending = false;
+                    tourUi.openedClosedDays = false;
+                    renderStep(6);
+                }
+            }, 0);
         });
 
         document.addEventListener('keydown', function (event) {
