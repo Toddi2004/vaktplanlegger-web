@@ -3208,7 +3208,7 @@ window.VaktApp = window.VaktApp || {};
         var parts = app.elements.monthSelector.value.split('-').map(Number);
         app.renderClosedDaysPicker(parts[0], parts[1]);
         app.elements.closedDaysModal.classList.add('show');
-        var firstDayButton = app.elements.closedDaysGrid.querySelector('button');
+        var firstDayButton = app.elements.closedDaysGrid.querySelector('button:not([aria-disabled="true"])');
         (firstDayButton || app.elements.closedDaysDoneBtn).focus();
     };
 
@@ -3257,11 +3257,12 @@ window.VaktApp = window.VaktApp || {};
                 var dateKey = year + '-' + month + '-' + d;
                 var isHoliday = holidays.has(dateKey);
                 var isSunday = new Date(year, month, d).getDay() === 0;
+                var isClosed = isSunday || app.closedDays.has(dateKey);
 
                 btn.type = 'button';
                 btn.textContent = d;
-                btn.setAttribute('aria-label', d + '. ' + app.monthNames[month] + (app.closedDays.has(dateKey) ? ', stengt' : ', åpen'));
-                btn.setAttribute('aria-pressed', app.closedDays.has(dateKey) ? 'true' : 'false');
+                btn.setAttribute('aria-label', d + '. ' + app.monthNames[month] + (isClosed ? ', stengt' : ', åpen'));
+                btn.setAttribute('aria-pressed', isClosed ? 'true' : 'false');
                 btn.style.cssText = 'text-align:center; padding:0.4rem; border-radius:6px; cursor:pointer; font:inherit; font-size:0.8rem; font-weight:500; border:1px solid #e2e8f0; background:white; transition:all 0.15s;';
 
                 if (isHoliday || isSunday) {
@@ -3270,13 +3271,21 @@ window.VaktApp = window.VaktApp || {};
                     btn.title = isHoliday ? holidays.get(dateKey) : 'Søndag';
                 }
 
-                if (app.closedDays.has(dateKey)) {
+                if (isSunday) {
+                    btn.setAttribute('aria-disabled', 'true');
+                    btn.setAttribute('aria-label', d + '. ' + app.monthNames[month] + ', søndag, stengt');
+                    btn.style.cursor = 'default';
+                    btn.title = 'Søndag – stengt';
+                }
+
+                if (isClosed) {
                     btn.style.background = '#1e293b';
                     btn.style.color = 'white';
                     btn.style.border = '1px solid #1e293b';
                 }
 
                 btn.addEventListener('click', function () {
+                    if (isSunday) return;
                     if (app.closedDays.has(dateKey)) {
                         app.closedDays.delete(dateKey);
                         btn.style.background = '';
@@ -3355,7 +3364,7 @@ window.VaktApp = window.VaktApp || {};
                 id: d - 1, dayOfWeek: jsToInternal[jsDow],
                 name: dayNames[jsDow] + ' ' + String(d).padStart(2, '0') + '.' + String(month + 1).padStart(2, '0'),
                 date: date, dateKey: dateKey,
-                isHoliday: !!holidayName, isClosed: app.closedDays.has(dateKey),
+                isHoliday: !!holidayName, isClosed: jsDow === 0 || app.closedDays.has(dateKey),
                 isPadding: false, holidayName: holidayName || null, shifts: []
             });
         }
