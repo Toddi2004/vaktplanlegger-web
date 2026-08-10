@@ -2227,7 +2227,7 @@ body:not(.auth-locked) #login-gate {
             <div id="tutorial-steps" class="tutorial-steps" aria-live="polite" aria-atomic="true">
                 <article id="tutorial-step-1" class="tutorial-step" data-tutorial-step="0" data-tutorial-context="Ansatte">
                     <h3>Legg til en ansatt</h3>
-                    <p>Her legger du til en ny ansatt. Når introen er ferdig, åpner <strong>+</strong>-knappen en ny rad og setter markøren rett i navnefeltet.</p>
+                    <p>Trykk på den markerte <strong>+</strong>-knappen for å opprette en ansatt. Raden lagres lokalt, og neste steg viser hvor du skriver navn og stillingsprosent.</p>
                 </article>
                 <article id="tutorial-step-2" class="tutorial-step" data-tutorial-step="1" data-tutorial-context="Ansatte" hidden>
                     <h3>Navn og stillingsprosent</h3>
@@ -5113,6 +5113,7 @@ document.addEventListener('DOMContentLoaded', function () {
         state.employees.forEach(function (emp, index) {
             var row = document.createElement('div');
             row.className = 'employee-row';
+            row.dataset.employeeId = String(emp.id);
 
             var selectedMonthPrefix = app.elements.monthSelector && app.elements.monthSelector.value
                 ? app.elements.monthSelector.value + '-'
@@ -5223,9 +5224,10 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     };
 
-    function addEmployee() {
+    function addEmployee(options) {
+        options = options || {};
         var newIndex = state.employees.length;
-        state.employees.push({
+        var newEmployee = {
             id: app.nextEmployeeId++,
             name: nextNewEmployeeName(),
             percent: 20,
@@ -5233,10 +5235,11 @@ document.addEventListener('DOMContentLoaded', function () {
             dateUnavail: new Set(),
             fixedUnavail: [],
             fixedShifts: []
-        });
+        };
+        state.employees.push(newEmployee);
         app.renderEmployees();
         var nameInput = app.elements.employeesList.querySelector('input[data-name-index="' + newIndex + '"]');
-        if (nameInput) {
+        if (nameInput && options.focus !== false) {
             try {
                 nameInput.focus({ preventScroll: true });
             } catch (error) {
@@ -5246,7 +5249,10 @@ document.addEventListener('DOMContentLoaded', function () {
             nameInput.scrollIntoView({ block: 'nearest', inline: 'nearest' });
         }
         app.saveState();
+        return newEmployee;
     }
+
+    app.addEmployee = addEmployee;
 
     function normalizeNorwegianTime(value) {
         var cleaned = String(value || '').trim().replace(/\s+/g, '').replace('.', ':');
@@ -5871,7 +5877,7 @@ document.addEventListener('DOMContentLoaded', function () {
 (function () {
     'use strict';
 
-    var TUTORIAL_KEY = 'vaktplanleggerWebTutorialSeen_v6';
+    var TUTORIAL_KEY = 'vaktplanleggerWebTutorialSeen_v7';
     var currentStep = 0;
     var lastFocusedElement = null;
     var currentTarget = null;
@@ -5902,6 +5908,7 @@ document.addEventListener('DOMContentLoaded', function () {
         var kicker = overlay && overlay.querySelector('.tutorial-kicker');
         var title = document.getElementById('tutorial-title');
         var progress = document.getElementById('tutorial-progress');
+        var targetHint = document.getElementById('tutorial-target-hint');
         var closeButton = document.getElementById('tutorial-close-btn');
         var skipButton = document.getElementById('tutorial-skip-btn');
         var backButton = document.getElementById('tutorial-back-btn');
@@ -5922,16 +5929,38 @@ document.addEventListener('DOMContentLoaded', function () {
             return document.querySelector('#employees-list .employee-row');
         }
 
+        function tutorialEmployeeRow() {
+            if (tourUi && tourUi.employeeId !== null && tourUi.employeeId !== undefined) {
+                var rows = Array.from(document.querySelectorAll('#employees-list .employee-row'));
+                var matchingRow = rows.find(function (row) {
+                    return row.dataset.employeeId === String(tourUi.employeeId);
+                });
+                if (matchingRow) return matchingRow;
+            }
+            return firstEmployeeRow();
+        }
+
         function firstSettingsButton() {
-            var row = firstEmployeeRow();
+            var row = tutorialEmployeeRow();
             return row ? row.querySelector('.calendar-btn') : null;
         }
 
         function employeeArea() {
-            return firstEmployeeRow() ||
+            return tutorialEmployeeRow() ||
                 (addEmployeeButton && addEmployeeButton.closest('.control-group')) ||
                 document.getElementById('employees-list') ||
                 addEmployeeButton;
+        }
+
+        function ensureTutorialEmployee() {
+            if (tourUi && tourUi.employeeCreatedByTour) return true;
+            if (typeof app.addEmployee !== 'function') return false;
+            var employee = app.addEmployee({ focus: false });
+            if (tourUi && employee) {
+                tourUi.employeeId = employee.id;
+                tourUi.employeeCreatedByTour = true;
+            }
+            return Boolean(tutorialEmployeeRow());
         }
 
         function setBackgroundInert(inert) {
@@ -6302,16 +6331,27 @@ document.addEventListener('DOMContentLoaded', function () {
             if (kicker) kicker.textContent = activeStep.dataset.tutorialContext || 'Veiledning';
             overlay.setAttribute('aria-describedby', 'tutorial-progress tutorial-target-hint ' + activeStep.id);
             progress.textContent = 'Steg ' + (currentStep + 1) + ' av ' + steps.length;
-            spotlight.setAttribute('aria-label', 'Neste steg' + (activeHeading ? ': ' + activeHeading.textContent : ''));
+            var needsEmployee = currentStep === 0 && !tourUi.employeeCreatedByTour;
+            spotlight.setAttribute('aria-label', needsEmployee
+                ? 'Legg til ansatt og gå til neste steg'
+                : 'Neste steg' + (activeHeading ? ': ' + activeHeading.textContent : ''));
             backButton.hidden = currentStep === 0;
 
-            nextButton.textContent = currentStep === steps.length - 1 ? 'Ferdig' : 'Neste';
+            nextButton.textContent = currentStep === steps.length - 1
+                ? 'Ferdig'
+                : (needsEmployee ? 'Legg til ansatt' : 'Neste');
+            if (targetHint) {
+                targetHint.textContent = needsEmployee
+                    ? 'Trykk den markerte +-knappen eller «Legg til ansatt» for å opprette raden.'
+                    : 'Trykk på det markerte området eller «Neste» for å fortsette.';
+            }
 
             focusTarget(resolveTarget(currentStep), Boolean(keepFocus));
         }
 
         function advanceTutorial() {
             if (!tutorialIsOpen()) return;
+            if (currentStep === 0 && !ensureTutorialEmployee()) return;
             if (currentStep < steps.length - 1) renderStep(currentStep + 1);
             else closeTutorial(true);
         }
@@ -6326,6 +6366,8 @@ document.addEventListener('DOMContentLoaded', function () {
             tourUi = {
                 inertRecords: [],
                 preview: null,
+                employeeId: null,
+                employeeCreatedByTour: false,
                 scrollX: window.scrollX,
                 scrollY: window.scrollY
             };
@@ -6355,6 +6397,11 @@ document.addEventListener('DOMContentLoaded', function () {
             window.scrollTo({ left: tourUi.scrollX, top: tourUi.scrollY, behavior: 'auto' });
 
             var returnFocus = lastFocusedElement;
+            var createdEmployeeRow = tourUi.employeeCreatedByTour ? tutorialEmployeeRow() : null;
+            var createdEmployeeInput = createdEmployeeRow
+                ? createdEmployeeRow.querySelector('input[data-name-index]')
+                : null;
+            if (createdEmployeeInput) returnFocus = createdEmployeeInput;
             if (!returnFocus || !returnFocus.isConnected || returnFocus.closest('#login-gate')) {
                 returnFocus = addEmployeeButton || helpButton;
             }
@@ -6362,6 +6409,7 @@ document.addEventListener('DOMContentLoaded', function () {
             tourUi = null;
             if (!document.body.classList.contains('auth-locked') && returnFocus && typeof returnFocus.focus === 'function') {
                 returnFocus.focus({ preventScroll: true });
+                if (createdEmployeeInput && returnFocus === createdEmployeeInput) createdEmployeeInput.select();
             }
         }
 
