@@ -1,0 +1,4682 @@
+<!DOCTYPE html>
+<html lang="nb-NO">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
+    <meta name="robots" content="noindex, nofollow, noarchive">
+    <meta name="referrer" content="no-referrer">
+    <title>Vaktplanlegger</title>
+    <style>
+:root {
+    /* Neutral application color palette */
+    --primary: #DA0D2B;
+    /* Primary action color */
+    --primary-hover: #B50B24;
+    /* Darker Red */
+    --bg-color: #F4F2F9;
+    /* Light main background */
+    --panel-bg: #FFFFFF;
+    /* White panels */
+    --text-main: #00002B;
+    /* Dark Navy */
+    --text-muted: #4B4B6E;
+    /* Muted Navy */
+    --border-color: #D1C5E6;
+    /* Soft border */
+    /* Soft border matching panel bg */
+
+    /* Shift Colors (Adjusted slightly to fit the new theme nicely) */
+    --shift-day: #E0F2FE;
+    --shift-day-text: #0284C7;
+    --shift-eve: #FEF08A;
+    --shift-eve-text: #CA8A04;
+    --shift-sat: #FCE7F3;
+    --shift-sat-text: #DB2777;
+
+    /* Shadows & Border Radius */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --radius-md: 0.5rem;
+    --radius-lg: 1rem;
+    --radius-xl: 1.5rem;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    zoom: 0.9;
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh / 0.9);
+    overflow: hidden;
+}
+
+body.auth-locked {
+    zoom: 1;
+    height: 100vh;
+    overflow: hidden;
+}
+
+body.auth-locked > :not(#login-gate):not(script) {
+    display: none !important;
+}
+
+body:not(.auth-locked) #login-gate {
+    display: none;
+}
+
+.login-gate {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    background:
+        radial-gradient(circle at top left, rgba(218, 13, 43, 0.12), transparent 34rem),
+        var(--bg-color);
+}
+
+.login-card {
+    width: min(100%, 390px);
+    padding: 2.25rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    background: var(--panel-bg);
+    box-shadow: var(--shadow-lg);
+}
+
+.login-brand {
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    margin-bottom: 1.25rem;
+    border-radius: 0.9rem;
+    background: var(--primary);
+    color: white;
+    font-size: 1.35rem;
+    font-weight: 800;
+}
+
+.login-card h1 {
+    margin: 0;
+    font-size: 1.75rem;
+    line-height: 1.2;
+}
+
+.login-intro {
+    margin: 0.5rem 0 1.5rem;
+    color: var(--text-muted);
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+}
+
+.login-form label {
+    margin-top: 0.45rem;
+    font-size: 0.85rem;
+    font-weight: 650;
+}
+
+.login-form input {
+    width: 100%;
+    padding: 0.8rem 0.9rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: white;
+    color: var(--text-main);
+    font: inherit;
+    outline: none;
+}
+
+.login-form input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(218, 13, 43, 0.12);
+}
+
+.login-submit {
+    width: 100%;
+    margin-top: 0.9rem;
+}
+
+.login-form input:disabled,
+.login-submit:disabled {
+    cursor: not-allowed;
+    opacity: 0.62;
+}
+
+.login-error {
+    margin-top: 0.4rem;
+    color: #b91c1c;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.login-local-note {
+    margin: 1.25rem 0 0;
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    text-align: center;
+}
+
+/* Layout */
+.app-container {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 310px;
+    /* Reduced from 330px to give calendar more space */
+    background-color: var(--panel-bg);
+    border-right: 1px solid var(--border-color);
+    padding: 1.25rem;
+    /* Slightly reduced padding */
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    box-shadow: var(--shadow-sm);
+    z-index: 10;
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 100%;
+}
+
+.sidebar-header h1 {
+    color: var(--primary);
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 0.25rem;
+}
+
+.sidebar-header p {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 400;
+}
+
+.top-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    padding: 0.75rem 1.5rem;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    z-index: 50;
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+.top-nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.nav-select-wrapper {
+    display: flex;
+    align-items: center;
+    background: #f8fafc;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+}
+
+.nav-select {
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 500;
+    outline: none;
+    color: var(--text-dark);
+}
+
+.secondary-btn {
+    background: white;
+    color: var(--text-main);
+    border: 1px solid #cbd5e1;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.secondary-btn:hover {
+    background: #f1f5f9;
+}
+
+.app-brand-box {
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: transparent;
+}
+
+.app-brand-box h1 {
+    font-size: 1.5rem;
+    color: var(--primary);
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.app-brand-box p {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin: 0;
+}
+
+.control-group h2 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* Employees List */
+.employees-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.employees-empty {
+    padding: 1rem;
+    border: 1px dashed var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    text-align: center;
+}
+
+.employee-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg-color);
+    /* Soft grey background */
+    padding: 0.6rem 0.8rem;
+    border-radius: var(--radius-md);
+    transition: background 0.2s;
+}
+
+.employee-row:hover {
+    background: #e2e8f0;
+}
+
+.employee-name-edit {
+    flex: 1;
+    margin-right: 0.4rem;
+    min-width: 0;
+}
+
+.employee-name-edit input {
+    width: 100%;
+    background: transparent;
+    border: 1px solid transparent;
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: var(--text-main);
+    font-family: inherit;
+    padding: 0.2rem;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.employee-name-edit input:hover {
+    border-color: #cbd5e1;
+    background: white;
+}
+
+.employee-name-edit input:focus {
+    background: white;
+    outline: 2px solid var(--primary);
+    outline-offset: -1px;
+}
+
+.employee-input {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.employee-input input {
+    width: 3rem;
+    padding: 0.2rem 0.3rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    text-align: right;
+    font-family: inherit;
+    font-size: 0.85rem;
+}
+
+.employee-input input:focus {
+    outline: 2px solid var(--primary);
+    outline-offset: -1px;
+}
+
+.employee-input span {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.employee-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.icon-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s;
+    width: 24px;
+    height: 24px;
+}
+
+.icon-btn:hover {
+    background: var(--border-color);
+    color: var(--text-main);
+}
+
+.remove-btn:hover {
+    background: #fee2e2;
+    color: #ef4444;
+}
+
+.calendar-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.absent-badge {
+    display: inline-block;
+    background: #fee2e2;
+    color: #ef4444;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.1rem 0.4rem;
+    border-radius: 10px;
+    margin-top: 0.2rem;
+}
+
+.employee-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+}
+
+.fixed-shift-badge {
+    display: inline-block;
+    background: #dcfce7;
+    color: #15803d;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.1rem 0.4rem;
+    border-radius: 10px;
+    margin-top: 0.2rem;
+}
+
+/* Modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.modal-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal-content {
+    background: var(--panel-bg);
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 400px;
+    box-shadow: var(--shadow-lg);
+    transform: translateY(20px);
+    transition: transform 0.2s ease;
+    overflow: hidden;
+}
+
+.modal-overlay.show .modal-content {
+    transform: translateY(0);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-header h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.close-modal {
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-muted);
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.scrollable-body {
+    max-height: 70vh;
+    overflow-y: auto;
+    padding: 0;
+    /* padding moved to sections */
+}
+
+.modal-section {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-section:last-child {
+    border-bottom: none;
+}
+
+.modal-section h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    color: var(--text-main);
+}
+
+.help-text {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+}
+
+.month-notes-input {
+    width: 100%;
+    min-height: 76px;
+    resize: vertical;
+    padding: 0.65rem;
+    border: 1px solid #cbd5e1;
+    border-radius: var(--radius-md);
+    background: white;
+    color: var(--text-main);
+    font: inherit;
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+.month-notes-input:focus {
+    outline: 2px solid var(--primary);
+    outline-offset: -1px;
+}
+
+.time-input-24 {
+    width: 100%;
+    min-width: 0;
+    padding: 0.4rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    background: white;
+    color: var(--text-main);
+    font: inherit;
+    font-size: 0.9rem;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+}
+
+.time-input-24:focus {
+    border-color: var(--primary);
+    outline: 2px solid rgba(218, 13, 43, 0.16);
+    outline-offset: 0;
+}
+
+.time-input-24.invalid-time {
+    border-color: #dc2626;
+    background: #fef2f2;
+}
+
+/* Form elements in modal */
+.form-row {
+    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.form-row label {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.form-row select,
+.form-row input[type="number"] {
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 0.95rem;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.5rem;
+}
+
+.cal-header {
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.cal-day {
+    aspect-ratio: 1;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    background: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.cal-day:hover {
+    background: #f1f5f9;
+}
+
+.cal-day.unavailable {
+    background: #fee2e2;
+    color: #ef4444;
+    border-color: #fca5a5;
+    text-decoration: line-through;
+}
+
+/* Time Picker Grid (15-min intervals) */
+.time-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.25rem;
+    margin-top: 1rem;
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+.time-slot {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 0.4rem;
+    text-align: center;
+    font-size: 0.75rem;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.1s;
+}
+
+.time-slot:hover {
+    background: #f1f5f9;
+}
+
+.time-slot.selected {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+.fixed-unavail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+}
+
+.settings-rule-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.empty-rule-message {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.fixed-shift-controls {
+    display: grid;
+    grid-template-columns: minmax(110px, 1fr) minmax(110px, 1fr);
+    gap: 0.5rem;
+    align-items: end;
+}
+
+.fixed-shift-form {
+    margin-top: 0.8rem;
+    padding: 0.85rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: #faf9fc;
+}
+
+.fixed-shift-form[hidden] {
+    display: none;
+}
+
+.fixed-shift-field {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.fixed-shift-field span {
+    color: var(--text-main);
+    font-size: 0.82rem;
+    font-weight: 650;
+}
+
+.fixed-shift-field select {
+    min-width: 0;
+    padding: 0.55rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: white;
+    color: var(--text-main);
+    font: inherit;
+    font-size: 0.9rem;
+}
+
+.settings-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+    max-width: 100%;
+    min-height: 44px;
+    margin-top: 0.8rem;
+    padding: 0.7rem 1.25rem;
+    border: none;
+    border-radius: 10px;
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 5px 10px rgba(218, 13, 43, 0.22);
+    font: inherit;
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.2;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.settings-action-btn:hover {
+    background: var(--primary-hover);
+    box-shadow: 0 7px 14px rgba(181, 11, 36, 0.25);
+    transform: translateY(-1px);
+}
+
+.settings-action-btn:active {
+    transform: translateY(0);
+}
+
+.settings-action-btn[hidden] {
+    display: none;
+}
+
+.settings-action-btn:focus-visible,
+.settings-action-btn:focus-within {
+    outline: 3px solid rgba(218, 13, 43, 0.22);
+    outline-offset: 2px;
+}
+
+.settings-collapse-btn[aria-expanded="false"] .collapse-label-close,
+.settings-collapse-btn[aria-expanded="true"] .collapse-label-open {
+    display: none;
+}
+
+.modal-footer {
+    padding: 1.5rem;
+    border-top: 1px solid var(--border-color);
+    background: #F4F5F7;
+}
+
+/* Requirements */
+.daily-requirements {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.daily-req-row {
+    display: grid;
+    grid-template-columns: 50px 1fr 1fr;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.daily-req-row:last-child {
+    border-bottom: none;
+}
+
+.req-day-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    width: 55px;
+    flex-shrink: 0;
+}
+
+.req-input-group {
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+}
+
+.req-input-group span {
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    min-width: 2.8rem;
+    text-align: right;
+}
+
+.req-input-group input {
+    width: 2.2rem;
+    padding: 0.15rem 0.25rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    text-align: center;
+    font-family: inherit;
+    font-size: 0.85rem;
+}
+
+/* Butons */
+.primary-btn {
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 0.875rem 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: auto;
+    box-shadow: var(--shadow-md);
+}
+
+.primary-btn:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-lg);
+}
+
+.primary-btn:active {
+    transform: translateY(0);
+}
+
+.secondary-btn {
+    background: white;
+    color: var(--primary);
+    border: 1px solid var(--primary);
+    border-radius: var(--radius-md);
+    padding: 0.55rem 0.85rem;
+    font-size: 0.9rem;
+    font-weight: 650;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-sm);
+}
+
+.secondary-btn:hover:not(:disabled) {
+    color: white;
+    background: var(--primary);
+}
+
+.secondary-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.excel-copy-btn.copied {
+    color: white;
+    background: #16a34a;
+    border-color: #16a34a;
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    padding: 2.5rem 3rem;
+    background-color: var(--bg-color);
+    overflow-y: auto;
+    height: calc(100vh / 0.9);
+}
+
+.main-header {
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.main-header h2 {
+    font-size: 1.45rem;
+    /* ~30px keeping previous visual size */
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.main-header-tools {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.summary-stats {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    background: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+}
+
+.schedule-warnings {
+    margin: -1rem 0 1.25rem;
+    padding: 0.8rem 1rem;
+    border: 1px solid #facc15;
+    border-radius: var(--radius-md);
+    background: #fefce8;
+    color: #854d0e;
+    font-size: 0.85rem;
+    line-height: 1.45;
+}
+
+.schedule-warnings strong {
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+/* Schedule Grid */
+.schedule-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.5rem;
+}
+
+.day-column {
+    background: var(--panel-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.day-header {
+    background: #f8fafc;
+    padding: 0.5rem 0.4rem;
+    text-align: center;
+    font-weight: 700;
+    font-size: 0.78rem;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.day-shifts {
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1;
+}
+
+/* Shift Blocks */
+.shift-block {
+    border-radius: var(--radius-md);
+    padding: 0.4rem 0.5rem;
+    font-size: 0.8rem;
+    animation: fadeIn 0.4s ease forwards;
+}
+
+.shift-title {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: 0;
+    margin-bottom: 0.3rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.2rem;
+    white-space: nowrap;
+}
+
+.shift-count-badge {
+    background: rgba(0, 0, 0, 0.1);
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-weight: 700;
+}
+
+.shift-workers {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.worker {
+    background: rgba(255, 255, 255, 0.75);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-weight: 500;
+    font-size: 0.78rem;
+}
+
+/* Dynamic Shift Themes */
+.theme-day {
+    background-color: var(--shift-day);
+    color: var(--shift-day-text);
+}
+
+.theme-eve {
+    background-color: var(--shift-eve);
+    color: var(--shift-eve-text);
+}
+
+.theme-sat {
+    background-color: var(--shift-sat);
+    color: var(--shift-sat-text);
+}
+
+/* Empty State */
+.empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 4rem 2rem;
+    background: var(--panel-bg);
+    border-radius: var(--radius-lg);
+    border: 2px dashed var(--border-color);
+    color: var(--text-muted);
+    font-size: 1.1rem;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .schedule-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 800px) {
+    .app-container {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .main-content {
+        height: auto;
+        overflow-y: visible;
+    }
+
+    .schedule-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 500px) {
+    .schedule-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Month Summary Area */
+.month-summary {
+    grid-column: 1 / -1;
+    background: var(--panel-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+    padding: 2rem;
+    margin-top: 2rem;
+}
+
+.month-summary h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.5rem;
+}
+
+.summary-table {
+    display: flex;
+    flex-direction: column;
+}
+
+.summary-row {
+    display: flex;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.summary-row:last-child {
+    border-bottom: none;
+}
+
+.summary-row.header {
+    font-weight: 600;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.s-name {
+    flex: 2;
+    font-weight: 500;
+}
+
+.s-hours {
+    flex: 1;
+    text-align: right;
+}
+
+.s-target {
+    flex: 1;
+    text-align: right;
+    color: var(--text-muted);
+}
+
+.s-pct {
+    flex: 1;
+    text-align: right;
+    font-weight: 600;
+    color: var(--primary);
+}
+
+/* ===== LEDIG VAKT (Open Shift) Theme ===== */
+.theme-open {
+    background: linear-gradient(135deg, #7c3aed, #6d28d9);
+    color: white;
+    border: 2px dashed rgba(255, 255, 255, 0.4);
+    animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.theme-open .shift-count-badge {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.theme-open .worker {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+@keyframes pulse-glow {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.3);
+    }
+
+    50% {
+        box-shadow: 0 0 12px 4px rgba(124, 58, 237, 0.15);
+    }
+}
+
+/* ===== Drag and Drop ===== */
+.worker.draggable {
+    cursor: grab;
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.worker.draggable:hover {
+    transform: scale(1.03);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.worker.dragging {
+    opacity: 0.4;
+    cursor: grabbing;
+}
+
+.shift-block.drag-over {
+    outline: 2px dashed var(--primary);
+    outline-offset: 2px;
+    background-image: repeating-linear-gradient(-45deg,
+            transparent,
+            transparent 8px,
+            rgba(218, 13, 43, 0.05) 8px,
+            rgba(218, 13, 43, 0.05) 16px);
+}
+
+/* ===== Add LEDIG VAKT Button ===== */
+.day-add-btn {
+    position: absolute;
+    top: 50%;
+    right: 4px;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid #7c3aed;
+    background: white;
+    color: #7c3aed;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    padding: 0;
+    transition: all 0.2s;
+}
+
+.day-add-btn:hover {
+    background: #7c3aed;
+    color: white;
+    transform: translateY(-50%) scale(1.15);
+}
+
+/* Remove open shift button */
+.remove-open-shift {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0 0.2rem;
+    margin-left: auto;
+    line-height: 1;
+}
+
+.remove-open-shift:hover {
+    color: white;
+}
+
+/* Calendar padding */
+.cal-day.cal-padding {
+    border: none;
+    background: transparent;
+    cursor: default;
+}
+
+/* ===== Shift Context Modal ===== */
+.shift-menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+}
+
+.day-context-menu {
+    background: var(--panel-bg);
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 300px;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+}
+
+@keyframes modalPop {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes menuSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.day-menu-item {
+    padding: 0.5rem 0.6rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--text-main);
+    transition: background 0.1s;
+}
+
+.day-menu-item:hover {
+    background: var(--bg-color);
+}
+
+.day-menu-item[data-action^="open"] {
+    color: #7c3aed;
+    font-weight: 600;
+}
+
+.day-menu-item[data-action^="open"]:hover {
+    background: #f3f0ff;
+}
+
+.day-menu-item.disabled {
+    color: var(--text-muted);
+    opacity: 0.5;
+    cursor: default;
+    pointer-events: none;
+}
+
+.day-menu-sep {
+    height: 1px;
+    background: var(--border-color);
+    margin: 0.15rem 0;
+}
+
+.day-column {
+    position: relative;
+}
+
+/* ===== Employee Submenu ===== */
+.pick-worker-btn {
+    font-weight: 600;
+    color: var(--primary) !important;
+}
+
+.emp-submenu {
+    border-top: 1px solid var(--border-color);
+    max-height: 200px;
+    overflow-y: auto;
+    background: #fafafa;
+}
+
+.emp-item {
+    padding-left: 1rem !important;
+    font-size: 0.8rem !important;
+}
+
+.emp-item:not(.disabled):hover {
+    background: #e0f2fe !important;
+    color: #0284c7;
+}
+
+@media (max-width: 700px) {
+    .main-header {
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .main-header-tools {
+        justify-content: flex-start;
+    }
+
+    .fixed-shift-controls {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .settings-action-btn {
+        width: 100%;
+    }
+}
+
+</style>
+</head>
+
+<body class="auth-locked">
+    <section id="login-gate" class="login-gate" aria-labelledby="login-title">
+        <div class="login-card">
+            <div class="login-brand">V</div>
+            <h1 id="login-title">Vaktplanlegger</h1>
+            <p class="login-intro">Logg inn for å åpne planleggeren.</p>
+            <form id="login-form" class="login-form">
+                <label for="login-username">Brukernavn</label>
+                <input id="login-username" name="username" type="text" autocomplete="username" maxlength="128"
+                    autocapitalize="none" spellcheck="false" required>
+
+                <label for="login-password">Passord</label>
+                <input id="login-password" name="password" type="password" autocomplete="current-password"
+                    maxlength="128" required>
+
+                <p id="login-error" class="login-error" role="alert" aria-live="polite" hidden></p>
+                <button id="login-submit" class="primary-btn login-submit" type="submit">Logg inn</button>
+            </form>
+            <p class="login-local-note">Ansatte og planer lagres bare i denne nettleseren.</p>
+        </div>
+    </section>
+
+    <header class="top-nav">
+        <div class="app-brand-box">
+            <h1>Vaktplanlegger</h1>
+            <p>Automatisk fordeling av vakter</p>
+        </div>
+        <div class="top-nav-actions">
+            <button id="view-published-btn" class="secondary-btn">Se alle vaktplaner</button>
+            <div class="nav-select-wrapper">
+                <span style="font-size: 0.8rem; font-weight: 600; margin-right: 0.5rem; color: var(--text-dark);">Måned:</span>
+                <select id="month-selector" class="nav-select"></select>
+            </div>
+            <button id="generate-btn" class="primary-btn">Generer Vaktplan</button>
+            <button id="logout-btn" class="secondary-btn" type="button">Logg ut</button>
+        </div>
+    </header>
+    <div class="app-container">
+        <!-- Sidebar for Inputs -->
+        <aside class="sidebar">
+
+            <section class="control-group">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
+                    <h2 style="margin: 0; border: none; padding: 0;">Ansatte</h2>
+                    <button id="add-employee-btn" class="icon-btn" title="Legg til ansatt"
+                        style="background:var(--primary); color:white; width:28px; height:28px; border-radius:50%; font-size:1.2rem; display:flex; align-items:center; justify-content:center;">+</button>
+                </div>
+                <div id="employees-list" class="employees-list">
+                    <!-- Employees will be generated here -->
+                </div>
+            </section>
+
+            <section class="control-group" style="margin-top: 2.5rem;">
+                <h2>Bemanningsbehov</h2>
+
+                <div class="daily-requirements">
+                    <div class="daily-req-row">
+                        <div class="req-day-label">Mandag</div>
+                        <div class="req-input-group"><span>Dag</span><input type="number" id="req-mon-day" value="1"
+                                min="0" max="10"></div>
+                        <div class="req-input-group"><span>Kveld</span><input type="number" id="req-mon-eve" value="2"
+                                min="0" max="10"></div>
+                    </div>
+                    <div class="daily-req-row">
+                        <div class="req-day-label">Tirsdag</div>
+                        <div class="req-input-group"><span>Dag</span><input type="number" id="req-tue-day" value="1"
+                                min="0" max="10"></div>
+                        <div class="req-input-group"><span>Kveld</span><input type="number" id="req-tue-eve" value="3"
+                                min="0" max="10"></div>
+                    </div>
+                    <div class="daily-req-row">
+                        <div class="req-day-label">Onsdag</div>
+                        <div class="req-input-group"><span>Dag</span><input type="number" id="req-wed-day" value="1"
+                                min="0" max="10"></div>
+                        <div class="req-input-group"><span>Kveld</span><input type="number" id="req-wed-eve" value="2"
+                                min="0" max="10"></div>
+                    </div>
+                    <div class="daily-req-row">
+                        <div class="req-day-label">Torsdag</div>
+                        <div class="req-input-group"><span>Dag</span><input type="number" id="req-thu-day" value="1"
+                                min="0" max="10"></div>
+                        <div class="req-input-group"><span>Kveld</span><input type="number" id="req-thu-eve" value="3"
+                                min="0" max="10"></div>
+                    </div>
+                    <div class="daily-req-row">
+                        <div class="req-day-label">Fredag</div>
+                        <div class="req-input-group"><span>Dag</span><input type="number" id="req-fri-day" value="1"
+                                min="0" max="10"></div>
+                        <div class="req-input-group"><span>Kveld</span><input type="number" id="req-fri-eve" value="2"
+                                min="0" max="10"></div>
+                    </div>
+                    <div class="daily-req-row">
+                        <div class="req-day-label">Lørdag</div>
+                        <div class="req-input-group"><span>Dag</span><input type="number" id="req-sat-day" value="0"
+                                min="0" max="10" disabled style="opacity:0.3" title="Lørdag er felles vakt"></div>
+                        <div class="req-input-group"><span>Helvakt</span><input type="number" id="req-sat-eve" value="3"
+                                min="0" max="10"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="control-group">
+                <h2>Standard Arbeidstid</h2>
+                <div class="daily-requirements" style="gap: 0.25rem;">
+                    <div style="display: flex; gap: 0.5rem; flex-direction: column; margin-bottom: 0.5rem;">
+                        <span style="font-size: 0.8rem; font-weight: 600; color: var(--text-dark);">Dagvakt</span>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <input type="text" inputmode="numeric" id="std-day-start" class="time-input-24" value="08:00"
+                                maxlength="5" placeholder="TT:MM" autocomplete="off" aria-label="Dagvakt starter"> 
+                            <span style="color:var(--text-muted);">-</span>
+                            <input type="text" inputmode="numeric" id="std-day-end" class="time-input-24" value="16:00"
+                                maxlength="5" placeholder="TT:MM" autocomplete="off" aria-label="Dagvakt slutter">
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; flex-direction: column; margin-bottom: 0.5rem;">
+                        <span style="font-size: 0.8rem; font-weight: 600; color: var(--text-dark);">Kveldsvakt</span>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <input type="text" inputmode="numeric" id="std-eve-start" class="time-input-24" value="15:30"
+                                maxlength="5" placeholder="TT:MM" autocomplete="off" aria-label="Kveldsvakt starter"> 
+                            <span style="color:var(--text-muted);">-</span>
+                            <input type="text" inputmode="numeric" id="std-eve-end" class="time-input-24" value="20:00"
+                                maxlength="5" placeholder="TT:MM" autocomplete="off" aria-label="Kveldsvakt slutter">
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; flex-direction: column;">
+                        <span style="font-size: 0.8rem; font-weight: 600; color: var(--text-dark);">Lørdagsvakt</span>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <input type="text" inputmode="numeric" id="std-sat-start" class="time-input-24" value="10:00"
+                                maxlength="5" placeholder="TT:MM" autocomplete="off" aria-label="Lørdagsvakt starter"> 
+                            <span style="color:var(--text-muted);">-</span>
+                            <input type="text" inputmode="numeric" id="std-sat-end" class="time-input-24" value="15:00"
+                                maxlength="5" placeholder="TT:MM" autocomplete="off" aria-label="Lørdagsvakt slutter">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="control-group">
+                <h2>Notater til måneden</h2>
+                <textarea id="month-notes" class="month-notes-input" rows="3"
+                    placeholder="For eksempel ferie, opplæring eller oppstartsdatoer"></textarea>
+                <p class="help-text" style="margin:0.5rem 0 0;">Notatet legges inn ved siden av «Notater» i Excel-kopien.</p>
+            </section>
+
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="main-header">
+                <h2>Tentativ Månedsplan</h2>
+                <div class="main-header-tools">
+                    <button id="copy-excel-btn" class="secondary-btn excel-copy-btn" type="button" disabled
+                        title="Kopier månedsplanen som en ferdig Excel-kalender">
+                        Kopier til Excel
+                    </button>
+                    <div class="summary-stats" id="summary-stats">
+                        <!-- Total shifts needed vs total shifts available -->
+                    </div>
+                </div>
+            </header>
+
+            <div id="schedule-warnings" class="schedule-warnings" role="status" style="display:none;"></div>
+
+            <div class="schedule-grid" id="schedule-grid">
+                <!-- Schedule output will be generated here -->
+                <div class="empty-state">
+                    Oppgi stillingsprosenter og trykk "Generer Vaktplan" for å se resultatet.
+                </div>
+            </div>
+            
+            <div id="publish-container" style="display: none; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color); text-align: center;">
+                <button id="publish-btn" class="primary-btn" style="background-color: #10b981; border: none; padding: 0.75rem 2rem; font-size: 1rem; box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);">
+                    Publiser Vaktplan for <span id="publish-month-name"></span>
+                </button>
+                <p class="help-text" style="margin-top: 0.5rem;">Dette låser vaktplanen og lagrer den i arkivet.</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- Detailed Employee Settings Modal -->
+    <div id="unavailability-modal" class="modal-overlay">
+        <div class="modal-content">
+            <header class="modal-header">
+                <h2 id="modal-title">Innstillinger: Ansatt</h2>
+                <button class="close-modal">&times;</button>
+            </header>
+            <div class="modal-body scrollable-body">
+                <div class="modal-section">
+                    <h3>Faste dager og vakter</h3>
+                    <button class="settings-action-btn" id="btn-add-fixed-shift" type="button"
+                        aria-expanded="false" aria-controls="fixed-shift-form">+ Legg til fast vakt</button>
+                    <div id="fixed-shift-form" class="fixed-shift-form" hidden>
+                        <div class="fixed-shift-controls">
+                            <label class="fixed-shift-field">
+                                <span>Ukedag</span>
+                                <select id="modal-fixed-shift-day">
+                                    <option value="0">Mandag</option>
+                                    <option value="1">Tirsdag</option>
+                                    <option value="2">Onsdag</option>
+                                    <option value="3">Torsdag</option>
+                                    <option value="4">Fredag</option>
+                                    <option value="5">Lørdag</option>
+                                </select>
+                            </label>
+                            <label class="fixed-shift-field">
+                                <span>Dag eller kveld</span>
+                                <select id="modal-fixed-shift-type">
+                                    <option value="day">Dagvakt</option>
+                                    <option value="eve">Kveldsvakt</option>
+                                </select>
+                            </label>
+                        </div>
+                        <button class="settings-action-btn" id="btn-save-fixed-shift" type="button">Legg til valgt vakt</button>
+                    </div>
+                    <div id="modal-fixed-shift-list" class="settings-rule-list">
+                        <!-- Generated by JS -->
+                    </div>
+                </div>
+
+                <div class="modal-section">
+                    <h3>Fast Utilgjengelighet</h3>
+                    <div id="modal-fixed-unavail-list"
+                        style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem;">
+                        <!-- Generated by JS -->
+                    </div>
+                    <button class="settings-action-btn" id="btn-add-fixed-time" type="button">+
+                        Legg til fast utilgjengelighet</button>
+                </div>
+
+                <div class="modal-section">
+                    <h3>Ekstraordinært fravær (Enkeltdatoer)</h3>
+                    <button class="settings-action-btn settings-collapse-btn" id="collapse-absence-header"
+                        type="button" aria-expanded="false" aria-controls="collapse-absence-content">
+                        <span class="collapse-label-open">+ Legg til fraværsdatoer</span>
+                        <span class="collapse-label-close">− Skjul fraværsdatoer</span>
+                    </button>
+                    <div id="collapse-absence-content" style="display: none; margin-top: 1rem;">
+                        <p class="help-text">Klikk på dagene denne personen IKKE kan jobbe i det hele tatt denne
+                            måneden.</p>
+                        <div class="calendar-grid" id="modal-calendar-grid">
+                            <!-- Generated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div> <!-- End of modal-body -->
+
+            <div class="modal-footer">
+                <button class="primary-btn close-modal" style="width:100%">Ferdig</button>
+            </div>
+        </div> <!-- End of modal-content -->
+    </div> <!-- End of unavailability-modal -->
+
+    <!-- Time Picker Modal (Secondary) -->
+    <div id="time-picker-modal" class="modal-overlay" style="z-index: 105;">
+        <div class="modal-content" style="max-width: 500px;">
+            <header class="modal-header">
+                <h2>Velg tid for utilgjengelighet</h2>
+                <button id="close-time-picker-btn" class="close-modal">&times;</button>
+            </header>
+            <div class="modal-body">
+                <div class="form-row">
+                    <label>Velg ukedag:</label>
+                    <select id="time-picker-day">
+                        <option value="0">Mandag</option>
+                        <option value="1">Tirsdag</option>
+                        <option value="2">Onsdag</option>
+                        <option value="3">Torsdag</option>
+                        <option value="4">Fredag</option>
+                        <option value="5">Lørdag</option>
+                        <option value="6">Søndag</option>
+                    </select>
+                </div>
+                <p class="help-text" style="margin-top: 1rem;">Dra eller klikk for å markere/avmarkere 15-minutters
+                    intervaller (08:00 - 20:00).</p>
+                <div id="time-picker-grid" class="time-grid">
+                    <!-- Generated by JS -->
+                </div>
+            </div>
+            <div class="modal-footer" style="display: flex; gap: 0.5rem;">
+                <button class="primary-btn" id="save-time-picker-btn" style="flex: 1;">Lagre</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Closed Days Picker Modal -->
+    <div id="closed-days-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 700px;">
+            <header class="modal-header">
+                <h2>Marker stengte dager</h2>
+            </header>
+            <div class="modal-body">
+                <p class="help-text" style="margin-bottom:1rem;">Klikk på dager bedriften holder stengt. Disse dagene
+                    vil ikke få vakter tildelt.</p>
+                <div id="closed-days-grid" style="display:grid; grid-template-columns:repeat(7,1fr); gap:0.4rem;">
+                    <!-- Generated by JS -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="primary-btn" id="closed-days-done-btn" style="width:100%">Fullfør</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="custom-time-modal" class="modal-overlay" style="z-index: 110;">
+        <div class="modal-content" style="max-width: 400px;">
+            <header class="modal-header">
+                <h2>Juster Vakt</h2>
+                <button id="close-custom-time-btn" class="close-modal">&times;</button>
+            </header>
+            <div class="modal-body">
+                <p id="custom-time-desc" class="help-text" style="margin-bottom:1rem;"></p>
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <div style="flex: 1;">
+                        <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.25rem;">Start tid</label>
+                        <input type="text" inputmode="numeric" id="custom-shift-start" class="time-input-24"
+                            maxlength="5" placeholder="TT:MM" autocomplete="off" aria-label="Vakten starter">
+                    </div>
+                    <div style="color: var(--text-muted); font-weight: bold; margin-top: 1.25rem;">-</div>
+                    <div style="flex: 1;">
+                        <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.25rem;">Slutt tid</label>
+                        <input type="text" inputmode="numeric" id="custom-shift-end" class="time-input-24"
+                            maxlength="5" placeholder="TT:MM" autocomplete="off" aria-label="Vakten slutter">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+                <button id="delete-custom-time-btn" style="flex: 1; padding: 0.5rem; background: #fee2e2; color: #ef4444; border: 1px solid #fca5a5; border-radius: 4px; font-size: 0.85rem; cursor: pointer; font-weight: 600;">Slett Vakt</button>
+                <button id="reset-custom-time-btn" style="flex: 1; padding: 0.5rem; background: #e2e8f0; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.85rem; cursor: pointer; font-weight: 600; color: #475569;">Tilbakestill</button>
+                <button class="primary-btn" id="save-custom-time-btn" style="flex: 2; padding: 0.5rem; font-size: 0.85rem;">Lagre Endringer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- All Published Schedules Modal -->
+    <div id="all-schedules-modal" class="modal-overlay" style="z-index: 100;">
+        <div class="modal-content" style="max-width: 800px;">
+            <header class="modal-header">
+                <h2>Vaktplanarkiv</h2>
+                <div style="display:flex; gap:0.5rem; align-items:center;">
+                    <select id="archive-year-select" style="padding: 0.3rem; border-radius: 4px; border: 1px solid #cbd5e1;"></select>
+                    <button id="close-all-schedules-btn" class="close-modal">&times;</button>
+                </div>
+            </header>
+            <div class="modal-body">
+                <p class="help-text" style="margin-bottom: 1.5rem;">Trykk på en måned for å se den publiserte vaktplanen. Grå bokser mangler en publisert plan.</p>
+                <div class="year-grid" id="archive-months-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;">
+                    <!-- JS Generated Months -->
+                </div>
+            </div>
+        </div>
+    </div>
+<script>
+(function () {
+    'use strict';
+
+    var AUTH_KEY = 'vaktplanleggerWebAuth_v1';
+    var GUARD_KEY = 'vaktplanleggerWebLoginGuard_v1';
+    var ATTEMPT_WINDOW_MS = 5 * 60 * 1000;
+    var MAX_ATTEMPTS = 5;
+    var LOCK_DURATIONS_MS = [
+        15 * 60 * 1000,
+        60 * 60 * 1000,
+        4 * 60 * 60 * 1000,
+        24 * 60 * 60 * 1000
+    ];
+    var PBKDF2_ITERATIONS = 600000;
+    var PBKDF2_SALT = 'vaktplanlegger-auth-v2-2026';
+    var EXPECTED_CREDENTIAL_HASH = 'b51bc3f269b40db4032d48cb5b31a15f7af90bec1689a685d139106ad3a3b2bd';
+
+    function hasSession() {
+        try {
+            return sessionStorage.getItem(AUTH_KEY) === 'ok';
+        } catch (error) {
+            return false;
+        }
+    }
+
+    function saveSession() {
+        try {
+            sessionStorage.setItem(AUTH_KEY, 'ok');
+        } catch (error) {
+            // The page can still be used; a refresh will require login again.
+        }
+    }
+
+    function clearSession() {
+        try {
+            sessionStorage.removeItem(AUTH_KEY);
+        } catch (error) {
+            // Nothing else is required when browser storage is unavailable.
+        }
+    }
+
+    function emptyGuard(now) {
+        return {
+            failures: [],
+            strikes: 0,
+            lockUntil: 0,
+            lastFailureAt: 0
+        };
+    }
+
+    function readGuard() {
+        var now = Date.now();
+        try {
+            var parsed = JSON.parse(localStorage.getItem(GUARD_KEY) || 'null');
+            if (!parsed || typeof parsed !== 'object') return emptyGuard(now);
+            var failures = Array.isArray(parsed.failures) ? parsed.failures.map(Number).filter(function (timestamp) {
+                return Number.isFinite(timestamp) && timestamp > 0 && timestamp <= now;
+            }) : [];
+            return {
+                failures: failures,
+                strikes: Math.max(0, Number(parsed.strikes) || 0),
+                lockUntil: Math.min(Math.max(0, Number(parsed.lockUntil) || 0), now + LOCK_DURATIONS_MS[LOCK_DURATIONS_MS.length - 1]),
+                lastFailureAt: Math.max(0, Number(parsed.lastFailureAt) || 0)
+            };
+        } catch (error) {
+            return emptyGuard(now);
+        }
+    }
+
+    function writeGuard(guard) {
+        try {
+            localStorage.setItem(GUARD_KEY, JSON.stringify(guard));
+        } catch (error) {
+            // Static hosting cannot enforce a shared lock if local storage is blocked.
+        }
+    }
+
+    function clearGuard() {
+        try {
+            localStorage.removeItem(GUARD_KEY);
+        } catch (error) {
+            // No local guard state to clear.
+        }
+    }
+
+    function persistentStorageAvailable() {
+        try {
+            var probeKey = GUARD_KEY + '_probe';
+            localStorage.setItem(probeKey, '1');
+            localStorage.removeItem(probeKey);
+            return true;
+        } catch (error) {
+            return false;
+        }
+    }
+
+    function recordFailure() {
+        var now = Date.now();
+        var guard = readGuard();
+
+        if (guard.lockUntil > now) return guard;
+        if (now - guard.lastFailureAt > 24 * 60 * 60 * 1000) guard.strikes = 0;
+        guard.failures = guard.failures.filter(function (timestamp) {
+            return now - timestamp < ATTEMPT_WINDOW_MS;
+        });
+        guard.failures.push(now);
+        guard.lastFailureAt = now;
+
+        if (guard.failures.length >= MAX_ATTEMPTS) {
+            var durationIndex = Math.min(guard.strikes, LOCK_DURATIONS_MS.length - 1);
+            guard.strikes += 1;
+            guard.lockUntil = now + LOCK_DURATIONS_MS[durationIndex];
+            guard.failures = [];
+        }
+
+        writeGuard(guard);
+        return guard;
+    }
+
+    function setLocked(locked) {
+        document.body.classList.toggle('auth-locked', locked);
+        document.body.classList.toggle('is-authenticated', !locked);
+        var gate = document.getElementById('login-gate');
+        if (gate) gate.setAttribute('aria-hidden', locked ? 'false' : 'true');
+    }
+
+    function hexToBytes(hex) {
+        var bytes = new Uint8Array(hex.length / 2);
+        for (var i = 0; i < bytes.length; i++) {
+            bytes[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
+        }
+        return bytes;
+    }
+
+    function equalBytes(left, right) {
+        if (left.length !== right.length) return false;
+        var difference = 0;
+        for (var i = 0; i < left.length; i++) difference |= left[i] ^ right[i];
+        return difference === 0;
+    }
+
+    async function credentialsMatch(username, password) {
+        if (!window.crypto || !window.crypto.subtle || typeof TextEncoder === 'undefined') {
+            throw new Error('secure-context-required');
+        }
+
+        var encoder = new TextEncoder();
+        var credentialBytes = encoder.encode(username.trim() + '\n' + password);
+        var keyMaterial = await window.crypto.subtle.importKey(
+            'raw',
+            credentialBytes,
+            'PBKDF2',
+            false,
+            ['deriveBits']
+        );
+        var derivedBits = await window.crypto.subtle.deriveBits({
+            name: 'PBKDF2',
+            salt: encoder.encode(PBKDF2_SALT),
+            iterations: PBKDF2_ITERATIONS,
+            hash: 'SHA-256'
+        }, keyMaterial, 256);
+
+        return equalBytes(new Uint8Array(derivedBits), hexToBytes(EXPECTED_CREDENTIAL_HASH));
+    }
+
+    function formatRemaining(milliseconds) {
+        var totalSeconds = Math.max(1, Math.ceil(milliseconds / 1000));
+        var hours = Math.floor(totalSeconds / 3600);
+        var minutes = Math.floor((totalSeconds % 3600) / 60);
+        var seconds = totalSeconds % 60;
+        if (hours > 0) return hours + ' t ' + String(minutes).padStart(2, '0') + ' min';
+        return String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+    }
+
+    function initializeLogin() {
+        var form = document.getElementById('login-form');
+        var usernameInput = document.getElementById('login-username');
+        var passwordInput = document.getElementById('login-password');
+        var errorMessage = document.getElementById('login-error');
+        var submitButton = document.getElementById('login-submit');
+        var logoutButton = document.getElementById('logout-btn');
+        var lockTimer = null;
+        var busy = false;
+        var storageReady = persistentStorageAvailable();
+
+        function showMessage(message) {
+            errorMessage.textContent = message;
+            errorMessage.hidden = !message;
+        }
+
+        function refreshLockout() {
+            if (!storageReady) {
+                usernameInput.disabled = true;
+                passwordInput.disabled = true;
+                submitButton.disabled = true;
+                showMessage('Lokal nettleserlagring må være aktivert for å logge inn.');
+                return true;
+            }
+            var guard = readGuard();
+            var remaining = guard.lockUntil - Date.now();
+            var isBlocked = remaining > 0;
+
+            usernameInput.disabled = isBlocked || busy;
+            passwordInput.disabled = isBlocked || busy;
+            submitButton.disabled = isBlocked || busy;
+
+            if (isBlocked) {
+                showMessage('For mange feilforsøk. Prøv igjen om ' + formatRemaining(remaining) + '.');
+                if (!lockTimer) lockTimer = window.setInterval(refreshLockout, 1000);
+                return true;
+            }
+
+            if (guard.lockUntil) {
+                guard.lockUntil = 0;
+                guard.failures = [];
+                writeGuard(guard);
+                showMessage('');
+            }
+            if (lockTimer) {
+                window.clearInterval(lockTimer);
+                lockTimer = null;
+            }
+            return false;
+        }
+
+        if (hasSession()) {
+            setLocked(false);
+        } else {
+            setLocked(true);
+            if (!refreshLockout()) usernameInput.focus();
+        }
+
+        form.addEventListener('submit', async function (event) {
+            event.preventDefault();
+            if (busy || refreshLockout()) return;
+
+            busy = true;
+            refreshLockout();
+            showMessage('Kontrollerer innlogging …');
+
+            try {
+                var isValid = await credentialsMatch(usernameInput.value, passwordInput.value);
+                if (isValid) {
+                    clearGuard();
+                    saveSession();
+                    showMessage('');
+                    passwordInput.value = '';
+                    setLocked(false);
+                    return;
+                }
+
+                var guard = recordFailure();
+                passwordInput.value = '';
+                if (guard.lockUntil > Date.now()) {
+                    refreshLockout();
+                } else {
+                    var attemptsLeft = MAX_ATTEMPTS - guard.failures.length;
+                    showMessage('Feil brukernavn eller passord. ' + attemptsLeft + ' forsøk igjen.');
+                    passwordInput.focus();
+                }
+            } catch (error) {
+                showMessage('Innlogging krever HTTPS eller localhost.');
+            } finally {
+                busy = false;
+                refreshLockout();
+            }
+        });
+
+        logoutButton.addEventListener('click', function () {
+            if (window.VaktApp && typeof window.VaktApp.saveState === 'function') {
+                window.VaktApp.saveState();
+            }
+            clearSession();
+            form.reset();
+            showMessage('');
+            setLocked(true);
+            if (!refreshLockout()) usernameInput.focus();
+        });
+
+        window.addEventListener('storage', function (event) {
+            if (event.key === GUARD_KEY && document.body.classList.contains('auth-locked')) refreshLockout();
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', initializeLogin);
+})();
+
+
+/**
+ * config.js — App state, default employees, requirements, and shared utilities.
+ * 
+ * This is the first module loaded. It creates the global VaktApp namespace
+ * and defines all shared state that other modules read and write.
+ * 
+ * @module config
+ * @see ARCHITECTURE.md for full data model documentation
+ */
+window.VaktApp = window.VaktApp || {};
+
+(function (app) {
+    'use strict';
+
+    /** @type {number} Auto-incrementing ID for new employees */
+    app.nextEmployeeId = 1;
+
+    // ── App State ──────────────────────────────────────────────────────
+
+    /**
+     * Central application state. All modules read/write this object.
+     * @type {{ employees: Employee[], requirements: Requirement[] }}
+     */
+    app.state = {
+        employees: [],
+        requirements: [
+            { day: 'mon', dayReq: 1, eveReq: 2 },  // 0 = Monday
+            { day: 'tue', dayReq: 1, eveReq: 3 },  // 1 = Tuesday
+            { day: 'wed', dayReq: 1, eveReq: 2 },  // 2 = Wednesday
+            { day: 'thu', dayReq: 1, eveReq: 3 },  // 3 = Thursday
+            { day: 'fri', dayReq: 1, eveReq: 2 },  // 4 = Friday
+            { day: 'sat', dayReq: 0, eveReq: 3 },  // 5 = Saturday (eveReq = Helvakt)
+            { day: 'sun', dayReq: 0, eveReq: 0 }   // 6 = Sunday (no shifts)
+        ],
+        standardTimes: {
+            day: { start: '08:00', end: '16:00' },
+            eve: { start: '15:30', end: '20:00' },
+            sat: { start: '10:00', end: '15:00' }
+        }
+    };
+
+    // ── Shared Mutable State ───────────────────────────────────────────
+
+    /** @type {Set<string>} Closed dates selected by user, format: "2026-1-25" */
+    app.closedDays = new Set();
+
+    /** 
+     * Last generated schedule data. Used by grid.js for re-rendering and drag-and-drop.
+     * @type {{ days: Day[], workers: Worker[] } | null} 
+     */
+    app.lastScheduleData = null;
+
+    /** @type {Object.<string, { days: Day[], workers: Worker[] }>} Dictionary of published schedules by YYYY-M key */
+    app.publishedSchedules = {};
+
+    /** @type {Object.<string, string>} Monthly notes by YYYY-M key */
+    app.monthNotes = {};
+
+    /** @type {string|null} Last selected YYYY-M key */
+    app.selectedMonthKey = null;
+
+    /** @type {string|null} Published schedule currently open for editing */
+    app.viewingPublishedKey = null;
+
+    // ── Utilities ──────────────────────────────────────────────────────
+
+    /**
+     * Round a number to the nearest 0.5.
+     * @param {number} n - The number to round
+     * @returns {number} Rounded value (e.g., 7.3 → 7.5, 7.1 → 7.0)
+     */
+    app.roundHalf = function (n) { return Math.round(n * 2) / 2; };
+
+    /** @type {string[]} Norwegian month names, 0-indexed (0 = Januar) */
+    app.monthNames = ['Januar', 'Februar', 'Mars', 'April', 'Mai', 'Juni',
+        'Juli', 'August', 'September', 'Oktober', 'November', 'Desember'];
+
+    app.escapeHtml = function (value) {
+        return String(value == null ? '' : value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    };
+
+    app.shortenEmployeeName = function (name) {
+        var trimmed = String(name || '').trim().replace(/\s+/g, ' ');
+        if (!trimmed) return 'Ansatt';
+        if (trimmed === 'Mangler folk' || trimmed === 'Ledig' || /^Ny ansatt(?: \d+)?$/i.test(trimmed)) return trimmed;
+
+        var parts = trimmed.split(' ');
+        if (parts.length < 2) return trimmed;
+        var surnameInitial = Array.from(parts[parts.length - 1])[0];
+        return parts[0] + ' ' + surnameInitial.toLocaleUpperCase('nb-NO');
+    };
+
+    function anonymizeFreeText(text, nameMigration) {
+        var result = String(text || '');
+        Object.keys(nameMigration || {}).sort(function (a, b) { return b.length - a.length; }).forEach(function (oldName) {
+            if (!oldName || oldName === nameMigration[oldName]) return;
+            result = result.split(oldName).join(nameMigration[oldName]);
+        });
+        return result;
+    }
+
+    function anonymizeScheduleNames(schedule, nameMigration) {
+        if (!schedule || typeof schedule !== 'object') return schedule;
+
+        function anonymizeName(name) {
+            return (nameMigration && nameMigration[name]) || app.shortenEmployeeName(name);
+        }
+
+        (schedule.workers || []).forEach(function (worker) {
+            if (worker && worker.name) worker.name = anonymizeName(worker.name);
+        });
+
+        (schedule.days || []).forEach(function (day) {
+            (day.shifts || []).forEach(function (shift) {
+                shift.workers = (shift.workers || []).map(anonymizeName);
+                if (shift.customTimes && typeof shift.customTimes === 'object') {
+                    var renamedTimes = {};
+                    Object.keys(shift.customTimes).forEach(function (workerName) {
+                        renamedTimes[anonymizeName(workerName)] = shift.customTimes[workerName];
+                    });
+                    shift.customTimes = renamedTimes;
+                }
+            });
+        });
+        if (schedule.notes) schedule.notes = anonymizeFreeText(schedule.notes, nameMigration);
+        return schedule;
+    }
+
+    function normalizeEmployee(employee) {
+        var fixedUnavail = (employee.fixedUnavail || []).map(function (item) {
+            return {
+                dayOfWeek: Number(item.dayOfWeek),
+                startMin: Number(item.startMin),
+                endMin: Number(item.endMin)
+            };
+        }).filter(function (item) {
+            return item.dayOfWeek >= 0 && item.dayOfWeek <= 6 &&
+                Number.isFinite(item.startMin) && Number.isFinite(item.endMin) && item.endMin > item.startMin;
+        });
+
+        var fixedShifts = (employee.fixedShifts || []).map(function (item) {
+            return {
+                dayOfWeek: Number(item.dayOfWeek),
+                shiftType: item.shiftType
+            };
+        }).filter(function (item) {
+            return item.dayOfWeek >= 0 && item.dayOfWeek <= 5 &&
+                ['day', 'eve', 'sat'].indexOf(item.shiftType) !== -1;
+        });
+
+        return {
+            id: Number(employee.id),
+            name: employee.name || 'Ansatt',
+            percent: Number(employee.percent) || 0,
+            // Old numeric day indexes came from a retired UI and cannot be edited safely.
+            unavailableDays: new Set(),
+            dateUnavail: new Set(employee.dateUnavail || []),
+            fixedUnavail: fixedUnavail,
+            fixedShifts: fixedShifts
+        };
+    }
+
+    // ── Persistence ────────────────────────────────────────────────────
+    
+    app.saveState = function() {
+        var stateToSave = {
+            employees: app.state.employees.map(function(e) {
+                return {
+                    id: e.id,
+                    name: e.name,
+                    percent: e.percent,
+                    unavailableDays: Array.from(e.unavailableDays || []),
+                    dateUnavail: Array.from(e.dateUnavail || []),
+                    fixedUnavail: e.fixedUnavail || [],
+                    fixedShifts: e.fixedShifts || []
+                };
+            }),
+            requirements: app.state.requirements,
+            standardTimes: app.state.standardTimes,
+            closedDays: Array.from(app.closedDays || []),
+            lastScheduleData: app.lastScheduleData,
+            publishedSchedules: app.publishedSchedules,
+            monthNotes: app.monthNotes,
+            nextEmployeeId: app.nextEmployeeId,
+            selectedMonthKey: app.elements && app.elements.monthSelector ? app.elements.monthSelector.value : app.selectedMonthKey,
+            viewingPublishedKey: app.viewingPublishedKey || null
+        };
+        localStorage.setItem('vaktplanleggerWebState_v1', JSON.stringify(stateToSave));
+    };
+
+    app.persistScheduleEdit = function () {
+        if (app.viewingPublishedKey && app.lastScheduleData) {
+            app.publishedSchedules[app.viewingPublishedKey] = JSON.parse(JSON.stringify(app.lastScheduleData));
+        }
+        app.saveState();
+    };
+
+    app.loadState = function() {
+        var saved = localStorage.getItem('vaktplanleggerWebState_v1');
+        if (!saved) return false;
+        try {
+            var data = JSON.parse(saved);
+            var nameMigration = {};
+            if (data.employees) {
+                app.state.employees = data.employees.map(normalizeEmployee);
+                app.state.employees.forEach(function (employee) {
+                    nameMigration[employee.name] = app.shortenEmployeeName(employee.name);
+                });
+                app.state.employees.forEach(function (employee) {
+                    employee.name = app.shortenEmployeeName(employee.name);
+                });
+            }
+            if (data.requirements) app.state.requirements = data.requirements;
+            if (data.standardTimes) app.state.standardTimes = data.standardTimes;
+            if (data.closedDays) app.closedDays = new Set(data.closedDays);
+            if (data.lastScheduleData) app.lastScheduleData = anonymizeScheduleNames(data.lastScheduleData, nameMigration);
+            if (data.publishedSchedules) {
+                app.publishedSchedules = data.publishedSchedules;
+                Object.keys(app.publishedSchedules).forEach(function (key) {
+                    anonymizeScheduleNames(app.publishedSchedules[key], nameMigration);
+                });
+            }
+            if (data.monthNotes) {
+                app.monthNotes = data.monthNotes;
+                Object.keys(app.monthNotes).forEach(function (key) {
+                    app.monthNotes[key] = anonymizeFreeText(app.monthNotes[key], nameMigration);
+                });
+            }
+            app.selectedMonthKey = data.selectedMonthKey || null;
+            app.viewingPublishedKey = data.viewingPublishedKey || null;
+            var largestEmployeeId = app.state.employees.reduce(function (max, employee) {
+                return Math.max(max, Number(employee.id) || 0);
+            }, 0);
+            app.nextEmployeeId = Math.max(Number(data.nextEmployeeId) || 0, largestEmployeeId + 1);
+            return true;
+        } catch (e) {
+            console.error("Kunne ikke laste lagret data:", e);
+            return false;
+        }
+    };
+
+    app.loadState(); // load immediately
+
+})(window.VaktApp);
+
+
+/**
+ * holidays.js — Norwegian public holidays and ISO week number calculation.
+ * 
+ * Uses the Anonymous Gregorian algorithm for Easter calculation.
+ * All holidays are returned as a Map keyed by "year-month-day" strings.
+ * 
+ * @module holidays
+ */
+(function (app) {
+    'use strict';
+
+    /**
+     * Get all Norwegian public holidays for a given year.
+     * Includes fixed holidays (Nyttårsdag, 17. mai, etc.) and
+     * Easter-based moveable holidays (Skjærtorsdag, Langfredag, etc.).
+     * 
+     * @param {number} year - Full year (e.g., 2026)
+     * @returns {Map<string, string>} Map of "year-month-day" → holiday name
+     * @example
+     *   const holidays = getNorwegianHolidays(2026);
+     *   holidays.get("2026-0-1"); // "Nyttårsdag"
+     */
+    app.getNorwegianHolidays = function (year) {
+        // Easter calculation (Anonymous Gregorian algorithm)
+        var a = year % 19;
+        var b = Math.floor(year / 100);
+        var c = year % 100;
+        var d = Math.floor(b / 4);
+        var e = b % 4;
+        var f = Math.floor((b + 8) / 25);
+        var g = Math.floor((b - f + 1) / 3);
+        var h = (19 * a + b - d - g + 15) % 30;
+        var i = Math.floor(c / 4);
+        var k = c % 4;
+        var l = (32 + 2 * e + 2 * i - h - k) % 7;
+        var m = Math.floor((a + 11 * h + 22 * l) / 451);
+        var month = Math.floor((h + l - 7 * m + 114) / 31) - 1;
+        var day = ((h + l - 7 * m + 114) % 31) + 1;
+        var easter = new Date(year, month, day);
+
+        /** @param {Date} date @param {number} days */
+        var addDays = function (date, days) {
+            var r = new Date(date);
+            r.setDate(r.getDate() + days);
+            return r;
+        };
+
+        var holidays = new Map();
+        /** @param {Date} date @param {string} name */
+        var add = function (date, name) {
+            holidays.set(date.getFullYear() + '-' + date.getMonth() + '-' + date.getDate(), name);
+        };
+
+        // Fixed holidays
+        add(new Date(year, 0, 1), 'Nyttårsdag');
+        add(new Date(year, 4, 1), 'Arbeidernes dag');
+        add(new Date(year, 4, 17), 'Grunnlovsdag');
+        add(new Date(year, 11, 25), '1. juledag');
+        add(new Date(year, 11, 26), '2. juledag');
+
+        // Easter-based moveable holidays
+        add(addDays(easter, -3), 'Skjærtorsdag');
+        add(addDays(easter, -2), 'Langfredag');
+        add(easter, '1. påskedag');
+        add(addDays(easter, 1), '2. påskedag');
+        add(addDays(easter, 39), 'Kr. Himmelfartsdag');
+        add(addDays(easter, 49), '1. pinsedag');
+        add(addDays(easter, 50), '2. pinsedag');
+
+        return holidays;
+    };
+
+    /**
+     * Get ISO 8601 week number for a date.
+     * Week 1 is the week containing the first Thursday of the year.
+     * 
+     * @param {Date} d - JavaScript Date object
+     * @returns {number} Week number (1-53)
+     */
+    app.getWeekNum = function (d) {
+        var date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+        date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay() || 7));
+        var yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+        return Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+    };
+
+})(window.VaktApp);
+
+
+/**
+ * scheduler.js — Schedule generation algorithm.
+ * 
+ * This module contains the core scheduling logic:
+ * 1. generateSchedule() — Opens closed-days picker
+ * 2. renderClosedDaysPicker() — Calendar UI for selecting closed days
+ * 3. buildSchedule() — Main algorithm: creates days, shifts, assigns workers
+ * 
+ * Algorithm hierarchy (in buildSchedule):
+ *   Fixed preferences → Hard filters → Fairness sort → Assignment
+ * 
+ * @module scheduler
+ * @see ARCHITECTURE.md for algorithm details and data models
+ */
+(function (app) {
+    'use strict';
+
+    var state = app.state;
+
+    function timeToMinutes(value) {
+        var parts = String(value || '').split(':').map(Number);
+        if (parts.length !== 2 || !Number.isFinite(parts[0]) || !Number.isFinite(parts[1])) return NaN;
+        return parts[0] * 60 + parts[1];
+    }
+
+    function standardTimesAreValid(showMessage) {
+        var labels = { day: 'dagvakt', eve: 'kveldsvakt', sat: 'lørdagsvakt' };
+        var types = ['day', 'eve', 'sat'];
+        for (var i = 0; i < types.length; i++) {
+            var type = types[i];
+            var times = state.standardTimes[type];
+            if (!times || timeToMinutes(times.end) <= timeToMinutes(times.start)) {
+                if (showMessage) alert('Kontroller standard arbeidstid for ' + labels[type] + '. Slutt-tid må være etter start-tid.');
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // ════════════════════════════════════════════════════════════════════
+    // GENERATE SCHEDULE — Entry point
+    // ════════════════════════════════════════════════════════════════════
+
+    /**
+     * Entry point for schedule generation. Opens closed-days modal.
+     * After user clicks "Fullfør", buildSchedule() is triggered.
+     */
+    app.generateSchedule = function () {
+        if (!standardTimesAreValid(true)) return;
+        app.viewingPublishedKey = null;
+        var parts = app.elements.monthSelector.value.split('-').map(Number);
+        app.renderClosedDaysPicker(parts[0], parts[1]);
+        app.elements.closedDaysModal.classList.add('show');
+    };
+
+    // ════════════════════════════════════════════════════════════════════
+    // CLOSED DAYS PICKER — Calendar UI
+    // ════════════════════════════════════════════════════════════════════
+
+    /**
+     * Render the closed-days calendar picker inside the modal.
+     * Clicking a day toggles it as closed (dark background).
+     * 
+     * @param {number} year  - Full year (e.g., 2026)
+     * @param {number} month - Zero-based month (0 = January)
+     */
+    app.renderClosedDaysPicker = function (year, month) {
+        var grid = app.elements.closedDaysGrid;
+        grid.innerHTML = '';
+        var daysInMonth = new Date(year, month + 1, 0).getDate();
+        var firstDow = new Date(year, month, 1).getDay();
+        var padDays = (firstDow === 0) ? 6 : firstDow - 1;
+        var dayLabels = ['Man', 'Tir', 'Ons', 'Tor', 'Fre', 'Lør', 'Søn'];
+        var holidays = app.getNorwegianHolidays(year);
+
+        // Header row
+        dayLabels.forEach(function (lbl) {
+            var h = document.createElement('div');
+            h.style.cssText = 'text-align:center; font-weight:700; font-size:0.7rem; color:var(--text-muted); padding:0.3rem;';
+            h.textContent = lbl;
+            grid.appendChild(h);
+        });
+
+        // Padding from previous month
+        for (var p = 0; p < padDays; p++) {
+            var empty = document.createElement('div');
+            empty.style.cssText = 'padding:0.4rem; border-radius:6px; background:#f1f5f9; opacity:0.3;';
+            empty.textContent = new Date(year, month, -(padDays - 1 - p)).getDate();
+            empty.style.textAlign = 'center';
+            empty.style.fontSize = '0.8rem';
+            grid.appendChild(empty);
+        }
+
+        // Actual month days (clickable)
+        for (var d = 1; d <= daysInMonth; d++) {
+            (function (d) {
+                var btn = document.createElement('div');
+                var dateKey = year + '-' + month + '-' + d;
+                var isHoliday = holidays.has(dateKey);
+                var isSunday = new Date(year, month, d).getDay() === 0;
+
+                btn.textContent = d;
+                btn.style.cssText = 'text-align:center; padding:0.4rem; border-radius:6px; cursor:pointer; font-size:0.8rem; font-weight:500; border:1px solid #e2e8f0; transition:all 0.15s;';
+
+                if (isHoliday || isSunday) {
+                    btn.style.color = '#dc2626';
+                    btn.style.fontStyle = 'italic';
+                    btn.title = isHoliday ? holidays.get(dateKey) : 'Søndag';
+                }
+
+                if (app.closedDays.has(dateKey)) {
+                    btn.style.background = '#1e293b';
+                    btn.style.color = 'white';
+                    btn.style.border = '1px solid #1e293b';
+                }
+
+                btn.addEventListener('click', function () {
+                    if (app.closedDays.has(dateKey)) {
+                        app.closedDays.delete(dateKey);
+                        btn.style.background = '';
+                        btn.style.color = (isHoliday || isSunday) ? '#dc2626' : '';
+                        btn.style.border = '1px solid #e2e8f0';
+                    } else {
+                        app.closedDays.add(dateKey);
+                        btn.style.background = '#1e293b';
+                        btn.style.color = 'white';
+                        btn.style.border = '1px solid #1e293b';
+                    }
+                    app.saveState();
+                });
+                grid.appendChild(btn);
+            })(d);
+        }
+    };
+
+    // ════════════════════════════════════════════════════════════════════
+    // BUILD SCHEDULE — Main algorithm
+    // ════════════════════════════════════════════════════════════════════
+
+    /**
+     * Main scheduling algorithm. Called after user selects closed days.
+     * 
+     * Steps:
+     * 1. Build days array (with padding for Monday-alignment)
+     * 2. Add shift slots to each day based on requirements
+     * 3. Calculate worker capacities based on their percentage
+     * 4. Assign workers to shifts using multi-criteria sorting
+     * 5. Render results via renderStats() and renderGrid()
+     * 
+     * The assignment uses a priority sort:
+     *   Sat(4) > FriEve(3) > Day(2) > Eve(1)
+     * 
+     * Worker selection priority (high to low):
+     *   Percentage-based hours deficit > rotation > weekly day-shift limit >
+     *   shift-type deficit > random tiebreak
+     */
+    app.buildSchedule = function () {
+        if (!standardTimesAreValid(true)) return;
+        app.viewingPublishedKey = null;
+        var parts = app.elements.monthSelector.value.split('-').map(Number);
+        var year = parts[0], month = parts[1];
+        var daysInMonth = new Date(year, month + 1, 0).getDate();
+        var holidays = app.getNorwegianHolidays(year);
+        var dayNames = ['Søndag', 'Mandag', 'Tirsdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lørdag'];
+        // Internal day-of-week: 0=Mon, 1=Tue, ... 5=Sat, 6=Sun
+        var jsToInternal = [6, 0, 1, 2, 3, 4, 5];
+
+        // ── Step 1: Build days array ───────────────────────────────────
+        var days = [];
+
+        // Padding before (previous month)
+        var firstDow = new Date(year, month, 1).getDay();
+        var padBefore = (firstDow === 0) ? 6 : firstDow - 1;
+        for (var p = padBefore; p > 0; p--) {
+            var date = new Date(year, month, 1 - p);
+            var jsDow = date.getDay();
+            days.push({
+                id: 'prev-' + p, dayOfWeek: jsToInternal[jsDow],
+                name: dayNames[jsDow] + ' ' + String(date.getDate()).padStart(2, '0') + '.' + String(date.getMonth() + 1).padStart(2, '0'),
+                date: date, isHoliday: false, isClosed: true, isPadding: true, holidayName: null, shifts: []
+            });
+        }
+
+        // Actual month days
+        for (var d = 1; d <= daysInMonth; d++) {
+            var date = new Date(year, month, d);
+            var jsDow = date.getDay();
+            var dateKey = year + '-' + month + '-' + d;
+            var holidayName = holidays.get(dateKey);
+            days.push({
+                id: d - 1, dayOfWeek: jsToInternal[jsDow],
+                name: dayNames[jsDow] + ' ' + String(d).padStart(2, '0') + '.' + String(month + 1).padStart(2, '0'),
+                date: date, dateKey: dateKey,
+                isHoliday: !!holidayName, isClosed: app.closedDays.has(dateKey),
+                isPadding: false, holidayName: holidayName || null, shifts: []
+            });
+        }
+
+        // Padding after (next month)
+        var lastDow = new Date(year, month, daysInMonth).getDay();
+        var padAfter = (lastDow === 0) ? 0 : 7 - lastDow;
+        for (var p = 1; p <= padAfter; p++) {
+            var date = new Date(year, month, daysInMonth + p);
+            var jsDow = date.getDay();
+            days.push({
+                id: 'next-' + p, dayOfWeek: jsToInternal[jsDow],
+                name: dayNames[jsDow] + ' ' + String(date.getDate()).padStart(2, '0') + '.' + String(date.getMonth() + 1).padStart(2, '0'),
+                date: date, isHoliday: false, isClosed: true, isPadding: true, holidayName: null, shifts: []
+            });
+        }
+
+        function parseTime(timeStr) {
+            var parts = timeStr.split(':');
+            return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+        }
+
+        // ── Step 2: Add shifts to each day ─────────────────────────────
+        days.forEach(function (day) {
+            if (day.isHoliday || day.dayOfWeek === 6 || day.isClosed || day.isPadding) return;
+            var req = state.requirements[day.dayOfWeek];
+
+            if (req.dayReq > 0) {
+                var start = parseTime(state.standardTimes.day.start);
+                var end = parseTime(state.standardTimes.day.end);
+                day.shifts.push({ type: 'day', name: 'Dagvakt', req: req.dayReq, hours: (end - start) / 60, startMin: start, endMin: end, workers: [], customTimes: {} });
+            }
+            if (req.eveReq > 0) {
+                if (day.dayOfWeek === 5) {
+                    var start = parseTime(state.standardTimes.sat.start);
+                    var end = parseTime(state.standardTimes.sat.end);
+                    day.shifts.push({ type: 'sat', name: 'Lørdagsvakt', req: req.eveReq, hours: (end - start) / 60, startMin: start, endMin: end, workers: [], customTimes: {} });
+                } else {
+                    var start = parseTime(state.standardTimes.eve.start);
+                    var end = parseTime(state.standardTimes.eve.end);
+                    day.shifts.push({ type: 'eve', name: 'Kveldsvakt', req: req.eveReq, hours: (end - start) / 60, startMin: start, endMin: end, workers: [], customTimes: {} });
+                }
+            }
+        });
+
+        // ── Step 3: Calculate worker capacities ────────────────────────
+        var weeksInMonth = daysInMonth / 7;
+        var totalRequiredHours = 0;
+        days.forEach(function (d) { d.shifts.forEach(function (s) { totalRequiredHours += (s.req * s.hours); }); });
+
+        var totalDaySlots = 0, totalEveSlots = 0, totalSatSlots = 0, totalFriEveSlots = 0;
+        days.forEach(function (d) {
+            d.shifts.forEach(function (s) {
+                if (s.type === 'day') totalDaySlots += s.req;
+                else if (s.type === 'eve') {
+                    if (d.dayOfWeek === 4) totalFriEveSlots += s.req;
+                    else totalEveSlots += s.req;
+                }
+                else if (s.type === 'sat') totalSatSlots += s.req;
+            });
+        });
+        var totalSlots = totalDaySlots + totalEveSlots + totalSatSlots + totalFriEveSlots;
+
+        var totalPercent = state.employees.reduce(function (sum, emp) {
+            return sum + Math.max(0, Number(emp.percent) || 0);
+        }, 0);
+        var selectedMonthIndex = (year * 12) + month;
+        var rotationHistory = {};
+
+        // Published earlier months provide continuity for Friday/Saturday rotation.
+        Object.keys(app.publishedSchedules || {}).forEach(function (key) {
+            var keyParts = key.split('-').map(Number);
+            if (keyParts.length !== 2 || ((keyParts[0] * 12) + keyParts[1]) >= selectedMonthIndex) return;
+            var published = app.publishedSchedules[key];
+            (published && published.days || []).forEach(function (day) {
+                if (day.isPadding) return;
+                (day.shifts || []).forEach(function (shift) {
+                    var isSaturday = shift.type === 'sat';
+                    var isFridayEvening = shift.type === 'eve' && Number(day.dayOfWeek) === 4;
+                    if (!isSaturday && !isFridayEvening) return;
+                    (shift.workers || []).forEach(function (workerName) {
+                        if (workerName === 'Mangler folk' || workerName === 'Ledig') return;
+                        if (!rotationHistory[workerName]) rotationHistory[workerName] = { sat: 0, friEve: 0 };
+                        if (isSaturday) rotationHistory[workerName].sat++;
+                        if (isFridayEvening) rotationHistory[workerName].friEve++;
+                    });
+                });
+            });
+        });
+
+        var workers = state.employees.map(function (emp) {
+            var targetHours = app.roundHalf((emp.percent / 100) * (37.5 * weeksInMonth));
+            var percentShare = totalPercent > 0 ? Math.max(0, Number(emp.percent) || 0) / totalPercent : 0;
+            var fairTargetHours = totalRequiredHours * percentShare;
+            var slotShare = totalSlots * percentShare;
+            var history = rotationHistory[emp.name] || { sat: 0, friEve: 0 };
+            return {
+                ...emp, targetHours: targetHours, fairTargetHours: fairTargetHours,
+                assignedHours: 0, workedDates: new Set(),
+                satShifts: 0, friEveShifts: 0, dayShifts: 0, eveShifts: 0,
+                historicalSatShifts: history.sat, historicalFriEveShifts: history.friEve,
+                lastSatWeek: null, lastFriEveWeek: null,
+                weekDayShifts: {},
+                targetDayShifts: totalSlots > 0 ? Math.round(slotShare * (totalDaySlots / totalSlots)) : 0,
+                targetEveShifts: totalSlots > 0 ? Math.round(slotShare * (totalEveSlots / totalSlots)) : 0,
+                targetFriEveShifts: totalSlots > 0 ? Math.round(slotShare * (totalFriEveSlots / totalSlots)) : 0,
+                targetSatShifts: totalSlots > 0 ? Math.round(slotShare * (totalSatSlots / totalSlots)) : 0
+            };
+        });
+
+        var totalAvailableHours = workers.reduce(function (sum, w) { return sum + w.targetHours; }, 0);
+
+        var scheduleWarnings = new Set();
+
+        function isWorkerUnavailable(worker, day, shift) {
+            var dateKey = day.dateKey || day.id;
+            if (worker.dateUnavail && worker.dateUnavail.has(dateKey)) return true;
+            return (worker.fixedUnavail || []).some(function (interval) {
+                return Number(interval.dayOfWeek) === day.dayOfWeek &&
+                    Number(interval.startMin) < shift.endMin && Number(interval.endMin) > shift.startMin;
+            });
+        }
+
+        function assignWorker(worker, day, shift) {
+            var dateKey = day.dateKey || day.id;
+            shift.workers.push(worker.name);
+            worker.assignedHours += shift.hours;
+            worker.workedDates.add(dateKey);
+
+            var assignedWeek = app.getWeekNum(day.date);
+            if (shift.type === 'sat') {
+                worker.satShifts++;
+                worker.lastSatWeek = assignedWeek;
+            }
+            if (shift.type === 'eve' && day.dayOfWeek !== 4) worker.eveShifts++;
+            if (day.dayOfWeek === 4 && shift.type === 'eve') {
+                worker.friEveShifts++;
+                worker.lastFriEveWeek = assignedWeek;
+            }
+            if (shift.type === 'day') {
+                worker.dayShifts++;
+                worker.weekDayShifts[assignedWeek] = (worker.weekDayShifts[assignedWeek] || 0) + 1;
+            }
+        }
+
+        // Recurring shifts are strong preferences inside each person's percentage share.
+        // They occupy normal staffing slots and can never create overstaffing.
+        days.forEach(function (day) {
+            if (day.isPadding || day.dayOfWeek === 6) return;
+
+            var candidatesByType = {};
+            workers.forEach(function (worker) {
+                var fixedRule = (worker.fixedShifts || []).find(function (rule) {
+                    return Number(rule.dayOfWeek) === day.dayOfWeek;
+                });
+                if (!fixedRule) return;
+
+                var fixedShift = day.shifts.find(function (shift) { return shift.type === fixedRule.shiftType; });
+                if (!fixedShift) {
+                    if (!day.isHoliday && !day.isClosed) {
+                        scheduleWarnings.add(worker.name + ': fast ' +
+                            (fixedRule.shiftType === 'day' ? 'dagvakt' : fixedRule.shiftType === 'eve' ? 'kveldsvakt' : 'lørdagsvakt') +
+                            ' finnes ikke i bemanningsoppsettet for ' + dayNames[day.date.getDay()].toLowerCase() + '.');
+                    }
+                    return;
+                }
+                if (isWorkerUnavailable(worker, day, fixedShift)) {
+                    scheduleWarnings.add(worker.name + ': fast vakt ' + day.name.toLowerCase() + ' ble hoppet over på grunn av fravær.');
+                    return;
+                }
+
+                if (worker.workedDates.has(day.dateKey)) return;
+                if (!candidatesByType[fixedShift.type]) candidatesByType[fixedShift.type] = [];
+                candidatesByType[fixedShift.type].push(worker);
+            });
+
+            day.shifts.forEach(function (shift) {
+                var fixedCandidates = candidatesByType[shift.type] || [];
+                for (var i = fixedCandidates.length - 1; i > 0; i--) {
+                    var j = Math.floor(Math.random() * (i + 1));
+                    var temp = fixedCandidates[i];
+                    fixedCandidates[i] = fixedCandidates[j];
+                    fixedCandidates[j] = temp;
+                }
+                fixedCandidates.sort(function (a, b) {
+                    var loadA = a.fairTargetHours > 0
+                        ? (a.assignedHours + shift.hours) / a.fairTargetHours
+                        : Number.POSITIVE_INFINITY;
+                    var loadB = b.fairTargetHours > 0
+                        ? (b.assignedHours + shift.hours) / b.fairTargetHours
+                        : Number.POSITIVE_INFINITY;
+                    return loadA - loadB;
+                });
+
+                var room = Math.max(0, shift.req - shift.workers.length);
+                fixedCandidates.forEach(function (worker) {
+                    if (room <= 0 || worker.fairTargetHours <= 0) return;
+                    var currentDistance = Math.abs(worker.fairTargetHours - worker.assignedHours);
+                    var nextDistance = Math.abs(worker.fairTargetHours - (worker.assignedHours + shift.hours));
+                    if (nextDistance > currentDistance + 0.0001) return;
+                    assignWorker(worker, day, shift);
+                    room--;
+                });
+            });
+        });
+
+        // ── Step 4: Assign workers to shifts ───────────────────────────
+        // Flatten all shift slots into a single array for priority ordering
+        var flatShifts = [];
+        days.forEach(function (day) {
+            day.shifts.forEach(function (shift) {
+                var remainingSlots = Math.max(0, shift.req - shift.workers.length);
+                for (var i = 0; i < remainingSlots; i++) flatShifts.push({ day: day, shift: shift });
+            });
+        });
+
+        // Sort shifts by priority: Sat(4) > FriEve(3) > Day(2) > Eve(1)
+        flatShifts.sort(function (a, b) {
+            var getPri = function (item) {
+                if (item.day.dayOfWeek === 5 && item.shift.type === 'sat') return 4;
+                if (item.day.dayOfWeek === 4 && item.shift.type === 'eve') return 3;
+                if (item.shift.type === 'day') return 2;
+                return 1;
+            };
+            var diff = getPri(b) - getPri(a);
+            if (diff !== 0) return diff;
+            return a.day.date.getTime() - b.day.date.getTime();
+        });
+
+        // Assign workers to each shift slot
+        flatShifts.forEach(function (item) {
+            var day = item.day, shift = item.shift;
+            var dateKey = day.dateKey || day.id;
+
+            // ── Hard eligibility filters ───────────────────────────────
+            var eligibleWorkers = workers.filter(function (w) {
+                if (w.workedDates.has(dateKey)) return false;
+                if (isWorkerUnavailable(w, day, shift)) return false;
+                return Number(w.percent) > 0;
+            });
+
+            if (eligibleWorkers.length > 0) {
+                // Shuffle the array to ensure tie-breaks are truly random
+                for (var i = eligibleWorkers.length - 1; i > 0; i--) {
+                    var j = Math.floor(Math.random() * (i + 1));
+                    var temp = eligibleWorkers[i];
+                    eligibleWorkers[i] = eligibleWorkers[j];
+                    eligibleWorkers[j] = temp;
+                }
+
+                // ── Multi-criteria sort ────────────────────────────────
+                eligibleWorkers.sort(function (a, b) {
+                    // Compare the projected share of the hours that actually need staffing.
+                    var compA = a.fairTargetHours > 0 ? (a.assignedHours + shift.hours) / a.fairTargetHours : Number.POSITIVE_INFINITY;
+                    var compB = b.fairTargetHours > 0 ? (b.assignedHours + shift.hours) / b.fairTargetHours : Number.POSITIVE_INFINITY;
+
+                    // Friday evenings and Saturdays rotate when the hour balance is reasonably close.
+                    var isSaturdayShift = shift.type === 'sat';
+                    var isFridayEveningShift = shift.type === 'eve' && day.dayOfWeek === 4;
+                    if ((isSaturdayShift || isFridayEveningShift) && Math.abs(compA - compB) <= 0.12) {
+                        var currentWeek = app.getWeekNum(day.date);
+                        var consecutiveA = isSaturdayShift ? a.lastSatWeek === currentWeek - 1 : a.lastFriEveWeek === currentWeek - 1;
+                        var consecutiveB = isSaturdayShift ? b.lastSatWeek === currentWeek - 1 : b.lastFriEveWeek === currentWeek - 1;
+                        if (consecutiveA !== consecutiveB) return consecutiveA ? 1 : -1;
+
+                        var weightA = Math.max(Number(a.percent) || 0, 1);
+                        var weightB = Math.max(Number(b.percent) || 0, 1);
+                        var typeLoadA = isSaturdayShift
+                            ? (a.historicalSatShifts + a.satShifts) / weightA
+                            : (a.historicalFriEveShifts + a.friEveShifts) / weightA;
+                        var typeLoadB = isSaturdayShift
+                            ? (b.historicalSatShifts + b.satShifts) / weightB
+                            : (b.historicalFriEveShifts + b.friEveShifts) / weightB;
+                        if (Math.abs(typeLoadA - typeLoadB) > 0.0001) return typeLoadA - typeLoadB;
+
+                        var combinedLoadA = (a.historicalSatShifts + a.satShifts + a.historicalFriEveShifts + a.friEveShifts) / weightA;
+                        var combinedLoadB = (b.historicalSatShifts + b.satShifts + b.historicalFriEveShifts + b.friEveShifts) / weightB;
+                        if (Math.abs(combinedLoadA - combinedLoadB) > 0.0001) return combinedLoadA - combinedLoadB;
+                    }
+
+                    // Hours are the strongest general priority; no coarse tolerance or fallback phase.
+                    if (Math.abs(compA - compB) > 0.0001) return compA - compB;
+
+                    // Avoid 2+ day shifts in the same week when hour shares are tied.
+                    if (shift.type === 'day') {
+                        var wk = app.getWeekNum(day.date);
+                        var wkA = a.weekDayShifts[wk] || 0;
+                        var wkB = b.weekDayShifts[wk] || 0;
+                        if (wkA !== wkB) return wkA - wkB;
+                    }
+
+                    // Shift-type deficit is the next tie-breaker.
+                    var dA = 0, dB = 0;
+                    if (shift.type === 'sat') {
+                        dA = a.targetSatShifts - a.satShifts;
+                        dB = b.targetSatShifts - b.satShifts;
+                    }
+                    else if (shift.type === 'eve') {
+                        if (day.dayOfWeek === 4) {
+                            // Friday evening specific deficit
+                            dA = a.targetFriEveShifts - a.friEveShifts;
+                            dB = b.targetFriEveShifts - b.friEveShifts;
+                        } else {
+                            // Mon-Thu evening deficit
+                            dA = a.targetEveShifts - a.eveShifts;
+                            dB = b.targetEveShifts - b.eveShifts;
+                        }
+                    }
+                    else if (shift.type === 'day') {
+                        dA = a.targetDayShifts - a.dayShifts;
+                        dB = b.targetDayShifts - b.dayShifts;
+                    }
+                    if (dA !== dB) return dB - dA;
+
+                    if (Math.abs(a.assignedHours - b.assignedHours) > 0.0001) return a.assignedHours - b.assignedHours;
+
+                    // Exact ties retain their shuffled order.
+                    return 0;
+                });
+
+                // ── Assign selected worker ─────────────────────────────
+                var sel = eligibleWorkers[0];
+                assignWorker(sel, day, shift);
+            } else {
+                shift.workers.push("Mangler folk");
+            }
+        });
+
+        // ── Step 5: Render results ─────────────────────────────────────
+        app.lastScheduleData = {
+            days: days,
+            workers: workers,
+            year: year,
+            month: month,
+            notes: app.monthNotes[year + '-' + month] || '',
+            warnings: Array.from(scheduleWarnings)
+        };
+        app.renderStats(totalRequiredHours, totalAvailableHours);
+        app.renderGrid(days);
+        if (app.renderScheduleWarnings) app.renderScheduleWarnings(app.lastScheduleData.warnings);
+        if (app.setExcelCopyAvailable) app.setExcelCopyAvailable(true);
+        
+        // Show publish button and map month name
+        if (app.elements.publishContainer) {
+            app.elements.publishContainer.style.display = 'block';
+            var selectedOpt = app.elements.monthSelector.options[app.elements.monthSelector.selectedIndex];
+            if (app.elements.publishMonthName && selectedOpt) {
+                app.elements.publishMonthName.textContent = selectedOpt.textContent;
+            }
+        }
+        app.saveState();
+    };
+
+})(window.VaktApp);
+
+
+/**
+ * grid.js — Schedule grid rendering, context menus, drag-and-drop, and summary.
+ * 
+ * This module renders the visual schedule grid and handles all user
+ * interactions within it: clicking shifts (modal), dragging workers,
+ * and adding "Ledig" (open shift) tags.
+ * 
+ * Exported functions:
+ *   renderGrid(days)              — Render the full schedule grid
+ *   renderStats(required, avail)  — Show hours summary in header
+ *   renderEmployeeSummary(workers) — Monthly summary table
+ *   closeAllMenus()               — Close any open shift context menus
+ * 
+ * @module grid
+ * @see ARCHITECTURE.md for Day and Shift data models
+ */
+(function (app) {
+    'use strict';
+
+    var state = app.state;
+
+    app.renderStats = function (required, available) {
+        var r = app.roundHalf(required);
+        var a = app.roundHalf(available);
+        var text = r + ' timer kreves — ' + a + ' timer tilgjengelig';
+        if (available < required) {
+            text += ' <span style="color:#ef4444; font-weight:600;">(Mangler kapasitet)</span>';
+        } else if (available > required) {
+            text += ' <span style="color:#f59e0b; font-weight:600;">(Overskudd av timer)</span>';
+        }
+        app.elements.summaryStats.innerHTML = text;
+    };
+
+    app.closeAllMenus = function () {
+        document.querySelectorAll('.shift-menu-overlay').forEach(function (m) { m.remove(); });
+    };
+
+    app.renderGrid = function (days) {
+        app.elements.scheduleGrid.innerHTML = '';
+
+        days.forEach(function (day) {
+            var col = document.createElement('div');
+            col.className = 'day-column';
+            if (day.isPadding) col.style.opacity = '0.3';
+
+            var header = document.createElement('div');
+            header.className = 'day-header';
+            header.textContent = day.name;
+            if (day.isHoliday) { header.style.color = '#dc2626'; header.style.background = '#fef2f2'; }
+            if (day.isClosed && !day.isPadding) { header.style.background = '#1e293b'; header.style.color = 'white'; }
+            col.appendChild(header);
+
+            var shiftsContainer = document.createElement('div');
+            shiftsContainer.className = 'day-shifts';
+
+            if (day.shifts.length === 0) {
+                var label = 'Ingen vakter';
+                if (day.isClosed && !day.isPadding) label = 'Stengt';
+                else if (day.isHoliday) label = day.holidayName;
+                else if (day.dayOfWeek === 6) label = 'Søndag';
+                shiftsContainer.innerHTML = '<div style="color:var(--text-muted); font-size:0.75rem; text-align:center; font-style:italic;">' + app.escapeHtml(label) + '</div>';
+            } else {
+                day.shifts.forEach(function (shift, shiftIndex) {
+                    var block = document.createElement('div');
+                    block.className = 'shift-block theme-' + shift.type;
+                    block.style.animationDelay = ((typeof day.id === 'number' ? day.id * 0.05 : 0) + (shiftIndex * 0.1)) + 's';
+
+                    // Context menu
+                    block.addEventListener('click', function (e) {
+                        e.stopPropagation();
+                        app.closeAllMenus();
+                        var usedNames = new Set();
+                        day.shifts.forEach(function (s) { s.workers.forEach(function (w) { if (w !== 'Mangler folk') usedNames.add(w); }); });
+
+                        var menu = document.createElement('div');
+                        menu.className = 'day-context-menu';
+
+                        var hdr = document.createElement('div');
+                        hdr.className = 'modal-header';
+                        hdr.innerHTML = '<h2>' + app.escapeHtml(day.name) + ' \u2014 ' + app.escapeHtml(shift.name) + '</h2>';
+                        menu.appendChild(hdr);
+
+                        var ledigBtn = document.createElement('div');
+                        ledigBtn.className = 'day-menu-item ledig-item';
+                        ledigBtn.textContent = '+ Ledig Vakt';
+                        ledigBtn.addEventListener('click', function (ev) {
+                            ev.stopPropagation();
+                            shift.workers.push('Ledig');
+                            app.closeAllMenus();
+                            app.renderGrid(days);
+                            app.persistScheduleEdit();
+                        });
+                        menu.appendChild(ledigBtn);
+
+                        var sep = document.createElement('div');
+                        sep.className = 'day-menu-sep';
+                        menu.appendChild(sep);
+
+                        var pickBtn = document.createElement('div');
+                        pickBtn.className = 'day-menu-item';
+                        pickBtn.textContent = 'Velg ansatt \u25B6';
+                        var empList = document.createElement('div');
+                        empList.className = 'emp-submenu';
+                        empList.style.display = 'none';
+
+                        pickBtn.addEventListener('click', function (ev) {
+                            ev.stopPropagation();
+                            var isOpen = empList.style.display !== 'none';
+                            empList.style.display = isOpen ? 'none' : 'block';
+                            pickBtn.textContent = isOpen ? 'Velg ansatt \u25B6' : 'Velg ansatt \u25BC';
+                        });
+                        menu.appendChild(pickBtn);
+
+                        var sorted = state.employees.slice().sort(function (a, b) { return a.name.localeCompare(b.name, 'nb'); });
+                        sorted.forEach(function (emp) {
+                            var item = document.createElement('div');
+                            item.className = 'day-menu-item emp-item';
+                            item.textContent = emp.name;
+                            if (usedNames.has(emp.name)) {
+                                item.classList.add('disabled');
+                            } else {
+                                item.addEventListener('click', function (ev) {
+                                    ev.stopPropagation();
+                                    var mfIdx = shift.workers.indexOf('Mangler folk');
+                                    if (mfIdx !== -1) shift.workers.splice(mfIdx, 1);
+                                    shift.workers.push(emp.name);
+                                    app.closeAllMenus();
+                                    app.renderGrid(days);
+                                    app.persistScheduleEdit();
+                                });
+                            }
+                            empList.appendChild(item);
+                        });
+                        menu.appendChild(empList);
+
+                        var overlay = document.createElement('div');
+                        overlay.className = 'shift-menu-overlay';
+                        overlay.addEventListener('click', function (ev) {
+                            if (ev.target === overlay) app.closeAllMenus();
+                        });
+                        overlay.appendChild(menu);
+                        document.body.appendChild(overlay);
+                    });
+
+                    // Drag and drop
+                    block.addEventListener('dragover', function (e) { e.preventDefault(); block.classList.add('drag-over'); });
+                    block.addEventListener('dragleave', function () { block.classList.remove('drag-over'); });
+                    block.addEventListener('drop', function (e) {
+                        e.preventDefault();
+                        block.classList.remove('drag-over');
+                        var data = JSON.parse(e.dataTransfer.getData('text/plain'));
+                        var workerName = data.workerName;
+
+                        if (data.sourceDayId !== undefined && data.sourceShiftIndex !== undefined) {
+                            var sourceDay = days.find(function (d) { return d.id === data.sourceDayId || ('' + d.id) === ('' + data.sourceDayId); });
+                            if (sourceDay && sourceDay.shifts[data.sourceShiftIndex]) {
+                                var srcShift = sourceDay.shifts[data.sourceShiftIndex];
+                                var idx = srcShift.workers.indexOf(workerName);
+                                if (idx !== -1) srcShift.workers.splice(idx, 1);
+                            }
+                        }
+
+                        if (!shift.workers.includes(workerName)) {
+                            var mfIdx = shift.workers.indexOf('Mangler folk');
+                            if (mfIdx !== -1) shift.workers.splice(mfIdx, 1);
+                            shift.workers.push(workerName);
+                        }
+                        app.renderGrid(days);
+                        app.persistScheduleEdit();
+                    });
+
+                    // Shift block content
+                    var titleDiv = document.createElement('div');
+                    titleDiv.className = 'shift-title';
+                    var realAssigned = shift.workers.filter(function (w) { return w !== "Mangler folk" && w !== "Ledig"; }).length;
+                    titleDiv.innerHTML = app.escapeHtml(shift.name) + ' <span class="shift-count-badge">' + app.escapeHtml(realAssigned) + '/' + app.escapeHtml(shift.req) + '</span>';
+
+                    if (shift.type === 'open') {
+                        var removeShiftBtn = document.createElement('button');
+                        removeShiftBtn.textContent = '\u00d7';
+                        removeShiftBtn.className = 'remove-open-shift';
+                        removeShiftBtn.title = 'Fjern ledig vakt';
+                        removeShiftBtn.addEventListener('click', function (e) {
+                            e.stopPropagation();
+                            day.shifts.splice(shiftIndex, 1);
+                            app.renderGrid(days);
+                            app.persistScheduleEdit();
+                        });
+                        titleDiv.appendChild(removeShiftBtn);
+                    }
+                    block.appendChild(titleDiv);
+
+                    // Workers
+                    var workersDiv = document.createElement('div');
+                    workersDiv.className = 'shift-workers';
+
+                    shift.workers.forEach(function (w) {
+                        var workerEl = document.createElement('div');
+                        workerEl.className = 'worker';
+
+                        function formatTime(mins) {
+                            var h = Math.floor(mins / 60);
+                            var m = mins % 60;
+                            return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+                        }
+
+                        if (w === "Mangler folk") {
+                            workerEl.textContent = w;
+                            workerEl.style.cssText = 'background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5;';
+                        } else if (w === "Ledig") {
+                            workerEl.textContent = w;
+                            workerEl.style.cssText = 'background: #7c3aed; color: white; font-weight: 600; cursor: pointer; border: 1px dashed rgba(255,255,255,0.4);';
+                            workerEl.title = 'Klikk for å fjerne';
+                            workerEl.addEventListener('click', function (ev) {
+                                ev.stopPropagation();
+                                var idx = shift.workers.indexOf('Ledig');
+                                if (idx !== -1) shift.workers.splice(idx, 1);
+                                app.renderGrid(days);
+                                app.persistScheduleEdit();
+                            });
+                        } else {
+                            var ctime = shift.customTimes && shift.customTimes[w] ? shift.customTimes[w] : { startMin: shift.startMin, endMin: shift.endMin, hours: shift.hours };
+                            workerEl.innerHTML = '<div style="line-height: 1.2;">' + app.escapeHtml(w) + '<br>(' + formatTime(ctime.startMin) + '-' + formatTime(ctime.endMin) + ')</div>';
+
+                            workerEl.draggable = true;
+                            workerEl.classList.add('draggable');
+                            
+                            workerEl.style.cursor = 'pointer';
+                            workerEl.title = 'Klikk for å endre eller slette vakt...';
+                            workerEl.addEventListener('click', function (ev) {
+                                ev.stopPropagation();
+                                app.openCustomTimeModal(day, shiftIndex, w);
+                            });
+
+                            workerEl.addEventListener('dragstart', function (e) {
+                                e.dataTransfer.setData('text/plain', JSON.stringify({
+                                    workerName: w, sourceDayId: day.id, sourceShiftIndex: shiftIndex
+                                }));
+                                workerEl.classList.add('dragging');
+                            });
+                            workerEl.addEventListener('dragend', function () { workerEl.classList.remove('dragging'); });
+                        }
+                        workersDiv.appendChild(workerEl);
+                    });
+
+                    block.appendChild(workersDiv);
+                    shiftsContainer.appendChild(block);
+                });
+            }
+
+            col.appendChild(shiftsContainer);
+
+            if (!day.isClosed && !day.isPadding && !day.isHoliday && day.dayOfWeek !== 6) {
+                var bakvaktBox = document.createElement('div');
+                bakvaktBox.className = 'bakvakt-box';
+                var bt = day.bakvakt ? day.bakvakt : 'Bakvakt...';
+                bakvaktBox.textContent = bt;
+                
+                var boxStyle = 'margin-top: auto; padding: 0.5rem; border-radius: 4px; font-size: 0.8rem; cursor: pointer; text-align: center; min-height: 2.25rem; display: flex; align-items: center; justify-content: center; transition: all 0.2s; margin-left: 0.4rem; margin-right: 0.4rem; margin-bottom: 0.4rem;';
+                if (day.bakvakt) {
+                    bakvaktBox.style.cssText = boxStyle + 'background: #fef9c3; border: 1px solid #facc15; color: #854d0e; font-weight: 600;';
+                } else {
+                    bakvaktBox.style.cssText = boxStyle + 'background: #f8fafc; border: 1px dashed #cbd5e1; color: #94a3b8; font-style: italic;';
+                }
+
+                bakvaktBox.addEventListener('click', function(ev) {
+                    ev.stopPropagation();
+                    var newText = prompt('Hvem / hva er bakvakt for ' + day.name + '?\n(La stå tom for å fjerne)', day.bakvakt || '');
+                    if (newText !== null) {
+                        day.bakvakt = newText.trim();
+                        app.renderGrid(days);
+                        app.persistScheduleEdit();
+                    }
+                });
+                bakvaktBox.addEventListener('mouseover', function() { bakvaktBox.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)'; });
+                bakvaktBox.addEventListener('mouseout', function() { bakvaktBox.style.boxShadow = 'none'; });
+
+                col.appendChild(bakvaktBox);
+            }
+
+            app.elements.scheduleGrid.appendChild(col);
+        });
+
+        document.addEventListener('click', app.closeAllMenus, { once: true });
+
+        if (app.lastScheduleData && app.lastScheduleData.workers) {
+            app.renderEmployeeSummary(app.lastScheduleData.workers);
+        }
+    };
+
+    app.renderEmployeeSummary = function (workers) {
+        if (app.lastScheduleData && app.lastScheduleData.days) {
+            var hourMap = {};
+            workers.forEach(function (w) { hourMap[w.name] = 0; });
+            app.lastScheduleData.days.forEach(function (day) {
+                if (day.isPadding) return;
+                day.shifts.forEach(function (shift) {
+                    shift.workers.forEach(function (wName) {
+                        if (wName !== 'Mangler folk' && wName !== 'Ledig' && hourMap[wName] !== undefined) {
+                            if (shift.customTimes && shift.customTimes[wName]) {
+                                hourMap[wName] += shift.customTimes[wName].hours;
+                            } else {
+                                hourMap[wName] += shift.hours;
+                            }
+                        }
+                    });
+                });
+            });
+            workers.forEach(function (w) { w.assignedHours = hourMap[w.name] || 0; });
+        }
+        var sortedWorkers = workers.slice().sort(function (a, b) { return b.assignedHours - a.assignedHours; });
+        var summaryContainer = document.createElement('div');
+        summaryContainer.className = 'month-summary';
+        var html = '<h3>Oppsummering</h3><div class="summary-table"><div class="summary-row header"><div class="s-name">Ansatt</div><div class="s-hours">Tildelt</div><div class="s-target">Planlagt</div></div>';
+        sortedWorkers.forEach(function (w) {
+            var actualPct = w.targetHours > 0 ? ((w.assignedHours / w.targetHours) * w.percent).toFixed(1) : '0.0';
+            html += '<div class="summary-row"><div class="s-name">' + app.escapeHtml(w.name) + '</div><div class="s-hours"><strong>' + app.escapeHtml(w.assignedHours) + 't</strong> (' + app.escapeHtml(actualPct) + '%)</div><div class="s-target">' + app.escapeHtml(app.roundHalf(w.targetHours)) + 't (' + app.escapeHtml(w.percent) + '%)</div></div>';
+        });
+        html += '</div>';
+        summaryContainer.innerHTML = html;
+        app.elements.scheduleGrid.appendChild(summaryContainer);
+    };
+
+})(window.VaktApp);
+
+
+/**
+ * modals.js — Employee settings modal, vacation calendar, and time picker.
+ * 
+ * This module handles the employee settings modal which includes:
+ *   - Vacation/unavailability calendar (per-date toggle)
+ *   - Fixed weekly shifts
+ *   - Fixed weekly unavailability (time picker with 15-min intervals)
+ * 
+ * Exported functions:
+ *   openModal(employeeIndex)  — Open settings modal for an employee
+ *   closeModal()              — Save settings and close modal
+ *   openTimePicker()          — Open the time slot picker
+ *   closeTimePicker()         — Close the time picker
+ *   saveTimePicker()          — Save selected time range as unavailable
+ * 
+ * @module modals
+ * @see ARCHITECTURE.md for Employee data model
+ */
+(function (app) {
+    'use strict';
+
+    var state = app.state;
+    var activeEmployeeIndexForModal = null;
+    var timeGridSelectionStart = null;
+    var selectedTimeSlots = new Set();
+    var START_TIME_MINS = 8 * 60;
+    var END_TIME_MINS = 20 * 60;
+
+    function getDayName(dayIndex) {
+        return ['Mandag', 'Tirsdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lørdag', 'Søndag'][dayIndex];
+    }
+
+    function formatTime(minutes) {
+        var h = Math.floor(minutes / 60).toString().padStart(2, '0');
+        var m = (minutes % 60).toString().padStart(2, '0');
+        return h + ':' + m;
+    }
+
+    function parseTime(time) {
+        var parts = time.split(':').map(Number);
+        return (parts[0] * 60) + parts[1];
+    }
+
+    function getShiftName(shiftType) {
+        return { day: 'Dagvakt', eve: 'Kveldsvakt', sat: 'Lørdagsvakt' }[shiftType] || 'Vakt';
+    }
+
+    function getShiftMinutes(shiftType) {
+        var times = state.standardTimes[shiftType];
+        return times ? { startMin: parseTime(times.start), endMin: parseTime(times.end) } : null;
+    }
+
+    function renderFixedShiftList(emp) {
+        app.elements.modalFixedShiftList.innerHTML = '';
+        if (!emp.fixedShifts || emp.fixedShifts.length === 0) {
+            return;
+        }
+
+        emp.fixedShifts.slice().sort(function (a, b) { return a.dayOfWeek - b.dayOfWeek; }).forEach(function (item) {
+            var originalIndex = emp.fixedShifts.indexOf(item);
+            var div = document.createElement('div');
+            div.className = 'fixed-unavail-item';
+            div.innerHTML = '<span><strong>' + getDayName(Number(item.dayOfWeek)) + '</strong>: ' + getShiftName(item.shiftType) + '</span>' +
+                '<button class="icon-btn remove-btn" style="color:#ef4444;" title="Fjern fast vakt">&times;</button>';
+            div.querySelector('button').addEventListener('click', function () {
+                emp.fixedShifts.splice(originalIndex, 1);
+                renderFixedShiftList(emp);
+                app.renderEmployees();
+                app.saveState();
+            });
+            app.elements.modalFixedShiftList.appendChild(div);
+        });
+    }
+
+    function updateFixedShiftTypeOptions() {
+        var dayOfWeek = Number(app.elements.modalFixedShiftDay.value);
+        var select = app.elements.modalFixedShiftType;
+        var previous = select.value;
+        select.innerHTML = dayOfWeek === 5
+            ? '<option value="sat">Lørdagsvakt</option>'
+            : '<option value="day">Dagvakt</option><option value="eve">Kveldsvakt</option>';
+        if (Array.from(select.options).some(function (option) { return option.value === previous; })) {
+            select.value = previous;
+        }
+    }
+
+    function addFixedShift() {
+        if (activeEmployeeIndexForModal === null) return false;
+        var emp = state.employees[activeEmployeeIndexForModal];
+        var dayOfWeek = Number(app.elements.modalFixedShiftDay.value);
+        var shiftType = app.elements.modalFixedShiftType.value;
+
+        if (emp.fixedShifts.some(function (item) { return Number(item.dayOfWeek) === dayOfWeek; })) {
+            alert('Denne personen har allerede en fast vakt på ' + getDayName(dayOfWeek).toLowerCase() + '. Fjern den først hvis du vil bytte vakttype.');
+            return false;
+        }
+
+        var shiftMinutes = getShiftMinutes(shiftType);
+        var overlapsAbsence = shiftMinutes && emp.fixedUnavail.some(function (item) {
+            return Number(item.dayOfWeek) === dayOfWeek &&
+                Number(item.startMin) < shiftMinutes.endMin && Number(item.endMin) > shiftMinutes.startMin;
+        });
+        if (overlapsAbsence) {
+            alert('Denne vakten overlapper fast fravær. Fjern eller endre fraværet før du legger til vakten.');
+            return false;
+        }
+
+        emp.fixedShifts.push({ dayOfWeek: dayOfWeek, shiftType: shiftType });
+        renderFixedShiftList(emp);
+        app.renderEmployees();
+        app.saveState();
+        return true;
+    }
+
+    function renderFixedUnavailList(emp) {
+        app.elements.modalFixedUnavailList.innerHTML = '';
+        if (emp.fixedUnavail.length === 0) {
+            return;
+        }
+        emp.fixedUnavail.forEach(function (item, index) {
+            var div = document.createElement('div');
+            div.className = 'fixed-unavail-item';
+            div.innerHTML = '<span><strong>' + getDayName(item.dayOfWeek) + '</strong>: ' + formatTime(item.startMin) + ' - ' + formatTime(item.endMin) + '</span>' +
+                '<button class="icon-btn remove-btn" style="color:#ef4444;" title="Fjern">&times;</button>';
+            div.querySelector('button').addEventListener('click', function () {
+                emp.fixedUnavail.splice(index, 1);
+                renderFixedUnavailList(emp);
+                app.renderEmployees();
+                app.saveState();
+            });
+            app.elements.modalFixedUnavailList.appendChild(div);
+        });
+    }
+
+    function renderTimeGrid() {
+        app.elements.timePickerGrid.innerHTML = '';
+        var totalIntervals = (END_TIME_MINS - START_TIME_MINS) / 15;
+        for (var i = 0; i < totalIntervals; i++) {
+            var currentMin = START_TIME_MINS + (i * 15);
+            var slot = document.createElement('div');
+            slot.className = 'time-slot';
+            slot.textContent = formatTime(currentMin);
+            slot.dataset.index = i;
+            slot.dataset.time = currentMin;
+            if (selectedTimeSlots.has(i)) slot.classList.add('selected');
+            (function (idx) {
+                slot.addEventListener('click', function () { handleTimeSlotClick(idx); });
+            })(i);
+            app.elements.timePickerGrid.appendChild(slot);
+        }
+    }
+
+    function handleTimeSlotClick(index) {
+        if (timeGridSelectionStart === null) {
+            timeGridSelectionStart = index;
+            selectedTimeSlots.clear();
+            selectedTimeSlots.add(index);
+        } else {
+            var start = Math.min(timeGridSelectionStart, index);
+            var end = Math.max(timeGridSelectionStart, index);
+            selectedTimeSlots.clear();
+            for (var i = start; i <= end; i++) selectedTimeSlots.add(i);
+            timeGridSelectionStart = null;
+        }
+        var slots = app.elements.timePickerGrid.querySelectorAll('.time-slot');
+        slots.forEach(function (s, i) {
+            if (selectedTimeSlots.has(i)) s.classList.add('selected');
+            else s.classList.remove('selected');
+        });
+    }
+
+    function openTimePicker() {
+        selectedTimeSlots.clear();
+        timeGridSelectionStart = null;
+        renderTimeGrid();
+        app.elements.timePickerModal.classList.add('show');
+    }
+
+    function closeTimePicker() {
+        app.elements.timePickerModal.classList.remove('show');
+    }
+
+    function saveTimePicker() {
+        if (activeEmployeeIndexForModal === null) return;
+        var emp = state.employees[activeEmployeeIndexForModal];
+        var dayOfWeek = parseInt(app.elements.timePickerDay.value);
+        if (selectedTimeSlots.size === 0) { closeTimePicker(); return; }
+        var slotsArray = Array.from(selectedTimeSlots);
+        var minIndex = Math.min.apply(null, slotsArray);
+        var maxIndex = Math.max.apply(null, slotsArray);
+        var startMin = START_TIME_MINS + (minIndex * 15);
+        var endMin = START_TIME_MINS + (maxIndex * 15) + 15;
+        emp.fixedUnavail.push({ dayOfWeek: dayOfWeek, startMin: startMin, endMin: endMin });
+        emp.fixedUnavail.sort(function (a, b) {
+            return Number(a.dayOfWeek) - Number(b.dayOfWeek) || Number(a.startMin) - Number(b.startMin);
+        });
+        var merged = [];
+        emp.fixedUnavail.forEach(function (item) {
+            item = { dayOfWeek: Number(item.dayOfWeek), startMin: Number(item.startMin), endMin: Number(item.endMin) };
+            var previous = merged[merged.length - 1];
+            if (previous && previous.dayOfWeek === item.dayOfWeek && item.startMin <= previous.endMin) {
+                previous.endMin = Math.max(previous.endMin, item.endMin);
+            } else {
+                merged.push(item);
+            }
+        });
+        emp.fixedUnavail = merged;
+        renderFixedUnavailList(emp);
+        app.renderEmployees();
+        app.saveState();
+        closeTimePicker();
+    }
+
+    app.openModal = function (employeeIndex) {
+        activeEmployeeIndexForModal = employeeIndex;
+        var emp = state.employees[employeeIndex];
+        if (!emp.fixedShifts) emp.fixedShifts = [];
+        if (!emp.fixedUnavail) emp.fixedUnavail = [];
+        if (!emp.dateUnavail) emp.dateUnavail = new Set();
+        var scrollableBody = app.elements.modal.querySelector('.scrollable-body');
+        if (scrollableBody) scrollableBody.scrollTop = 0;
+        app.elements.modalTitle.textContent = 'Innstillinger: ' + emp.name;
+        app.elements.modalFixedShiftDay.value = '0';
+        updateFixedShiftTypeOptions();
+        app.elements.fixedShiftForm.hidden = true;
+        app.elements.btnAddFixedShift.hidden = false;
+        app.elements.btnAddFixedShift.setAttribute('aria-expanded', 'false');
+        renderFixedShiftList(emp);
+        renderFixedUnavailList(emp);
+        app.elements.collapseAbsenceContent.style.display = 'none';
+        app.elements.collapseAbsenceHeader.setAttribute('aria-expanded', 'false');
+        app.elements.calendarGrid.innerHTML = '';
+
+        var dayNames = ['Ma', 'Ti', 'On', 'To', 'Fr', 'Lø', 'Sø'];
+        dayNames.forEach(function (d) {
+            var h = document.createElement('div');
+            h.className = 'cal-header';
+            h.textContent = d;
+            app.elements.calendarGrid.appendChild(h);
+        });
+
+        var parts = app.elements.monthSelector.value.split('-').map(Number);
+        var calYear = parts[0], calMonth = parts[1];
+        var calDaysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+        var calFirstDow = new Date(calYear, calMonth, 1).getDay();
+        var calPadBefore = (calFirstDow === 0) ? 6 : calFirstDow - 1;
+
+        for (var p = 0; p < calPadBefore; p++) {
+            var empty = document.createElement('div');
+            empty.className = 'cal-day cal-padding';
+            app.elements.calendarGrid.appendChild(empty);
+        }
+
+        for (var d = 1; d <= calDaysInMonth; d++) {
+            (function (d) {
+                var dateKey = calYear + '-' + calMonth + '-' + d;
+                var dayBtn = document.createElement('button');
+                dayBtn.className = 'cal-day';
+                dayBtn.textContent = d;
+                var jsDow = new Date(calYear, calMonth, d).getDay();
+                if (jsDow === 0) dayBtn.style.color = '#dc2626';
+                if (emp.dateUnavail.has(dateKey)) dayBtn.classList.add('unavailable');
+                dayBtn.addEventListener('click', function () {
+                    if (emp.dateUnavail.has(dateKey)) {
+                        emp.dateUnavail.delete(dateKey);
+                        dayBtn.classList.remove('unavailable');
+                    } else {
+                        emp.dateUnavail.add(dateKey);
+                        dayBtn.classList.add('unavailable');
+                    }
+                    app.renderEmployees();
+                    app.saveState();
+                });
+                app.elements.calendarGrid.appendChild(dayBtn);
+            })(d);
+        }
+
+        app.elements.modal.classList.add('show');
+    };
+
+    app.closeModal = function () {
+        if (activeEmployeeIndexForModal !== null) {
+            activeEmployeeIndexForModal = null;
+            app.renderEmployees();
+            app.saveState();
+        }
+        app.elements.modal.classList.remove('show');
+    };
+
+    // Expose for event listeners setup
+    app.openTimePicker = openTimePicker;
+    app.closeTimePicker = closeTimePicker;
+    app.saveTimePicker = saveTimePicker;
+    app.updateFixedShiftTypeOptions = updateFixedShiftTypeOptions;
+    app.addFixedShift = addFixedShift;
+
+})(window.VaktApp);
+
+
+/**
+ * export.js — Copies the rendered monthly schedule as an Excel-friendly calendar.
+ */
+(function (app) {
+    'use strict';
+
+    var weekdayNames = ['MANDAG', 'TIRSDAG', 'ONSDAG', 'TORSDAG', 'FREDAG', 'LØRDAG', 'SØNDAG'];
+
+    function escapeHtml(value) {
+        return String(value == null ? '' : value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    function formatTime(minutes) {
+        var value = Number(minutes);
+        var hours = Math.floor(value / 60);
+        var mins = value % 60;
+        return String(hours).padStart(2, '0') + ':' + String(mins).padStart(2, '0');
+    }
+
+    function dateFromDay(day) {
+        if (day && day.dateKey) {
+            var keyParts = String(day.dateKey).split('-').map(Number);
+            if (keyParts.length === 3) return new Date(keyParts[0], keyParts[1], keyParts[2]);
+        }
+        if (day && day.date) {
+            var date = new Date(day.date);
+            if (!isNaN(date.getTime())) return date;
+        }
+        return null;
+    }
+
+    function deriveCalendarMeta(scheduleData) {
+        if (Number.isInteger(scheduleData.year) && Number.isInteger(scheduleData.month)) {
+            return { year: scheduleData.year, month: scheduleData.month };
+        }
+
+        var firstRealDay = (scheduleData.days || []).find(function (day) {
+            return !day.isPadding && day.dateKey;
+        });
+        if (firstRealDay) {
+            var parts = String(firstRealDay.dateKey).split('-').map(Number);
+            return { year: parts[0], month: parts[1] };
+        }
+
+        if (app.elements && app.elements.monthSelector && app.elements.monthSelector.value) {
+            var selected = app.elements.monthSelector.value.split('-').map(Number);
+            return { year: selected[0], month: selected[1] };
+        }
+        var now = new Date();
+        return { year: now.getFullYear(), month: now.getMonth() };
+    }
+
+    function formatCompactTime(minutes) {
+        var full = formatTime(minutes);
+        return full.slice(-3) === ':00' ? full.slice(0, 2) : full;
+    }
+
+    function buildShiftSegments(shift) {
+        var groups = [];
+        (shift.workers || []).forEach(function (workerName) {
+            var custom = shift.customTimes && shift.customTimes[workerName];
+            var startMin = custom ? Number(custom.startMin) : Number(shift.startMin);
+            var endMin = custom ? Number(custom.endMin) : Number(shift.endMin);
+            var key = startMin + '-' + endMin;
+            var group = groups.find(function (item) { return item.key === key; });
+            if (!group) {
+                group = { key: key, startMin: startMin, endMin: endMin, workers: [], hasCustomTime: false };
+                groups.push(group);
+            }
+            group.workers.push(workerName);
+            if (custom && (startMin !== Number(shift.startMin) || endMin !== Number(shift.endMin))) {
+                group.hasCustomTime = true;
+            }
+        });
+
+        if (groups.length === 0) {
+            groups.push({
+                key: 'empty',
+                startMin: Number(shift.startMin),
+                endMin: Number(shift.endMin),
+                workers: ['—'],
+                hasCustomTime: false
+            });
+        }
+
+        return groups.map(function (group) {
+            var names = group.workers.join(' + ');
+            var showTime = shift.type !== 'sat' || group.hasCustomTime;
+            return names + (showTime
+                ? ' (' + formatCompactTime(group.startMin) + '-' + formatCompactTime(group.endMin) + ')'
+                : '');
+        });
+    }
+
+    function buildCell(day) {
+        if (!day) return { date: '', content: '', isPadding: true };
+        var date = dateFromDay(day);
+        var dateText = date ? String(date.getDate()) : '';
+        if (day.isPadding) return { date: dateText, content: '', isPadding: true };
+
+        var content = '';
+        if (day.isClosed) {
+            content = 'Stengt';
+        } else if (day.isHoliday) {
+            content = day.holidayName || 'Helligdag';
+        } else {
+            var segments = [];
+            (day.shifts || []).forEach(function (shift) {
+                segments = segments.concat(buildShiftSegments(shift));
+            });
+            content = segments.join(' ');
+            if (day.bakvakt) content += (content ? ': ' : 'Bakvakt: ') + day.bakvakt;
+        }
+        return { date: dateText, content: content, isPadding: false };
+    }
+
+    app.buildExcelCalendarModel = function (scheduleData) {
+        var data = scheduleData || app.lastScheduleData;
+        if (!data || !Array.isArray(data.days)) throw new Error('Ingen vaktplan er klar for kopiering.');
+        var meta = deriveCalendarMeta(data);
+        var title = app.monthNames[meta.month] + ' ' + meta.year;
+        var rows = [];
+        for (var index = 0; index < data.days.length; index += 7) {
+            var week = data.days.slice(index, index + 7).map(buildCell);
+            while (week.length < 7) week.push({ date: '', content: '', isPadding: true });
+            rows.push(week);
+        }
+
+        var lastSourceDate = dateFromDay(data.days[data.days.length - 1]);
+        function createFollowingWeek() {
+            var week = [];
+            for (var offset = 1; offset <= 7; offset++) {
+                var nextDate = new Date(lastSourceDate.getFullYear(), lastSourceDate.getMonth(), lastSourceDate.getDate() + offset);
+                week.push({ date: String(nextDate.getDate()), content: '', isPadding: true });
+            }
+            lastSourceDate = new Date(lastSourceDate.getFullYear(), lastSourceDate.getMonth(), lastSourceDate.getDate() + 7);
+            return week;
+        }
+
+        // The Excel template always reserves a sixth calendar week for notes.
+        while (rows.length < 6) rows.push(createFollowingWeek());
+        var notesWeek = rows[rows.length - 1];
+        var needsExtraNotesWeek = notesWeek.slice(2).some(function (cell) { return !cell.isPadding; });
+        if (needsExtraNotesWeek) {
+            notesWeek = createFollowingWeek();
+            rows.push(notesWeek);
+        }
+
+        var noteKey = meta.year + '-' + meta.month;
+        var notes = app.monthNotes && Object.prototype.hasOwnProperty.call(app.monthNotes, noteKey)
+            ? app.monthNotes[noteKey]
+            : (data.notes || '');
+        notesWeek[2] = { date: 'Notater', content: '', isPadding: false, isNoteLabel: true };
+        notesWeek[3] = { date: notes, content: '', isPadding: false, isNote: true };
+        for (var noteColumn = 4; noteColumn < 7; noteColumn++) {
+            notesWeek[noteColumn] = { date: '', content: '', isPadding: false, isNote: true };
+        }
+
+        return { title: title, weekdays: weekdayNames.slice(), weeks: rows, year: meta.year, month: meta.month, notes: notes };
+    };
+
+    app.buildExcelHtml = function (model) {
+        var headerCells = model.weekdays.map(function (dayName) {
+            return '<td style="border-bottom:1px solid #222;padding:4px 6px;font-family:Calibri,Arial,sans-serif;font-size:11pt;font-weight:700;white-space:nowrap;">' + escapeHtml(dayName) + '</td>';
+        }).join('');
+        var weekRows = model.weeks.map(function (week, weekIndex) {
+            var background = weekIndex % 2 === 1 ? '#F2F2F2' : '#FFFFFF';
+            var dateCells = week.map(function (cell) {
+                var color = cell.isPadding ? '#A6A6A6' : '#222222';
+                var noteStyle = cell.isNoteLabel ? 'font-style:italic;' : '';
+                var cellText = cell.date ? escapeHtml(cell.date).replace(/\r?\n/g, '<br>') : '&nbsp;';
+                return '<td style="width:165px;height:20px;padding:5px 8px 1px;vertical-align:top;white-space:normal;mso-number-format:\'\\@\';background:' + background + ';color:' + color + ';font-family:Calibri,Arial,sans-serif;font-size:11pt;font-weight:500;' + noteStyle + '">' + cellText + '</td>';
+            }).join('');
+            var contentCells = week.map(function (cell) {
+                var color = cell.isPadding ? '#A6A6A6' : '#222222';
+                return '<td style="width:165px;height:66px;padding:1px 8px 6px;vertical-align:top;white-space:normal;word-wrap:break-word;line-height:1.25;mso-number-format:\'\\@\';background:' + background + ';color:' + color + ';font-family:Calibri,Arial,sans-serif;font-size:11pt;">' + (cell.content ? escapeHtml(cell.content) : '&nbsp;') + '</td>';
+            }).join('');
+            return '<tr>' + dateCells + '</tr><tr>' + contentCells + '</tr>';
+        }).join('');
+        var table = '<table border="0" cellspacing="0" cellpadding="0" style="border-collapse:collapse;table-layout:fixed;">' +
+            '<tr>' + headerCells + '</tr>' + weekRows + '</table>';
+        return {
+            table: table,
+            document: '<html><head><meta charset="utf-8"></head><body><!--StartFragment-->' + table + '<!--EndFragment--></body></html>'
+        };
+    };
+
+    function quoteTsvCell(value) {
+        var text = String(value == null ? '' : value);
+        if (/^[\t\r\n ]*[=+\-@]/.test(text)) text = "'" + text;
+        return /[\t\r\n"]/.test(text) ? '"' + text.replace(/"/g, '""') + '"' : text;
+    }
+
+    app.buildExcelTsv = function (model) {
+        var rows = [];
+        rows.push(model.weekdays);
+        model.weeks.forEach(function (week) {
+            rows.push(week.map(function (cell) { return cell.date; }));
+            rows.push(week.map(function (cell) { return cell.content; }));
+        });
+        return rows.map(function (row) { return row.map(quoteTsvCell).join('\t'); }).join('\r\n');
+    };
+
+    function copyHtmlSelection(tableHtml) {
+        var wrapper = document.createElement('div');
+        wrapper.setAttribute('aria-hidden', 'true');
+        wrapper.style.cssText = 'position:fixed;left:-10000px;top:0;pointer-events:none;';
+        wrapper.innerHTML = tableHtml;
+        document.body.appendChild(wrapper);
+        var selection = window.getSelection();
+        var range = document.createRange();
+        range.selectNodeContents(wrapper);
+        selection.removeAllRanges();
+        selection.addRange(range);
+        var copied = document.execCommand('copy');
+        selection.removeAllRanges();
+        wrapper.remove();
+        return copied;
+    }
+
+    function copyTextFallback(text) {
+        var textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.cssText = 'position:fixed;left:-10000px;top:0;';
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        var copied = document.execCommand('copy');
+        textarea.remove();
+        return copied;
+    }
+
+    function showCopyFeedback(success) {
+        var button = app.elements && app.elements.copyExcelBtn;
+        if (!button) return;
+        var originalText = 'Kopier til Excel';
+        button.dataset.copyStatus = success ? 'success' : 'error';
+        button.textContent = success ? '✓ Kopiert til Excel' : 'Kunne ikke kopiere';
+        button.classList.toggle('copied', success);
+        window.setTimeout(function () {
+            button.textContent = originalText;
+            button.classList.remove('copied');
+        }, 3000);
+    }
+
+    app.copyScheduleToExcel = async function () {
+        try {
+            var model = app.buildExcelCalendarModel(app.lastScheduleData);
+            var html = app.buildExcelHtml(model);
+            var tsv = app.buildExcelTsv(model);
+            var copied = false;
+
+            if (navigator.clipboard && window.ClipboardItem) {
+                try {
+                    await navigator.clipboard.write([new window.ClipboardItem({
+                        'text/html': new Blob([html.document], { type: 'text/html;charset=utf-8' }),
+                        'text/plain': new Blob([tsv], { type: 'text/plain;charset=utf-8' })
+                    })]);
+                    copied = true;
+                } catch (clipboardError) {
+                    copied = false;
+                }
+            }
+            if (!copied) copied = copyHtmlSelection(html.table);
+            if (!copied && navigator.clipboard && navigator.clipboard.writeText) {
+                try {
+                    await navigator.clipboard.writeText(tsv);
+                    copied = true;
+                } catch (textClipboardError) {
+                    copied = false;
+                }
+            }
+            if (!copied) copied = copyTextFallback(tsv);
+            showCopyFeedback(copied);
+            if (!copied) alert('Kunne ikke kopiere planen. Prøv igjen etter at du har klikket inne i appen.');
+            return copied;
+        } catch (error) {
+            showCopyFeedback(false);
+            alert(error.message || 'Kunne ikke kopiere planen.');
+            return false;
+        }
+    };
+
+    app.setExcelCopyAvailable = function (available) {
+        if (!app.elements || !app.elements.copyExcelBtn) return;
+        app.elements.copyExcelBtn.disabled = !available;
+        if (!available) {
+            app.elements.copyExcelBtn.textContent = 'Kopier til Excel';
+            app.elements.copyExcelBtn.classList.remove('copied');
+            app.elements.copyExcelBtn.dataset.copyStatus = 'idle';
+        }
+    };
+
+    app.renderScheduleWarnings = function (warnings) {
+        if (!app.elements || !app.elements.scheduleWarnings) return;
+        var container = app.elements.scheduleWarnings;
+        container.innerHTML = '';
+        if (!warnings || warnings.length === 0) {
+            container.style.display = 'none';
+            return;
+        }
+        var heading = document.createElement('strong');
+        heading.textContent = 'Faste vakter som ikke kunne legges inn:';
+        container.appendChild(heading);
+        warnings.slice(0, 8).forEach(function (warning) {
+            var line = document.createElement('div');
+            line.textContent = '• ' + warning;
+            container.appendChild(line);
+        });
+        if (warnings.length > 8) {
+            var more = document.createElement('div');
+            more.textContent = '• … og ' + (warnings.length - 8) + ' til';
+            container.appendChild(more);
+        }
+        container.style.display = 'block';
+    };
+
+})(window.VaktApp);
+
+
+/**
+ * app.js — Main application entry point (orchestrator)
+ * Initializes DOM elements, renders employees, sets up event listeners, and boots the app.
+ */
+document.addEventListener('DOMContentLoaded', function () {
+    'use strict';
+
+    var app = window.VaktApp;
+    var state = app.state;
+
+    // DOM element references (available to all modules via app.elements)
+    app.elements = {
+        employeesList: document.getElementById('employees-list'),
+        addEmployeeBtn: document.getElementById('add-employee-btn'),
+        modal: document.getElementById('unavailability-modal'),
+        closeModals: document.querySelectorAll('#unavailability-modal .close-modal'),
+        modalTitle: document.getElementById('modal-title'),
+        calendarGrid: document.getElementById('modal-calendar-grid'),
+        collapseAbsenceHeader: document.getElementById('collapse-absence-header'),
+        collapseAbsenceContent: document.getElementById('collapse-absence-content'),
+        modalFixedShiftList: document.getElementById('modal-fixed-shift-list'),
+        fixedShiftForm: document.getElementById('fixed-shift-form'),
+        modalFixedShiftDay: document.getElementById('modal-fixed-shift-day'),
+        modalFixedShiftType: document.getElementById('modal-fixed-shift-type'),
+        btnAddFixedShift: document.getElementById('btn-add-fixed-shift'),
+        btnSaveFixedShift: document.getElementById('btn-save-fixed-shift'),
+        modalFixedUnavailList: document.getElementById('modal-fixed-unavail-list'),
+        btnAddFixedTime: document.getElementById('btn-add-fixed-time'),
+        timePickerModal: document.getElementById('time-picker-modal'),
+        closeTimePickerBtn: document.getElementById('close-time-picker-btn'),
+        timePickerDay: document.getElementById('time-picker-day'),
+        timePickerGrid: document.getElementById('time-picker-grid'),
+        saveTimePickerBtn: document.getElementById('save-time-picker-btn'),
+        reqInputs: {
+            monDay: document.getElementById('req-mon-day'),
+            monEve: document.getElementById('req-mon-eve'),
+            tueDay: document.getElementById('req-tue-day'),
+            tueEve: document.getElementById('req-tue-eve'),
+            wedDay: document.getElementById('req-wed-day'),
+            wedEve: document.getElementById('req-wed-eve'),
+            thuDay: document.getElementById('req-thu-day'),
+            thuEve: document.getElementById('req-thu-eve'),
+            friDay: document.getElementById('req-fri-day'),
+            friEve: document.getElementById('req-fri-eve'),
+            satEve: document.getElementById('req-sat-eve')
+        },
+        generateBtn: document.getElementById('generate-btn'),
+        monthSelector: document.getElementById('month-selector'),
+        closedDaysModal: document.getElementById('closed-days-modal'),
+        closedDaysGrid: document.getElementById('closed-days-grid'),
+        closedDaysDoneBtn: document.getElementById('closed-days-done-btn'),
+        scheduleGrid: document.getElementById('schedule-grid'),
+        scheduleWarnings: document.getElementById('schedule-warnings'),
+        summaryStats: document.getElementById('summary-stats'),
+        copyExcelBtn: document.getElementById('copy-excel-btn'),
+        monthNotes: document.getElementById('month-notes'),
+        stdInputs: {
+            dayStart: document.getElementById('std-day-start'),
+            dayEnd: document.getElementById('std-day-end'),
+            eveStart: document.getElementById('std-eve-start'),
+            eveEnd: document.getElementById('std-eve-end'),
+            satStart: document.getElementById('std-sat-start'),
+            satEnd: document.getElementById('std-sat-end')
+        },
+        customTimeModal: document.getElementById('custom-time-modal'),
+        closeCustomTimeBtn: document.getElementById('close-custom-time-btn'),
+        customShiftStart: document.getElementById('custom-shift-start'),
+        customShiftEnd: document.getElementById('custom-shift-end'),
+        saveCustomTimeBtn: document.getElementById('save-custom-time-btn'),
+        resetCustomTimeBtn: document.getElementById('reset-custom-time-btn'),
+        deleteCustomTimeBtn: document.getElementById('delete-custom-time-btn'),
+        customTimeDesc: document.getElementById('custom-time-desc'),
+        publishContainer: document.getElementById('publish-container'),
+        publishBtn: document.getElementById('publish-btn'),
+        publishMonthName: document.getElementById('publish-month-name'),
+        viewPublishedBtn: document.getElementById('view-published-btn'),
+        allSchedulesModal: document.getElementById('all-schedules-modal'),
+        archiveYearSelect: document.getElementById('archive-year-select'),
+        archiveMonthsGrid: document.getElementById('archive-months-grid'),
+        closeAllSchedulesBtn: document.getElementById('close-all-schedules-btn')
+    };
+
+    // Populate month selector
+    function populateMonthSelector() {
+        var now = new Date();
+        var sel = app.elements.monthSelector;
+        for (var i = 0; i < 12; i++) {
+            var m = (now.getMonth() + i) % 12;
+            var y = now.getFullYear() + Math.floor((now.getMonth() + i) / 12);
+            var opt = document.createElement('option');
+            opt.value = y + '-' + m;
+            opt.textContent = app.monthNames[m] + ' ' + y;
+            sel.appendChild(opt);
+        }
+    }
+
+    function populateMonthNotes() {
+        var key = app.elements.monthSelector.value;
+        app.elements.monthNotes.value = key && app.monthNotes[key] ? app.monthNotes[key] : '';
+    }
+
+    function ensureMonthOption(monthKey) {
+        if (!monthKey) return;
+        var parts = monthKey.split('-').map(Number);
+        if (parts.length !== 2 || !Number.isInteger(parts[0]) || parts[1] < 0 || parts[1] > 11) return;
+        var exists = Array.from(app.elements.monthSelector.options).some(function (option) {
+            return option.value === monthKey;
+        });
+        if (!exists) {
+            var option = document.createElement('option');
+            option.value = monthKey;
+            option.textContent = app.monthNames[parts[1]] + ' ' + parts[0];
+            app.elements.monthSelector.appendChild(option);
+        }
+    }
+
+    function nameIsInUse(name, exceptIndex) {
+        var normalized = String(name || '').trim().toLocaleLowerCase('nb-NO');
+        return state.employees.some(function (employee, index) {
+            return index !== exceptIndex && employee.name.trim().toLocaleLowerCase('nb-NO') === normalized;
+        });
+    }
+
+    function nextNewEmployeeName() {
+        var counter = 1;
+        var candidate;
+        do {
+            candidate = 'Ny ansatt ' + counter++;
+        } while (nameIsInUse(candidate, -1));
+        return candidate;
+    }
+
+    // Render employee rows
+    app.renderEmployees = function () {
+        app.elements.employeesList.innerHTML = '';
+        if (state.employees.length === 0) {
+            app.elements.employeesList.innerHTML = '<p class="employees-empty">Ingen ansatte er lagt til ennå.</p>';
+            return;
+        }
+        state.employees.forEach(function (emp, index) {
+            var row = document.createElement('div');
+            row.className = 'employee-row';
+
+            var dateAbsenceCount = emp.dateUnavail ? emp.dateUnavail.size : 0;
+            var fixedAbsenceCount = emp.fixedUnavail ? emp.fixedUnavail.length : 0;
+            var fixedShiftCount = emp.fixedShifts ? emp.fixedShifts.length : 0;
+            var badges = '';
+            if (dateAbsenceCount > 0) {
+                badges += '<span class="absent-badge" title="Fravær på enkeltdatoer">' + dateAbsenceCount + ' dato' + (dateAbsenceCount === 1 ? '' : 'er') + '</span>';
+            }
+            if (fixedAbsenceCount > 0) {
+                badges += '<span class="absent-badge" title="Fast utilgjengelighet">' + fixedAbsenceCount + ' fast fravær</span>';
+            }
+            if (fixedShiftCount > 0) {
+                badges += '<span class="fixed-shift-badge" title="Faste vakter">' + fixedShiftCount + (fixedShiftCount === 1 ? ' fast vakt' : ' faste vakter') + '</span>';
+            }
+            var badgeRow = badges ? '<div class="employee-badges">' + badges + '</div>' : '';
+
+            row.innerHTML =
+                '<div class="employee-name-edit">' +
+                '<input type="text" value="' + app.escapeHtml(emp.name) + '" data-name-index="' + index + '" placeholder="Navn">' +
+                badgeRow +
+                '</div>' +
+                '<div class="employee-controls">' +
+                '<button class="icon-btn calendar-btn" data-index="' + index + '" title="Innstillinger">⚙️</button>' +
+                '<div class="employee-input">' +
+                '<input type="number" min="0" max="100" step="5" value="' + emp.percent + '" data-index="' + index + '">' +
+                '<span>%</span>' +
+                '</div>' +
+                '<button class="icon-btn remove-btn" data-index="' + index + '" title="Fjern ansatt">&times;</button>' +
+                '</div>';
+            app.elements.employeesList.appendChild(row);
+        });
+
+        // Name inputs
+        app.elements.employeesList.querySelectorAll('input[type="text"]').forEach(function (input) {
+            input.addEventListener('focus', function (e) {
+                var idx = parseInt(e.target.dataset.nameIndex, 10);
+                e.target.dataset.previousName = state.employees[idx].name;
+            });
+            input.addEventListener('input', function (e) {
+                var idx = parseInt(e.target.dataset.nameIndex, 10);
+                var proposedName = e.target.value.trim() || 'Ansatt';
+                if (!nameIsInUse(proposedName, idx)) state.employees[idx].name = proposedName;
+            });
+            input.addEventListener('change', function (e) {
+                var idx = parseInt(e.target.dataset.nameIndex, 10);
+                var shortName = app.shortenEmployeeName(e.target.value);
+                if (nameIsInUse(shortName, idx)) {
+                    var previousName = e.target.dataset.previousName || state.employees[idx].name;
+                    state.employees[idx].name = previousName;
+                    e.target.value = previousName;
+                    alert('Hver ansatt må ha et unikt navn.');
+                    return;
+                }
+                state.employees[idx].name = shortName;
+                e.target.value = shortName;
+                e.target.dataset.previousName = shortName;
+                app.saveState();
+            });
+        });
+
+        // Percentage inputs
+        app.elements.employeesList.querySelectorAll('input[type="number"]').forEach(function (input) {
+            input.addEventListener('input', function (e) {
+                var idx = parseInt(e.target.dataset.index, 10);
+                var val = parseInt(e.target.value, 10);
+                if (isNaN(val)) val = 0;
+                if (val > 100) val = 100;
+                if (val < 0) val = 0;
+                state.employees[idx].percent = val;
+            });
+            input.addEventListener('change', function (e) {
+                var idx = parseInt(e.target.dataset.index, 10);
+                e.target.value = state.employees[idx].percent;
+            });
+        });
+
+        // Remove / Settings buttons
+        app.elements.employeesList.querySelectorAll('.remove-btn').forEach(function (btn) {
+            btn.addEventListener('click', function (e) {
+                var idx = parseInt(e.target.dataset.index, 10);
+                state.employees.splice(idx, 1);
+                app.renderEmployees();
+                app.saveState();
+            });
+        });
+
+        app.elements.employeesList.querySelectorAll('.calendar-btn').forEach(function (btn) {
+            btn.addEventListener('click', function (e) {
+                var idx = parseInt(e.currentTarget.dataset.index, 10);
+                app.openModal(idx);
+            });
+        });
+    };
+
+    function addEmployee() {
+        state.employees.push({
+            id: app.nextEmployeeId++,
+            name: nextNewEmployeeName(),
+            percent: 20,
+            unavailableDays: new Set(),
+            dateUnavail: new Set(),
+            fixedUnavail: [],
+            fixedShifts: []
+        });
+        app.renderEmployees();
+        app.saveState();
+    }
+
+    function normalizeNorwegianTime(value) {
+        var cleaned = String(value || '').trim().replace(/\s+/g, '').replace('.', ':');
+        var hours;
+        var minutes;
+
+        if (/^\d{1,2}:\d{1,2}$/.test(cleaned)) {
+            var parts = cleaned.split(':');
+            hours = Number(parts[0]);
+            minutes = Number(parts[1]);
+        } else if (/^\d{3,4}$/.test(cleaned)) {
+            hours = Number(cleaned.slice(0, -2));
+            minutes = Number(cleaned.slice(-2));
+        } else if (/^\d{1,2}$/.test(cleaned)) {
+            hours = Number(cleaned);
+            minutes = 0;
+        } else {
+            return null;
+        }
+
+        if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) return null;
+        return String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0');
+    }
+
+    function normalizeTimeInput(input) {
+        var normalized = normalizeNorwegianTime(input.value);
+        input.classList.toggle('invalid-time', !normalized);
+        input.setAttribute('aria-invalid', normalized ? 'false' : 'true');
+        if (normalized) input.value = normalized;
+        return normalized;
+    }
+
+    function timeToMinutes(value) {
+        var parts = String(value).split(':').map(Number);
+        return parts[0] * 60 + parts[1];
+    }
+
+    function bindStandardTimeInput(input, shiftType, edge) {
+        input.addEventListener('focus', function () { input.select(); });
+        input.addEventListener('input', function () {
+            input.classList.remove('invalid-time');
+            input.setAttribute('aria-invalid', 'false');
+        });
+        input.addEventListener('change', function () {
+            var normalized = normalizeTimeInput(input);
+            if (!normalized) {
+                input.value = state.standardTimes[shiftType][edge];
+                input.classList.remove('invalid-time');
+                input.setAttribute('aria-invalid', 'false');
+                alert('Bruk norsk 24-timers klokkeslett, for eksempel 15:30.');
+                return;
+            }
+            var proposed = {
+                start: edge === 'start' ? normalized : state.standardTimes[shiftType].start,
+                end: edge === 'end' ? normalized : state.standardTimes[shiftType].end
+            };
+            var startMinutes = timeToMinutes(proposed.start);
+            var endMinutes = timeToMinutes(proposed.end);
+            if (endMinutes <= startMinutes) {
+                input.value = state.standardTimes[shiftType][edge];
+                alert('Slutt-tid må være etter start-tid.');
+                return;
+            }
+            state.standardTimes[shiftType][edge] = normalized;
+            app.saveState();
+        });
+    }
+
+    // Setup all event listeners
+    function setupEventListeners() {
+        var mapping = [
+            { elDay: app.elements.reqInputs.monDay, elEve: app.elements.reqInputs.monEve, idx: 0 },
+            { elDay: app.elements.reqInputs.tueDay, elEve: app.elements.reqInputs.tueEve, idx: 1 },
+            { elDay: app.elements.reqInputs.wedDay, elEve: app.elements.reqInputs.wedEve, idx: 2 },
+            { elDay: app.elements.reqInputs.thuDay, elEve: app.elements.reqInputs.thuEve, idx: 3 },
+            { elDay: app.elements.reqInputs.friDay, elEve: app.elements.reqInputs.friEve, idx: 4 }
+        ];
+
+        mapping.forEach(function (m) {
+            m.elDay.addEventListener('input', function (e) { state.requirements[m.idx].dayReq = parseInt(e.target.value) || 0; });
+            m.elEve.addEventListener('input', function (e) { state.requirements[m.idx].eveReq = parseInt(e.target.value) || 0; });
+        });
+
+        app.elements.reqInputs.satEve.addEventListener('input', function (e) { state.requirements[5].eveReq = parseInt(e.target.value) || 0; });
+
+        bindStandardTimeInput(app.elements.stdInputs.dayStart, 'day', 'start');
+        bindStandardTimeInput(app.elements.stdInputs.dayEnd, 'day', 'end');
+        bindStandardTimeInput(app.elements.stdInputs.eveStart, 'eve', 'start');
+        bindStandardTimeInput(app.elements.stdInputs.eveEnd, 'eve', 'end');
+        bindStandardTimeInput(app.elements.stdInputs.satStart, 'sat', 'start');
+        bindStandardTimeInput(app.elements.stdInputs.satEnd, 'sat', 'end');
+
+        [app.elements.customShiftStart, app.elements.customShiftEnd].forEach(function (input) {
+            input.addEventListener('focus', function () { input.select(); });
+            input.addEventListener('input', function () {
+                input.classList.remove('invalid-time');
+                input.setAttribute('aria-invalid', 'false');
+            });
+            input.addEventListener('blur', function () {
+                if (input.value) normalizeTimeInput(input);
+            });
+        });
+
+        app.elements.generateBtn.addEventListener('click', app.generateSchedule);
+        app.elements.addEmployeeBtn.addEventListener('click', addEmployee);
+
+        app.elements.modalFixedShiftDay.addEventListener('change', app.updateFixedShiftTypeOptions);
+        app.elements.btnAddFixedShift.addEventListener('click', function () {
+            app.elements.fixedShiftForm.hidden = false;
+            app.elements.btnAddFixedShift.hidden = true;
+            app.elements.btnAddFixedShift.setAttribute('aria-expanded', 'true');
+            app.elements.modalFixedShiftDay.focus();
+        });
+        app.elements.btnSaveFixedShift.addEventListener('click', function () {
+            if (!app.addFixedShift()) return;
+            app.elements.fixedShiftForm.hidden = true;
+            app.elements.btnAddFixedShift.hidden = false;
+            app.elements.btnAddFixedShift.setAttribute('aria-expanded', 'false');
+        });
+        app.elements.copyExcelBtn.addEventListener('click', app.copyScheduleToExcel);
+        app.elements.monthNotes.addEventListener('input', function (event) {
+            var key = app.elements.monthSelector.value;
+            if (!key) return;
+            app.monthNotes[key] = event.target.value;
+            if (app.lastScheduleData) {
+                var parts = key.split('-').map(Number);
+                if (Number(app.lastScheduleData.year) === parts[0] && Number(app.lastScheduleData.month) === parts[1]) {
+                    app.lastScheduleData.notes = event.target.value;
+                }
+            }
+            app.persistScheduleEdit();
+        });
+
+        app.elements.closeModals.forEach(function (btn) { btn.addEventListener('click', app.closeModal); });
+        window.addEventListener('click', function (e) {
+            if (e.target === app.elements.modal) app.closeModal();
+            if (e.target === app.elements.timePickerModal) app.closeTimePicker();
+            if (e.target === app.elements.customTimeModal) app.elements.customTimeModal.classList.remove('show');
+            if (e.target === app.elements.allSchedulesModal) app.elements.allSchedulesModal.classList.remove('show');
+        });
+        
+        window.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                app.closeModal();
+                if (app.closeTimePicker) app.closeTimePicker();
+                if (app.elements.customTimeModal) app.elements.customTimeModal.classList.remove('show');
+                if (app.elements.allSchedulesModal) app.elements.allSchedulesModal.classList.remove('show');
+                if (app.elements.closedDaysModal) app.elements.closedDaysModal.classList.remove('show');
+            }
+        });
+        
+        if (app.elements.monthSelector) {
+            app.elements.monthSelector.addEventListener('change', function(e) {
+                var selectedKey = e.target.value;
+                if (!selectedKey) return;
+                app.selectedMonthKey = selectedKey;
+                populateMonthNotes();
+                
+                var parts = selectedKey.split('-');
+                var year = parseInt(parts[0], 10);
+                var monthIdx = parseInt(parts[1], 10);
+                var monthName = app.monthNames[monthIdx];
+                
+                if (app.publishedSchedules[selectedKey]) {
+                    app.loadPublishedSchedule(selectedKey, monthName, year);
+                } else {
+                    var mainHeader = document.querySelector('.main-header h2');
+                    if (mainHeader) mainHeader.innerHTML = 'Tentativ Månedsplan';
+                    app.elements.scheduleGrid.innerHTML = '<div class="empty-state">Ingen publisert plan for ' + app.escapeHtml(monthName) + '. Trykk "Generer Vaktplan" for å starte.</div>';
+                    if (app.elements.publishContainer) app.elements.publishContainer.style.display = 'none';
+                    if (app.setExcelCopyAvailable) app.setExcelCopyAvailable(false);
+                    if (app.renderScheduleWarnings) app.renderScheduleWarnings([]);
+                    app.renderStats(0, 0);
+                    app.lastScheduleData = null;
+                    app.viewingPublishedKey = null;
+                }
+                app.saveState();
+            });
+        }
+        
+        if (app.elements.publishBtn) {
+            app.elements.publishBtn.addEventListener('click', function() {
+                var val = app.elements.monthSelector.value;
+                if (val && app.lastScheduleData) {
+                    app.publishedSchedules[val] = JSON.parse(JSON.stringify(app.lastScheduleData));
+                    app.viewingPublishedKey = val;
+                    app.selectedMonthKey = val;
+                    app.saveState();
+                    alert('Vaktplanen er nå publisert og lagret i arkivet!');
+                    app.elements.publishContainer.style.display = 'none';
+                    
+                    var parts = val.split('-');
+                    var monthName = app.monthNames[parseInt(parts[1])];
+                    var mainHeader = document.querySelector('.main-header h2');
+                    if (mainHeader) mainHeader.innerHTML = '<span style="color:#ef4444; font-size:0.8em; margin-right:0.5rem;">[PUBLISERT]</span>' + app.escapeHtml(monthName) + ' ' + app.escapeHtml(parts[0]);
+                }
+            });
+        }
+        
+        if (app.elements.viewPublishedBtn) {
+            app.elements.viewPublishedBtn.addEventListener('click', function() {
+                app.openArchiveModal();
+            });
+        }
+        
+        if (app.elements.closeAllSchedulesBtn) {
+            app.elements.closeAllSchedulesBtn.addEventListener('click', function() {
+                app.elements.allSchedulesModal.classList.remove('show');
+            });
+        }
+        
+        if (app.elements.archiveYearSelect) {
+            app.elements.archiveYearSelect.addEventListener('change', app.renderArchiveGrid);
+        }
+        
+        app.elements.closeCustomTimeBtn.addEventListener('click', function() {
+            app.elements.customTimeModal.classList.remove('show');
+        });
+
+        app.elements.btnAddFixedTime.addEventListener('click', function () {
+            app.elements.timePickerDay.value = "0";
+            app.openTimePicker();
+        });
+
+        app.elements.closeTimePickerBtn.addEventListener('click', app.closeTimePicker);
+        app.elements.saveTimePickerBtn.addEventListener('click', app.saveTimePicker);
+        app.elements.timePickerDay.addEventListener('change', function () { /* re-render handled by timepicker */ });
+
+        app.elements.collapseAbsenceHeader.addEventListener('click', function () {
+            var content = app.elements.collapseAbsenceContent;
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                app.elements.collapseAbsenceHeader.setAttribute('aria-expanded', 'true');
+            } else {
+                content.style.display = 'none';
+                app.elements.collapseAbsenceHeader.setAttribute('aria-expanded', 'false');
+            }
+        });
+
+        // Closed days modal
+        app.elements.closedDaysDoneBtn.addEventListener('click', function () {
+            app.elements.closedDaysModal.classList.remove('show');
+            app.elements.scheduleGrid.innerHTML = '<div class="empty-state">Genererer vaktplan...</div>';
+            setTimeout(function () { app.buildSchedule(); }, 300);
+        });
+
+        window.addEventListener('click', function (e) {
+            if (e.target === app.elements.closedDaysModal) {
+                app.elements.closedDaysModal.classList.remove('show');
+            }
+        });
+
+        // Save Custom Time
+        app.elements.saveCustomTimeBtn.addEventListener('click', function() {
+            var startVal = normalizeTimeInput(app.elements.customShiftStart);
+            var endVal = normalizeTimeInput(app.elements.customShiftEnd);
+            if (!startVal || !endVal) return alert('Bruk gyldige klokkeslett i 24-timersformat, for eksempel 15:30.');
+
+            var startParts = startVal.split(':');
+            var endParts = endVal.split(':');
+            var startMins = parseInt(startParts[0], 10) * 60 + parseInt(startParts[1], 10);
+            var endMins = parseInt(endParts[0], 10) * 60 + parseInt(endParts[1], 10);
+
+            if (endMins <= startMins) return alert('Slutt-tid må være etter start-tid.');
+
+            var dayId = app.currentCustomTimeData.dayId;
+            var shiftIdx = app.currentCustomTimeData.shiftIdx;
+            var workerName = app.currentCustomTimeData.workerName;
+
+            var day = app.lastScheduleData.days.find(function(d) { return d.id === dayId; });
+            if (day && day.shifts[shiftIdx]) {
+                var shift = day.shifts[shiftIdx];
+                if (!shift.customTimes) shift.customTimes = {};
+                shift.customTimes[workerName] = {
+                    startMin: startMins,
+                    endMin: endMins,
+                    hours: (endMins - startMins) / 60
+                };
+            }
+
+            app.elements.customTimeModal.classList.remove('show');
+            app.renderGrid(app.lastScheduleData.days);
+            app.persistScheduleEdit();
+        });
+
+        // Reset Custom Time
+        app.elements.resetCustomTimeBtn.addEventListener('click', function() {
+            var dayId = app.currentCustomTimeData.dayId;
+            var shiftIdx = app.currentCustomTimeData.shiftIdx;
+            var workerName = app.currentCustomTimeData.workerName;
+
+            var day = app.lastScheduleData.days.find(function(d) { return d.id === dayId; });
+            if (day && day.shifts[shiftIdx]) {
+                var shift = day.shifts[shiftIdx];
+                if (shift.customTimes && shift.customTimes[workerName]) {
+                    delete shift.customTimes[workerName];
+                }
+            }
+
+            app.elements.customTimeModal.classList.remove('show');
+            app.renderGrid(app.lastScheduleData.days);
+            app.persistScheduleEdit();
+        });
+
+        // Delete Custom Time
+        app.elements.deleteCustomTimeBtn.addEventListener('click', function() {
+            var dayId = app.currentCustomTimeData.dayId;
+            var shiftIdx = app.currentCustomTimeData.shiftIdx;
+            var workerName = app.currentCustomTimeData.workerName;
+
+            if (confirm('Er du sikker på at du vil fjerne vakten for ' + workerName + '?')) {
+                var day = app.lastScheduleData.days.find(function(d) { return d.id === dayId; });
+                if (day && day.shifts[shiftIdx]) {
+                    var shift = day.shifts[shiftIdx];
+                    var idx = shift.workers.indexOf(workerName);
+                    if (idx !== -1) {
+                        shift.workers.splice(idx, 1);
+                    }
+                }
+                app.elements.customTimeModal.classList.remove('show');
+                app.renderGrid(app.lastScheduleData.days);
+                app.persistScheduleEdit();
+            }
+        });
+    }
+
+    app.openCustomTimeModal = function(day, shiftIdx, workerName) {
+        var shift = day.shifts[shiftIdx];
+        app.currentCustomTimeData = { dayId: day.id, shiftIdx: shiftIdx, workerName: workerName };
+
+        function formatTime(mins) {
+            var h = Math.floor(mins / 60);
+            var m = mins % 60;
+            return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+        }
+
+        app.elements.customTimeDesc.innerHTML = 'Endre vakt for <strong>' + app.escapeHtml(workerName) + '</strong> på ' + app.escapeHtml(day.name) + ' (' + app.escapeHtml(shift.name) + ').';
+        
+        var ctime = shift.customTimes && shift.customTimes[workerName] ? shift.customTimes[workerName] : { startMin: shift.startMin, endMin: shift.endMin };
+        
+        app.elements.customShiftStart.value = formatTime(ctime.startMin);
+        app.elements.customShiftEnd.value = formatTime(ctime.endMin);
+
+        app.elements.customTimeModal.classList.add('show');
+    };
+
+    app.openArchiveModal = function() {
+        var yearSel = app.elements.archiveYearSelect;
+        var currYear = new Date().getFullYear();
+        yearSel.innerHTML = '';
+        for (var y = currYear - 1; y <= currYear + 2; y++) {
+            var opt = document.createElement('option');
+            opt.value = y;
+            opt.textContent = y;
+            if (y === currYear) opt.selected = true;
+            yearSel.appendChild(opt);
+        }
+        app.renderArchiveGrid();
+        app.elements.allSchedulesModal.classList.add('show');
+    };
+
+    app.renderArchiveGrid = function() {
+        var year = parseInt(app.elements.archiveYearSelect.value);
+        var grid = app.elements.archiveMonthsGrid;
+        grid.innerHTML = '';
+        for (var m = 0; m < 12; m++) {
+            var key = year + '-' + m;
+            var box = document.createElement('div');
+            box.style.cssText = 'display:flex; flex-direction:column; justify-content:center; align-items:center; min-height:95px; padding:1rem; border-radius:8px; text-align:center; cursor:pointer; border:1px solid #cbd5e1; font-weight:600; font-size:0.95rem; transition:all 0.2s;';
+            box.textContent = app.monthNames[m];
+            
+            if (app.publishedSchedules[key]) {
+                box.style.backgroundColor = '#fae8e8';
+                box.style.color = '#991b1b';
+                box.style.borderColor = '#fca5a5';
+                box.innerHTML += '<div style="font-size:0.75rem; margin-top:0.4rem; font-weight:500; background:white; padding:0.15rem 0.6rem; border-radius:12px; box-shadow:0 1px 2px rgba(0,0,0,0.05); color:#dc2626;">✨ Publisert</div>';
+                
+                (function(monthKey) {
+                    box.addEventListener('click', function() {
+                        app.elements.allSchedulesModal.classList.remove('show');
+                        
+                        var sel = app.elements.monthSelector;
+                        var exists = Array.from(sel.options).some(function(o) { return o.value === monthKey; });
+                        if (!exists) {
+                            var parts = monthKey.split('-');
+                            var opt = document.createElement('option');
+                            opt.value = monthKey;
+                            opt.textContent = app.monthNames[parseInt(parts[1], 10)] + ' ' + parts[0];
+                            sel.appendChild(opt);
+                        }
+                        sel.value = monthKey;
+                        sel.dispatchEvent(new Event('change'));
+                    });
+                })(key);
+                
+                // Hover effect
+                box.onmouseover = function() { this.style.transform = 'translateY(-2px)'; this.style.boxShadow = '0 4px 6px -1px rgba(239,68,68,0.2)'; };
+                box.onmouseout = function() { this.style.transform = 'none'; this.style.boxShadow = 'none'; };
+            } else {
+                box.style.backgroundColor = '#f8fafc';
+                box.style.color = '#64748b';
+                
+                (function(monthKey) {
+                    box.addEventListener('click', function() {
+                        app.elements.allSchedulesModal.classList.remove('show');
+                        
+                        var sel = app.elements.monthSelector;
+                        var exists = Array.from(sel.options).some(function(o) { return o.value === monthKey; });
+                        if (!exists) {
+                            var parts = monthKey.split('-');
+                            var opt = document.createElement('option');
+                            opt.value = monthKey;
+                            opt.textContent = app.monthNames[parseInt(parts[1], 10)] + ' ' + parts[0];
+                            sel.appendChild(opt);
+                        }
+                        sel.value = monthKey;
+                        sel.dispatchEvent(new Event('change'));
+                        
+                        // Delay opening closed-days to allow DOM to clear out the background visually first
+                        setTimeout(function() {
+                            app.generateSchedule();
+                        }, 50);
+                    });
+                })(key);
+                
+                box.onmouseover = function() { this.style.transform = 'translateY(-2px)'; this.style.boxShadow = '0 4px 6px -1px rgba(0,0,0,0.05)'; this.style.backgroundColor = 'white'; this.style.borderColor = '#94a3b8'; };
+                box.onmouseout = function() { this.style.transform = 'none'; this.style.boxShadow = 'none'; this.style.backgroundColor = '#f8fafc'; this.style.borderColor = '#cbd5e1'; };
+            }
+            grid.appendChild(box);
+        }
+    };
+
+    app.loadPublishedSchedule = function(key, monthName, year) {
+        var data = app.publishedSchedules[key];
+        if (!data) return;
+        
+        // Hide publish button
+        if (app.elements.publishContainer) {
+            app.elements.publishContainer.style.display = 'none';
+        }
+        
+        // Set main title
+        var mainHeader = document.querySelector('.main-header h2');
+        if (mainHeader) {
+            mainHeader.innerHTML = '<span style="color:#ef4444; font-size:0.8em; margin-right:0.5rem;">[PUBLISERT]</span> ' + app.escapeHtml(monthName) + ' ' + app.escapeHtml(year);
+        }
+        
+        // Render
+        app.lastScheduleData = JSON.parse(JSON.stringify(data));
+        app.viewingPublishedKey = key;
+        app.selectedMonthKey = key;
+        
+        // Calculate basic stats for the progress bar
+        var avail = 0, req = 0;
+        app.lastScheduleData.workers.forEach(function(w) { avail += w.targetHours; });
+        app.lastScheduleData.days.forEach(function(d) {
+            d.shifts.forEach(function(s) { req += (s.req * s.hours); });
+        });
+        
+        app.renderStats(req, avail);
+        app.renderGrid(app.lastScheduleData.days);
+        if (app.setExcelCopyAvailable) app.setExcelCopyAvailable(true);
+        if (app.renderScheduleWarnings) app.renderScheduleWarnings(app.lastScheduleData.warnings || []);
+        // app.renderEmployeeSummary(app.lastScheduleData.workers); // Done by renderStats or separately if needed
+    };
+
+    function populateInputsFromState() {
+        var reqs = state.requirements;
+        var rInp = app.elements.reqInputs;
+        rInp.monDay.value = reqs[0].dayReq; rInp.monEve.value = reqs[0].eveReq;
+        rInp.tueDay.value = reqs[1].dayReq; rInp.tueEve.value = reqs[1].eveReq;
+        rInp.wedDay.value = reqs[2].dayReq; rInp.wedEve.value = reqs[2].eveReq;
+        rInp.thuDay.value = reqs[3].dayReq; rInp.thuEve.value = reqs[3].eveReq;
+        rInp.friDay.value = reqs[4].dayReq; rInp.friEve.value = reqs[4].eveReq;
+        rInp.satEve.value = reqs[5].eveReq;
+        
+        var std = state.standardTimes;
+        var sInp = app.elements.stdInputs;
+        sInp.dayStart.value = std.day.start; sInp.dayEnd.value = std.day.end;
+        sInp.eveStart.value = std.eve.start; sInp.eveEnd.value = std.eve.end;
+        sInp.satStart.value = std.sat.start; sInp.satEnd.value = std.sat.end;
+    }
+
+    // Boot
+    populateMonthSelector();
+    var initialMonthKey = app.selectedMonthKey;
+    if (!initialMonthKey && app.lastScheduleData && Number.isInteger(Number(app.lastScheduleData.year)) && Number.isInteger(Number(app.lastScheduleData.month))) {
+        initialMonthKey = Number(app.lastScheduleData.year) + '-' + Number(app.lastScheduleData.month);
+    }
+    ensureMonthOption(initialMonthKey);
+    if (initialMonthKey) app.elements.monthSelector.value = initialMonthKey;
+    populateMonthNotes();
+    populateInputsFromState();
+    app.renderEmployees();
+    setupEventListeners();
+    
+    if (app.lastScheduleData && app.lastScheduleData.days) {
+        var restoredAvailableHours = 0;
+        var restoredRequiredHours = 0;
+        (app.lastScheduleData.workers || []).forEach(function (worker) {
+            restoredAvailableHours += Number(worker.targetHours) || 0;
+        });
+        app.lastScheduleData.days.forEach(function (day) {
+            (day.shifts || []).forEach(function (shift) {
+                restoredRequiredHours += (Number(shift.req) || 0) * (Number(shift.hours) || 0);
+            });
+        });
+        app.renderStats(restoredRequiredHours, restoredAvailableHours);
+        app.renderGrid(app.lastScheduleData.days);
+        if (app.setExcelCopyAvailable) app.setExcelCopyAvailable(true);
+        if (app.renderScheduleWarnings) app.renderScheduleWarnings(app.lastScheduleData.warnings || []);
+    } else if (app.setExcelCopyAvailable) {
+        app.setExcelCopyAvailable(false);
+    }
+    
+    // Auto-save triggers
+    window.addEventListener('beforeunload', app.saveState);
+    document.addEventListener('change', function() { app.saveState(); });
+    setInterval(app.saveState, 5000); // Failsafe auto-save
+});
+
+</script>
+</body>
+
+</html>
