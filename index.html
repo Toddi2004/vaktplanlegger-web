@@ -180,6 +180,232 @@ body:not(.auth-locked) #login-gate {
     text-align: center;
 }
 
+.tutorial-help-btn {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    background: white;
+    color: var(--primary);
+    font: inherit;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.tutorial-help-btn:hover,
+.tutorial-help-btn:focus-visible {
+    background: var(--primary);
+    color: white;
+    outline: none;
+}
+
+.tutorial-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9500;
+    display: grid;
+    place-items: center;
+    padding: 1.25rem;
+    background: rgba(0, 0, 43, 0.5);
+    backdrop-filter: blur(3px);
+}
+
+.tutorial-overlay[hidden] {
+    display: none;
+}
+
+.tutorial-card {
+    position: relative;
+    width: min(100%, 540px);
+    max-height: 92dvh;
+    padding: 2rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    background: var(--panel-bg);
+    box-shadow: var(--shadow-lg);
+    overflow-y: auto;
+    animation: tutorial-enter 0.2s ease-out;
+}
+
+.tutorial-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 1.75rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.tutorial-close:hover,
+.tutorial-close:focus-visible {
+    background: #f1f5f9;
+    color: var(--text-main);
+    outline: 2px solid var(--primary);
+}
+
+.tutorial-kicker {
+    margin-bottom: 0.35rem;
+    color: var(--primary);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.tutorial-card h2 {
+    margin: 0;
+    padding-right: 2.75rem;
+    font-size: clamp(1.45rem, 4vw, 1.9rem);
+    line-height: 1.2;
+    outline: none;
+}
+
+.tutorial-progress {
+    margin: 0.45rem 0 1.35rem;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 650;
+}
+
+.tutorial-step {
+    min-height: 170px;
+    padding: 1.35rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    background: linear-gradient(145deg, rgba(218, 13, 43, 0.06), white 55%);
+}
+
+.tutorial-step-number {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    margin-bottom: 0.9rem;
+    border-radius: 0.8rem;
+    background: var(--primary);
+    color: white;
+    font-size: 1.05rem;
+    font-weight: 800;
+}
+
+.tutorial-step h3 {
+    margin: 0 0 0.45rem;
+    font-size: 1.2rem;
+}
+
+.tutorial-step p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.tutorial-dots {
+    display: flex;
+    justify-content: center;
+    gap: 0.45rem;
+    margin: 1.15rem 0;
+}
+
+.tutorial-dots span {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    background: #d8d2e5;
+    transition: width 0.2s ease, background 0.2s ease;
+}
+
+.tutorial-dots span.active {
+    width: 1.5rem;
+    border-radius: 1rem;
+    background: var(--primary);
+}
+
+.tutorial-actions,
+.tutorial-nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.tutorial-actions {
+    justify-content: space-between;
+}
+
+.tutorial-skip {
+    min-height: 44px;
+    padding: 0.55rem 0.25rem;
+    border: 0;
+    background: transparent;
+    color: var(--text-muted);
+    font: inherit;
+    font-weight: 650;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 0.2rem;
+}
+
+.tutorial-actions .primary-btn,
+.tutorial-actions .secondary-btn {
+    min-height: 44px;
+}
+
+@keyframes tutorial-enter {
+    from { opacity: 0; transform: translateY(10px) scale(0.985); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (max-width: 560px) {
+    .tutorial-overlay {
+        align-items: end;
+        padding: 0;
+    }
+
+    .tutorial-card {
+        width: 100%;
+        max-height: 100dvh;
+        padding: 1.35rem;
+        border-right: 0;
+        border-bottom: 0;
+        border-left: 0;
+        border-radius: 1.25rem 1.25rem 0 0;
+    }
+
+    .tutorial-step {
+        min-height: 155px;
+        padding: 1.1rem;
+    }
+
+    .tutorial-actions {
+        align-items: stretch;
+    }
+
+    .tutorial-nav-actions {
+        justify-content: flex-end;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tutorial-card,
+    .tutorial-dots span,
+    .tutorial-help-btn {
+        animation: none;
+        transition: none;
+    }
+}
+
 /* Layout */
 .app-container {
     display: flex;
@@ -1447,6 +1673,45 @@ body:not(.auth-locked) #login-gate {
         </div>
     </section>
 
+    <section id="tutorial-overlay" class="tutorial-overlay" aria-hidden="true" hidden>
+        <div class="tutorial-card" role="dialog" aria-modal="true" aria-labelledby="tutorial-title"
+            aria-describedby="tutorial-progress">
+            <button id="tutorial-close-btn" class="tutorial-close" type="button" aria-label="Lukk introduksjonen">&times;</button>
+            <div class="tutorial-kicker">Kort introduksjon</div>
+            <h2 id="tutorial-title" tabindex="-1">Kom i gang på 30 sekunder</h2>
+            <p id="tutorial-progress" class="tutorial-progress" aria-live="polite">Steg 1 av 3</p>
+
+            <div class="tutorial-steps" aria-live="polite" aria-atomic="true">
+                <article class="tutorial-step" data-tutorial-step="0">
+                    <div class="tutorial-step-number" aria-hidden="true">1</div>
+                    <h3>Legg inn ansatte</h3>
+                    <p>Trykk <strong>+</strong> ved Ansatte. Skriv navnet, sett stillingsprosent og bruk tannhjulet for fravær eller faste vakter.</p>
+                </article>
+                <article class="tutorial-step" data-tutorial-step="1" hidden>
+                    <div class="tutorial-step-number" aria-hidden="true">2</div>
+                    <h3>Velg behov og måned</h3>
+                    <p>Velg måned øverst. I venstremenyen angir du bemanningsbehov og kontrollerer arbeidstidene.</p>
+                </article>
+                <article class="tutorial-step" data-tutorial-step="2" hidden>
+                    <div class="tutorial-step-number" aria-hidden="true">3</div>
+                    <h3>Lag, juster og kopier</h3>
+                    <p>Trykk <strong>Generer Vaktplan</strong>, marker eventuelle stengte dager og fullfør. Juster ved behov, og bruk <strong>Kopier til Excel</strong> når planen er klar.</p>
+                </article>
+            </div>
+
+            <div class="tutorial-dots" aria-hidden="true">
+                <span class="active"></span><span></span><span></span>
+            </div>
+            <div class="tutorial-actions">
+                <button id="tutorial-skip-btn" class="tutorial-skip" type="button">Hopp over</button>
+                <div class="tutorial-nav-actions">
+                    <button id="tutorial-back-btn" class="secondary-btn" type="button" hidden>Tilbake</button>
+                    <button id="tutorial-next-btn" class="primary-btn" type="button">Neste</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <header class="top-nav">
         <div class="app-brand-box">
             <h1>Vaktplanlegger</h1>
@@ -1459,6 +1724,8 @@ body:not(.auth-locked) #login-gate {
                 <select id="month-selector" class="nav-select"></select>
             </div>
             <button id="generate-btn" class="primary-btn">Generer Vaktplan</button>
+            <button id="tutorial-help-btn" class="tutorial-help-btn" type="button" title="Vis introduksjon"
+                aria-label="Vis introduksjon">?</button>
             <button id="logout-btn" class="secondary-btn" type="button">Logg ut</button>
         </div>
     </header>
@@ -1898,10 +2165,17 @@ body:not(.auth-locked) #login-gate {
     }
 
     function setLocked(locked) {
+        var wasAuthenticated = document.body.classList.contains('is-authenticated');
+        var isAuthenticated = !locked;
         document.body.classList.toggle('auth-locked', locked);
-        document.body.classList.toggle('is-authenticated', !locked);
+        document.body.classList.toggle('is-authenticated', isAuthenticated);
         var gate = document.getElementById('login-gate');
         if (gate) gate.setAttribute('aria-hidden', locked ? 'false' : 'true');
+        if (wasAuthenticated !== isAuthenticated) {
+            window.dispatchEvent(new CustomEvent('vaktplanlegger:authchange', {
+                detail: { authenticated: isAuthenticated }
+            }));
+        }
     }
 
     function hexToBytes(hex) {
@@ -4143,6 +4417,7 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     function addEmployee() {
+        var newIndex = state.employees.length;
         state.employees.push({
             id: app.nextEmployeeId++,
             name: nextNewEmployeeName(),
@@ -4153,6 +4428,16 @@ document.addEventListener('DOMContentLoaded', function () {
             fixedShifts: []
         });
         app.renderEmployees();
+        var nameInput = app.elements.employeesList.querySelector('input[data-name-index="' + newIndex + '"]');
+        if (nameInput) {
+            try {
+                nameInput.focus({ preventScroll: true });
+            } catch (error) {
+                nameInput.focus();
+            }
+            nameInput.select();
+            nameInput.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+        }
         app.saveState();
     }
 
@@ -4675,6 +4960,154 @@ document.addEventListener('DOMContentLoaded', function () {
     document.addEventListener('change', function() { app.saveState(); });
     setInterval(app.saveState, 5000); // Failsafe auto-save
 });
+
+
+(function () {
+    'use strict';
+
+    var TUTORIAL_KEY = 'vaktplanleggerWebTutorialSeen_v1';
+    var currentStep = 0;
+    var lastFocusedElement = null;
+
+    function tutorialHasBeenSeen() {
+        try {
+            return localStorage.getItem(TUTORIAL_KEY) === '1';
+        } catch (error) {
+            return false;
+        }
+    }
+
+    function rememberTutorial() {
+        try {
+            localStorage.setItem(TUTORIAL_KEY, '1');
+        } catch (error) {
+            // If storage is blocked, the optional tutorial may appear again next time.
+        }
+    }
+
+    function initializeTutorial() {
+        var overlay = document.getElementById('tutorial-overlay');
+        var card = overlay && overlay.querySelector('.tutorial-card');
+        var title = document.getElementById('tutorial-title');
+        var progress = document.getElementById('tutorial-progress');
+        var closeButton = document.getElementById('tutorial-close-btn');
+        var skipButton = document.getElementById('tutorial-skip-btn');
+        var backButton = document.getElementById('tutorial-back-btn');
+        var nextButton = document.getElementById('tutorial-next-btn');
+        var helpButton = document.getElementById('tutorial-help-btn');
+        var steps = overlay ? Array.from(overlay.querySelectorAll('[data-tutorial-step]')) : [];
+        var dots = overlay ? Array.from(overlay.querySelectorAll('.tutorial-dots span')) : [];
+        var appSurfaces = [document.querySelector('.top-nav'), document.querySelector('.app-container')].filter(Boolean);
+
+        if (!overlay || !card || !title || steps.length === 0) return;
+
+        function setAppInert(inert) {
+            appSurfaces.forEach(function (surface) {
+                surface.inert = inert;
+            });
+        }
+
+        function renderStep(index) {
+            currentStep = Math.max(0, Math.min(index, steps.length - 1));
+            steps.forEach(function (step, stepIndex) {
+                var active = stepIndex === currentStep;
+                step.hidden = !active;
+                step.setAttribute('aria-hidden', active ? 'false' : 'true');
+            });
+            dots.forEach(function (dot, dotIndex) {
+                dot.classList.toggle('active', dotIndex === currentStep);
+            });
+            progress.textContent = 'Steg ' + (currentStep + 1) + ' av ' + steps.length;
+            backButton.hidden = currentStep === 0;
+            nextButton.textContent = currentStep === steps.length - 1 ? 'Start planlegging' : 'Neste';
+        }
+
+        function openTutorial(force) {
+            if (document.body.classList.contains('auth-locked')) return;
+            if (!force && tutorialHasBeenSeen()) return;
+            lastFocusedElement = document.activeElement;
+            renderStep(0);
+            overlay.hidden = false;
+            overlay.setAttribute('aria-hidden', 'false');
+            document.body.classList.add('tutorial-open');
+            setAppInert(true);
+            title.focus();
+        }
+
+        function closeTutorial(markSeen) {
+            if (overlay.hidden) return;
+            if (markSeen) rememberTutorial();
+            overlay.hidden = true;
+            overlay.setAttribute('aria-hidden', 'true');
+            document.body.classList.remove('tutorial-open');
+            setAppInert(false);
+            var focusTarget = lastFocusedElement;
+            if (!focusTarget || !focusTarget.isConnected || focusTarget.closest('#login-gate') || focusTarget.closest('[inert]')) {
+                focusTarget = document.getElementById('add-employee-btn') || helpButton;
+            }
+            if (!document.body.classList.contains('auth-locked') && focusTarget && typeof focusTarget.focus === 'function') {
+                focusTarget.focus();
+            }
+            lastFocusedElement = null;
+        }
+
+        function finishOrAdvance() {
+            if (currentStep < steps.length - 1) {
+                renderStep(currentStep + 1);
+                title.focus();
+                return;
+            }
+            closeTutorial(true);
+        }
+
+        function trapFocus(event) {
+            if (event.key !== 'Tab' || overlay.hidden) return;
+            var focusable = Array.from(card.querySelectorAll('button:not([disabled]):not([hidden])'));
+            if (focusable.length === 0) return;
+            var first = focusable[0];
+            var last = focusable[focusable.length - 1];
+            if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault();
+                last.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault();
+                first.focus();
+            }
+        }
+
+        closeButton.addEventListener('click', function () { closeTutorial(true); });
+        skipButton.addEventListener('click', function () { closeTutorial(true); });
+        backButton.addEventListener('click', function () {
+            renderStep(currentStep - 1);
+            title.focus();
+        });
+        nextButton.addEventListener('click', finishOrAdvance);
+        helpButton.addEventListener('click', function () { openTutorial(true); });
+        overlay.addEventListener('click', function (event) {
+            if (event.target === overlay) closeTutorial(true);
+        });
+        document.addEventListener('keydown', function (event) {
+            if (overlay.hidden) return;
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                closeTutorial(true);
+                return;
+            }
+            trapFocus(event);
+        });
+        window.addEventListener('vaktplanlegger:authchange', function (event) {
+            if (event.detail && event.detail.authenticated) {
+                openTutorial(false);
+            } else {
+                closeTutorial(false);
+            }
+        });
+
+        if (document.body.classList.contains('is-authenticated')) openTutorial(false);
+    }
+
+    document.addEventListener('DOMContentLoaded', initializeTutorial);
+})();
 
 </script>
 </body>
