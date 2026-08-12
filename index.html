@@ -2543,12 +2543,21 @@ body:not(.auth-locked) #login-gate {
                 <h3 class="settings-subheading">Standardtid bakvakt</h3>
                 <div class="bakvakt-time-list">
                     <label class="bakvakt-time-row">
-                        <span>Man, ons og fre <strong>1 t</strong></span>
+                        <span>Man og ons <strong>1 t</strong></span>
                         <span class="bakvakt-time-fields">
-                            <input id="bakvakt-short-start" class="time-input-24" type="text" inputmode="numeric"
-                                maxlength="5" placeholder="TT:MM" autocomplete="off" aria-label="Bakvakt man, ons og fre starter">
+                            <input id="bakvakt-mon-wed-start" class="time-input-24" type="text" inputmode="numeric"
+                                maxlength="5" placeholder="TT:MM" autocomplete="off" aria-label="Bakvakt mandag og onsdag starter">
                             <span aria-hidden="true">–</span>
-                            <output id="bakvakt-short-end">20:00</output>
+                            <output id="bakvakt-mon-wed-end">17:00</output>
+                        </span>
+                    </label>
+                    <label class="bakvakt-time-row">
+                        <span>Fredag <strong>1 t</strong></span>
+                        <span class="bakvakt-time-fields">
+                            <input id="bakvakt-fri-start" class="time-input-24" type="text" inputmode="numeric"
+                                maxlength="5" placeholder="TT:MM" autocomplete="off" aria-label="Bakvakt fredag starter">
+                            <span aria-hidden="true">–</span>
+                            <output id="bakvakt-fri-end">20:00</output>
                         </span>
                     </label>
                     <label class="bakvakt-time-row">
@@ -3215,7 +3224,8 @@ window.VaktApp = window.VaktApp || {};
             sat: { start: '10:00', end: '15:00' }
         },
         bakvaktTimes: {
-            short: { start: '19:00', hours: 1 },
+            monWed: { start: '16:00', hours: 1 },
+            fri: { start: '19:00', hours: 1 },
             long: { start: '16:00', hours: 4 },
             sat: { start: '10:00', hours: 5 }
         }
@@ -3371,13 +3381,22 @@ window.VaktApp = window.VaktApp || {};
 
     function normalizeBakvaktTimes(saved) {
         var defaults = {
-            short: { start: '19:00', hours: 1 },
+            monWed: { start: '16:00', hours: 1 },
+            fri: { start: '19:00', hours: 1 },
             long: { start: '16:00', hours: 4 },
             sat: { start: '10:00', hours: 5 }
         };
         var result = {};
         Object.keys(defaults).forEach(function (key) {
-            var start = validStoredTime(saved && saved[key] && saved[key].start, defaults[key].start);
+            // The earlier release grouped Monday, Wednesday and Friday under `short`.
+            // Keep an explicitly customized value for both new groups. The old untouched
+            // 19:00 default becomes the new requested 16:00 on Monday/Wednesday only.
+            var legacyShort = saved && saved.short ? validStoredTime(saved.short.start, '19:00') : null;
+            var legacyValue = key === 'fri'
+                ? legacyShort
+                : (key === 'monWed' && legacyShort && legacyShort !== '19:00' ? legacyShort : null);
+            var savedValue = saved && saved[key] ? saved[key].start : legacyValue;
+            var start = validStoredTime(savedValue, defaults[key].start);
             var startParts = start.split(':').map(Number);
             if ((startParts[0] * 60) + startParts[1] + (defaults[key].hours * 60) > 24 * 60) {
                 start = defaults[key].start;
@@ -3414,9 +3433,34 @@ window.VaktApp = window.VaktApp || {};
     }
 
     // ── Persistence ────────────────────────────────────────────────────
+
+    var STATE_KEY = 'vaktplanleggerWebState_v1';
+    var STATE_BACKUP_KEY = 'vaktplanleggerWebStateBackup_v1';
+    app.storageLoadFailed = false;
+    app.storageWriteBlocked = false;
+    app.storageSaveWarningShown = false;
+
+    function warnAboutStorage(message) {
+        if (app.storageSaveWarningShown) return;
+        app.storageSaveWarningShown = true;
+        window.setTimeout(function () { alert(message); }, 0);
+    }
+
+    function validateStoredState(data) {
+        if (!data || typeof data !== 'object' || Array.isArray(data)) throw new Error('Lagringen har ugyldig format.');
+        if (data.employees != null && !Array.isArray(data.employees)) throw new Error('Ansattlisten har ugyldig format.');
+        if (data.bakvakter != null && !Array.isArray(data.bakvakter)) throw new Error('Bakvaktlisten har ugyldig format.');
+        if (data.requirements != null && !Array.isArray(data.requirements)) throw new Error('Bemanningsbehov har ugyldig format.');
+        if (data.closedDays != null && !Array.isArray(data.closedDays)) throw new Error('Stengte dager har ugyldig format.');
+        if (data.standardTimes != null && (typeof data.standardTimes !== 'object' || Array.isArray(data.standardTimes))) throw new Error('Arbeidstidene har ugyldig format.');
+        if (data.publishedSchedules != null && (typeof data.publishedSchedules !== 'object' || Array.isArray(data.publishedSchedules))) throw new Error('Planarkivet har ugyldig format.');
+        if (data.monthNotes != null && (typeof data.monthNotes !== 'object' || Array.isArray(data.monthNotes))) throw new Error('Månedsnotater har ugyldig format.');
+    }
     
     app.saveState = function() {
+        if (app.storageLoadFailed || app.storageWriteBlocked) return false;
         var stateToSave = {
+            schemaVersion: 2,
             employees: app.state.employees.map(function(e) {
                 return {
                     id: e.id,
@@ -3443,7 +3487,14 @@ window.VaktApp = window.VaktApp || {};
             selectedMonthKey: app.elements && app.elements.monthSelector ? app.elements.monthSelector.value : app.selectedMonthKey,
             viewingPublishedKey: app.viewingPublishedKey || null
         };
-        localStorage.setItem('vaktplanleggerWebState_v1', JSON.stringify(stateToSave));
+        try {
+            localStorage.setItem(STATE_KEY, JSON.stringify(stateToSave));
+            return true;
+        } catch (error) {
+            console.error('Kunne ikke lagre data:', error);
+            warnAboutStorage('Nettleseren kunne ikke lagre den siste endringen. Eksisterende data er ikke slettet.');
+            return false;
+        }
     };
 
     app.persistScheduleEdit = function () {
@@ -3454,10 +3505,21 @@ window.VaktApp = window.VaktApp || {};
     };
 
     app.loadState = function() {
-        var saved = localStorage.getItem('vaktplanleggerWebState_v1');
-        if (!saved) return false;
         try {
+            var saved = localStorage.getItem(STATE_KEY);
+            if (!saved) return false;
             var data = JSON.parse(saved);
+            validateStoredState(data);
+
+            if (!localStorage.getItem(STATE_BACKUP_KEY)) {
+                try {
+                    localStorage.setItem(STATE_BACKUP_KEY, saved);
+                } catch (backupError) {
+                    console.warn('Kunne ikke lage lokal reservekopi:', backupError);
+                    app.storageWriteBlocked = true;
+                    warnAboutStorage('Eksisterende data er lastet, men reservekopien kunne ikke opprettes. Dataene er ikke overskrevet, og nye endringer lagres ikke før dette er løst.');
+                }
+            }
             var nameMigration = {};
             if (data.employees) {
                 app.state.employees = data.employees.map(normalizeEmployee);
@@ -3497,6 +3559,8 @@ window.VaktApp = window.VaktApp || {};
             return true;
         } catch (e) {
             console.error("Kunne ikke laste lagret data:", e);
+            app.storageLoadFailed = true;
+            warnAboutStorage('Lagrede data kunne ikke leses. De er ikke overskrevet. Lukk fanen og ta kontakt før du gjør endringer.');
             return false;
         }
     };
@@ -3649,8 +3713,8 @@ window.VaktApp = window.VaktApp || {};
                 return false;
             }
         }
-        var bakvaktLabels = { short: 'mandag, onsdag og fredag', long: 'tirsdag og torsdag', sat: 'lørdag' };
-        var bakvaktTypes = ['short', 'long', 'sat'];
+        var bakvaktLabels = { monWed: 'mandag og onsdag', fri: 'fredag', long: 'tirsdag og torsdag', sat: 'lørdag' };
+        var bakvaktTypes = ['monWed', 'fri', 'long', 'sat'];
         for (var j = 0; j < bakvaktTypes.length; j++) {
             var bakvaktType = bakvaktTypes[j];
             var bakvaktTime = state.bakvaktTimes[bakvaktType];
@@ -3902,7 +3966,9 @@ window.VaktApp = window.VaktApp || {};
         }).map(function (day) {
             var timeType = day.dayOfWeek === 5
                 ? 'sat'
-                : (day.dayOfWeek === 1 || day.dayOfWeek === 3 ? 'long' : 'short');
+                : (day.dayOfWeek === 1 || day.dayOfWeek === 3
+                    ? 'long'
+                    : (day.dayOfWeek === 4 ? 'fri' : 'monWed'));
             var settings = state.bakvaktTimes[timeType];
             var startMin = parseTime(settings.start);
             var hours = Number(settings.hours);
@@ -4332,7 +4398,9 @@ window.VaktApp = window.VaktApp || {};
     function bakvaktTimingForDay(day) {
         var timeType = Number(day.dayOfWeek) === 5
             ? 'sat'
-            : (Number(day.dayOfWeek) === 1 || Number(day.dayOfWeek) === 3 ? 'long' : 'short');
+            : (Number(day.dayOfWeek) === 1 || Number(day.dayOfWeek) === 3
+                ? 'long'
+                : (Number(day.dayOfWeek) === 4 ? 'fri' : 'monWed'));
         var settings = state.bakvaktTimes[timeType];
         var parts = String(settings.start).split(':').map(Number);
         var startMin = (parts[0] * 60) + parts[1];
@@ -5482,7 +5550,7 @@ window.VaktApp = window.VaktApp || {};
 
     app.buildExcelHtml = function (model) {
         var headerCells = model.weekdays.map(function (dayName) {
-            return '<td style="border-bottom:1px solid #222;padding:4px 6px;font-family:Calibri,Arial,sans-serif;font-size:11pt;font-weight:700;white-space:nowrap;">' + escapeHtml(dayName) + '</td>';
+            return '<td style="border-bottom:1px solid #222;padding:4px 6px;font-family:\'Lucida Sans\',\'Lucida Sans Unicode\',sans-serif;font-size:11pt;font-weight:400;white-space:nowrap;">' + escapeHtml(dayName) + '</td>';
         }).join('');
         var weekRows = model.weeks.map(function (week, weekIndex) {
             var background = weekIndex % 2 === 1 ? '#F2F2F2' : '#FFFFFF';
@@ -5490,11 +5558,11 @@ window.VaktApp = window.VaktApp || {};
                 var color = cell.isPadding ? '#A6A6A6' : '#222222';
                 var noteStyle = cell.isNoteLabel ? 'font-style:italic;' : '';
                 var cellText = cell.date ? escapeHtml(cell.date).replace(/\r?\n/g, '<br>') : '&nbsp;';
-                return '<td align="left" style="width:165px;height:20px;padding:5px 8px 1px;vertical-align:top;text-align:left;white-space:normal;mso-number-format:\'\\@\';background:' + background + ';color:' + color + ';font-family:Calibri,Arial,sans-serif;font-size:11pt;font-weight:500;' + noteStyle + '">' + cellText + '</td>';
+                return '<td align="left" style="width:165px;height:20px;padding:5px 8px 1px;vertical-align:top;text-align:left;white-space:normal;mso-number-format:\'\\@\';background:' + background + ';color:' + color + ';font-family:\'Lucida Sans\',\'Lucida Sans Unicode\',sans-serif;font-size:11pt;font-weight:400;' + noteStyle + '">' + cellText + '</td>';
             }).join('');
             var contentCells = week.map(function (cell) {
                 var color = cell.isPadding ? '#A6A6A6' : '#222222';
-                return '<td style="width:165px;height:66px;padding:1px 8px 6px;vertical-align:top;white-space:normal;word-wrap:break-word;line-height:1.25;mso-number-format:\'\\@\';background:' + background + ';color:' + color + ';font-family:Calibri,Arial,sans-serif;font-size:11pt;">' + (cell.content ? escapeHtml(cell.content) : '&nbsp;') + '</td>';
+                return '<td style="width:165px;height:66px;padding:1px 8px 6px;vertical-align:top;white-space:normal;word-wrap:break-word;line-height:1.25;mso-number-format:\'\\@\';background:' + background + ';color:' + color + ';font-family:\'Lucida Sans\',\'Lucida Sans Unicode\',sans-serif;font-size:11pt;font-weight:400;">' + (cell.content ? escapeHtml(cell.content) : '&nbsp;') + '</td>';
             }).join('');
             return '<tr>' + dateCells + '</tr><tr>' + contentCells + '</tr>';
         }).join('');
@@ -5669,12 +5737,14 @@ document.addEventListener('DOMContentLoaded', function () {
         bakvakterList: document.getElementById('bakvakter-list'),
         addBakvaktBtn: document.getElementById('add-bakvakt-btn'),
         bakvaktTimeInputs: {
-            short: document.getElementById('bakvakt-short-start'),
+            monWed: document.getElementById('bakvakt-mon-wed-start'),
+            fri: document.getElementById('bakvakt-fri-start'),
             long: document.getElementById('bakvakt-long-start'),
             sat: document.getElementById('bakvakt-sat-start')
         },
         bakvaktTimeEnds: {
-            short: document.getElementById('bakvakt-short-end'),
+            monWed: document.getElementById('bakvakt-mon-wed-end'),
+            fri: document.getElementById('bakvakt-fri-end'),
             long: document.getElementById('bakvakt-long-end'),
             sat: document.getElementById('bakvakt-sat-end')
         },
