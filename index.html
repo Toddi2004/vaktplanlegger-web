@@ -752,6 +752,37 @@ body:not(.auth-locked) #login-gate {
     gap: 0.85rem;
 }
 
+.control-group-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.control-group-heading h2 {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.icon-btn.add-list-btn {
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: white;
+    font-size: 1.2rem;
+}
+
+.icon-btn.add-list-btn:hover {
+    background: var(--primary-hover);
+    color: white;
+}
+
 .employees-empty {
     padding: 1rem;
     border: 1px dashed var(--border-color);
@@ -794,6 +825,9 @@ body:not(.auth-locked) #login-gate {
     border-radius: 4px;
     transition: all 0.2s;
     min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .employee-name-edit input:hover {
@@ -849,7 +883,7 @@ body:not(.auth-locked) #login-gate {
 }
 
 .employee-controls .employee-input input {
-    width: 2.5rem;
+    width: 3rem;
 }
 
 .icon-btn {
@@ -897,11 +931,105 @@ body:not(.auth-locked) #login-gate {
 .employee-badges {
     grid-column: 1 / -1;
     display: flex;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     gap: 0.25rem;
     min-width: 0;
-    overflow-x: auto;
-    scrollbar-width: thin;
+    overflow: visible;
+}
+
+.bakvakt-settings {
+    margin-top: 2.5rem;
+}
+
+.bakvakter-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+}
+
+.bakvakt-worker-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 40px;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.55rem 0.6rem;
+    border-radius: var(--radius-md);
+    background: var(--bg-color);
+}
+
+.bakvakt-worker-row input {
+    width: 100%;
+    min-width: 0;
+    padding: 0.35rem 0.45rem;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--text-main);
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 550;
+}
+
+.bakvakt-worker-row input:hover,
+.bakvakt-worker-row input:focus {
+    border-color: #cbd5e1;
+    background: white;
+}
+
+.bakvakt-worker-row input:focus {
+    outline: 2px solid var(--primary);
+    outline-offset: -1px;
+}
+
+.settings-subheading {
+    margin: 1.25rem 0 0.65rem;
+    color: var(--text-main);
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.bakvakt-time-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+}
+
+.bakvakt-time-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    color: var(--text-main);
+    font-size: 0.78rem;
+}
+
+.bakvakt-time-row > span:first-child {
+    min-width: 0;
+}
+
+.bakvakt-time-row strong {
+    color: var(--primary);
+    white-space: nowrap;
+}
+
+.bakvakt-time-fields {
+    display: grid;
+    grid-template-columns: 64px auto 44px;
+    align-items: center;
+    gap: 0.25rem;
+    flex: 0 0 auto;
+    font-variant-numeric: tabular-nums;
+}
+
+.bakvakt-time-fields .time-input-24 {
+    width: 64px;
+    padding: 0.35rem;
+    font-size: 0.8rem;
+}
+
+.bakvakt-time-fields output {
+    color: var(--text-muted);
+    font-size: 0.8rem;
 }
 
 .fixed-shift-badge {
@@ -1157,6 +1285,12 @@ body:not(.auth-locked) #login-gate {
     font-size: 0.9rem;
 }
 
+.fixed-unavail-item small {
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    font-weight: 550;
+}
+
 .settings-rule-list {
     display: flex;
     flex-direction: column;
@@ -1171,7 +1305,7 @@ body:not(.auth-locked) #login-gate {
 
 .fixed-shift-controls {
     display: grid;
-    grid-template-columns: minmax(110px, 1fr) minmax(110px, 1fr);
+    grid-template-columns: repeat(3, minmax(110px, 1fr));
     gap: 0.5rem;
     align-items: end;
 }
@@ -1504,6 +1638,62 @@ body:not(.auth-locked) #login-gate {
     flex-direction: column;
     gap: 0.5rem;
     flex: 1;
+}
+
+.bakvakt-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.1rem;
+    width: calc(100% - 0.8rem);
+    min-height: 3.25rem;
+    margin: auto 0.4rem 0.4rem;
+    padding: 0.4rem 0.3rem;
+    border: 1px solid #facc15;
+    border-radius: var(--radius-md);
+    background: #fef9c3;
+    color: #713f12;
+    cursor: pointer;
+    font: inherit;
+    text-align: center;
+    transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+}
+
+.bakvakt-box:hover,
+.bakvakt-box:focus-visible {
+    background: #fef08a;
+    box-shadow: 0 3px 8px rgba(113, 63, 18, 0.14);
+    transform: translateY(-1px);
+}
+
+.bakvakt-box:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+.bakvakt-box strong {
+    font-size: 0.62rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.bakvakt-box span {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    font-size: 0.76rem;
+    font-weight: 750;
+}
+
+.bakvakt-box small {
+    font-size: 0.64rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.bakvakt-box.missing {
+    border-color: #fca5a5;
+    background: #fee2e2;
+    color: #991b1b;
 }
 
 /* Shift Blocks */
@@ -2007,6 +2197,18 @@ body:not(.auth-locked) #login-gate {
     max-height: calc(100dvh - 2rem);
 }
 
+.bakvakt-menu {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.bakvakt-menu .modal-header {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--panel-bg);
+}
+
 @keyframes modalPop {
     from {
         opacity: 0;
@@ -2100,6 +2302,16 @@ body:not(.auth-locked) #login-gate {
     color: #0284c7;
 }
 
+.day-menu-item.selected {
+    background: #dcfce7;
+    color: #166534;
+    font-weight: 750;
+}
+
+.bakvakt-missing-item {
+    color: #b91c1c;
+}
+
 .day-menu-empty {
     margin: 0;
     padding: 0.75rem 1rem;
@@ -2182,8 +2394,22 @@ body:not(.auth-locked) #login-gate {
         grid-template-columns: 1fr 1fr;
     }
 
+    .fixed-shift-controls .fixed-shift-field:last-child {
+        grid-column: 1 / -1;
+    }
+
     .settings-action-btn {
         width: 100%;
+    }
+}
+
+@media (max-width: 430px) {
+    .fixed-shift-controls {
+        grid-template-columns: 1fr;
+    }
+
+    .fixed-shift-controls .fixed-shift-field:last-child {
+        grid-column: auto;
     }
 }
 
@@ -2239,7 +2465,7 @@ body:not(.auth-locked) #login-gate {
                 </article>
                 <article id="tutorial-step-4" class="tutorial-step" data-tutorial-step="3" data-tutorial-context="Ansattinnstillinger" hidden>
                     <h3>Faste dager og vakter</h3>
-                    <p>Her velger du ukedag og vakt når personen skal jobbe fast. Det påvirker når personen settes opp, ikke total arbeidstid.</p>
+                    <p>Her velger du ukedag, vakt og om den gjelder hver uke, oddetallsuker eller partallsuker. Det påvirker når personen settes opp, ikke total arbeidstid.</p>
                 </article>
                 <article id="tutorial-step-5" class="tutorial-step" data-tutorial-step="4" data-tutorial-context="Ansattinnstillinger" hidden>
                     <h3>Fravær på enkeltdatoer</h3>
@@ -2303,6 +2529,46 @@ body:not(.auth-locked) #login-gate {
                 </div>
                 <div id="employees-list" class="employees-list">
                     <!-- Employees will be generated here -->
+                </div>
+            </section>
+
+            <section class="control-group bakvakt-settings">
+                <div class="control-group-heading">
+                    <h2>Bakvakter</h2>
+                    <button id="add-bakvakt-btn" class="icon-btn add-list-btn" type="button"
+                        title="Legg til bakvakt" aria-label="Legg til bakvakt">+</button>
+                </div>
+                <div id="bakvakter-list" class="bakvakter-list"></div>
+
+                <h3 class="settings-subheading">Standardtid bakvakt</h3>
+                <div class="bakvakt-time-list">
+                    <label class="bakvakt-time-row">
+                        <span>Man, ons og fre <strong>1 t</strong></span>
+                        <span class="bakvakt-time-fields">
+                            <input id="bakvakt-short-start" class="time-input-24" type="text" inputmode="numeric"
+                                maxlength="5" placeholder="TT:MM" autocomplete="off" aria-label="Bakvakt man, ons og fre starter">
+                            <span aria-hidden="true">–</span>
+                            <output id="bakvakt-short-end">20:00</output>
+                        </span>
+                    </label>
+                    <label class="bakvakt-time-row">
+                        <span>Tir og tor <strong>4 t</strong></span>
+                        <span class="bakvakt-time-fields">
+                            <input id="bakvakt-long-start" class="time-input-24" type="text" inputmode="numeric"
+                                maxlength="5" placeholder="TT:MM" autocomplete="off" aria-label="Bakvakt tirsdag og torsdag starter">
+                            <span aria-hidden="true">–</span>
+                            <output id="bakvakt-long-end">20:00</output>
+                        </span>
+                    </label>
+                    <label class="bakvakt-time-row">
+                        <span>Lørdag <strong>5 t</strong></span>
+                        <span class="bakvakt-time-fields">
+                            <input id="bakvakt-sat-start" class="time-input-24" type="text" inputmode="numeric"
+                                maxlength="5" placeholder="TT:MM" autocomplete="off" aria-label="Bakvakt lørdag starter">
+                            <span aria-hidden="true">–</span>
+                            <output id="bakvakt-sat-end">15:00</output>
+                        </span>
+                    </label>
                 </div>
             </section>
 
@@ -2461,6 +2727,14 @@ body:not(.auth-locked) #login-gate {
                                 <select id="modal-fixed-shift-type">
                                     <option value="day">Dagvakt</option>
                                     <option value="eve">Kveldsvakt</option>
+                                </select>
+                            </label>
+                            <label class="fixed-shift-field">
+                                <span>Uker</span>
+                                <select id="modal-fixed-shift-week-pattern">
+                                    <option value="all">Hver uke</option>
+                                    <option value="odd">Oddetallsuker</option>
+                                    <option value="even">Partallsuker</option>
                                 </select>
                             </label>
                         </div>
@@ -2915,6 +3189,7 @@ window.VaktApp = window.VaktApp || {};
 
     /** @type {number} Auto-incrementing ID for new employees */
     app.nextEmployeeId = 1;
+    app.nextBakvaktId = 1;
 
     // ── App State ──────────────────────────────────────────────────────
 
@@ -2924,6 +3199,7 @@ window.VaktApp = window.VaktApp || {};
      */
     app.state = {
         employees: [],
+        bakvakter: [],
         requirements: [
             { day: 'mon', dayReq: 1, eveReq: 2 },  // 0 = Monday
             { day: 'tue', dayReq: 1, eveReq: 3 },  // 1 = Tuesday
@@ -2937,6 +3213,11 @@ window.VaktApp = window.VaktApp || {};
             day: { start: '08:00', end: '16:00' },
             eve: { start: '15:30', end: '20:00' },
             sat: { start: '10:00', end: '15:00' }
+        },
+        bakvaktTimes: {
+            short: { start: '19:00', hours: 1 },
+            long: { start: '16:00', hours: 4 },
+            sat: { start: '10:00', hours: 5 }
         }
     };
 
@@ -3022,6 +3303,12 @@ window.VaktApp = window.VaktApp || {};
                     shift.customTimes = renamedTimes;
                 }
             });
+            if (day.bakvakt && typeof day.bakvakt === 'object' && day.bakvakt.name) {
+                day.bakvakt.name = anonymizeName(day.bakvakt.name);
+            }
+        });
+        (schedule.bakvaktWorkers || []).forEach(function (worker) {
+            if (worker && worker.name) worker.name = anonymizeName(worker.name);
         });
         if (schedule.notes) schedule.notes = anonymizeFreeText(schedule.notes, nameMigration);
         return schedule;
@@ -3040,9 +3327,13 @@ window.VaktApp = window.VaktApp || {};
         });
 
         var fixedShifts = (employee.fixedShifts || []).map(function (item) {
+            var weekPattern = ['all', 'odd', 'even'].indexOf(item.weekPattern) !== -1
+                ? item.weekPattern
+                : 'all';
             return {
                 dayOfWeek: Number(item.dayOfWeek),
-                shiftType: item.shiftType
+                shiftType: item.shiftType,
+                weekPattern: weekPattern
             };
         }).filter(function (item) {
             return item.dayOfWeek >= 0 && item.dayOfWeek <= 5 &&
@@ -3059,6 +3350,44 @@ window.VaktApp = window.VaktApp || {};
             fixedUnavail: fixedUnavail,
             fixedShifts: fixedShifts
         };
+    }
+
+    function normalizeBakvakt(worker) {
+        var normalizedName = String(worker && worker.name ? worker.name : '').trim();
+        return {
+            id: Number(worker && worker.id),
+            name: normalizedName ? app.shortenEmployeeName(normalizedName) : 'Bakvakt'
+        };
+    }
+
+    function validStoredTime(value, fallback) {
+        var match = String(value || '').match(/^(\d{1,2}):(\d{2})$/);
+        if (!match) return fallback;
+        var hour = Number(match[1]);
+        var minute = Number(match[2]);
+        if (hour < 0 || hour > 23 || minute < 0 || minute > 59) return fallback;
+        return String(hour).padStart(2, '0') + ':' + String(minute).padStart(2, '0');
+    }
+
+    function normalizeBakvaktTimes(saved) {
+        var defaults = {
+            short: { start: '19:00', hours: 1 },
+            long: { start: '16:00', hours: 4 },
+            sat: { start: '10:00', hours: 5 }
+        };
+        var result = {};
+        Object.keys(defaults).forEach(function (key) {
+            var start = validStoredTime(saved && saved[key] && saved[key].start, defaults[key].start);
+            var startParts = start.split(':').map(Number);
+            if ((startParts[0] * 60) + startParts[1] + (defaults[key].hours * 60) > 24 * 60) {
+                start = defaults[key].start;
+            }
+            result[key] = {
+                start: start,
+                hours: defaults[key].hours
+            };
+        });
+        return result;
     }
 
     function normalizeEmployeeNames(employees, nameMigration) {
@@ -3099,13 +3428,18 @@ window.VaktApp = window.VaktApp || {};
                     fixedShifts: e.fixedShifts || []
                 };
             }),
+            bakvakter: app.state.bakvakter.map(function (worker) {
+                return { id: worker.id, name: worker.name };
+            }),
             requirements: app.state.requirements,
             standardTimes: app.state.standardTimes,
+            bakvaktTimes: app.state.bakvaktTimes,
             closedDays: Array.from(app.closedDays || []),
             lastScheduleData: app.lastScheduleData,
             publishedSchedules: app.publishedSchedules,
             monthNotes: app.monthNotes,
             nextEmployeeId: app.nextEmployeeId,
+            nextBakvaktId: app.nextBakvaktId,
             selectedMonthKey: app.elements && app.elements.monthSelector ? app.elements.monthSelector.value : app.selectedMonthKey,
             viewingPublishedKey: app.viewingPublishedKey || null
         };
@@ -3129,8 +3463,13 @@ window.VaktApp = window.VaktApp || {};
                 app.state.employees = data.employees.map(normalizeEmployee);
                 normalizeEmployeeNames(app.state.employees, nameMigration);
             }
+            if (data.bakvakter) {
+                app.state.bakvakter = data.bakvakter.map(normalizeBakvakt);
+                normalizeEmployeeNames(app.state.bakvakter, nameMigration);
+            }
             if (data.requirements) app.state.requirements = data.requirements;
             if (data.standardTimes) app.state.standardTimes = data.standardTimes;
+            app.state.bakvaktTimes = normalizeBakvaktTimes(data.bakvaktTimes);
             if (data.closedDays) app.closedDays = new Set(data.closedDays);
             if (data.lastScheduleData) app.lastScheduleData = anonymizeScheduleNames(data.lastScheduleData, nameMigration);
             if (data.publishedSchedules) {
@@ -3151,6 +3490,10 @@ window.VaktApp = window.VaktApp || {};
                 return Math.max(max, Number(employee.id) || 0);
             }, 0);
             app.nextEmployeeId = Math.max(Number(data.nextEmployeeId) || 0, largestEmployeeId + 1);
+            var largestBakvaktId = app.state.bakvakter.reduce(function (max, worker) {
+                return Math.max(max, Number(worker.id) || 0);
+            }, 0);
+            app.nextBakvaktId = Math.max(Number(data.nextBakvaktId) || 0, largestBakvaktId + 1);
             return true;
         } catch (e) {
             console.error("Kunne ikke laste lagret data:", e);
@@ -3286,6 +3629,13 @@ window.VaktApp = window.VaktApp || {};
         return Math.max(0, Math.min(10, parsed));
     }
 
+    function fixedRuleAppliesOnDate(rule, date) {
+        var pattern = rule && rule.weekPattern ? rule.weekPattern : 'all';
+        if (pattern === 'all') return true;
+        var weekNumber = app.getWeekNum(date);
+        return pattern === 'odd' ? weekNumber % 2 === 1 : weekNumber % 2 === 0;
+    }
+
     function standardTimesAreValid(showMessage) {
         var labels = { day: 'dagvakt', eve: 'kveldsvakt', sat: 'lørdagsvakt' };
         var types = ['day', 'eve', 'sat'];
@@ -3296,6 +3646,19 @@ window.VaktApp = window.VaktApp || {};
             var endMinutes = times ? timeToMinutes(times.end) : NaN;
             if (!Number.isFinite(startMinutes) || !Number.isFinite(endMinutes) || endMinutes <= startMinutes) {
                 if (showMessage) alert('Kontroller standard arbeidstid for ' + labels[type] + '. Slutt-tid må være etter start-tid.');
+                return false;
+            }
+        }
+        var bakvaktLabels = { short: 'mandag, onsdag og fredag', long: 'tirsdag og torsdag', sat: 'lørdag' };
+        var bakvaktTypes = ['short', 'long', 'sat'];
+        for (var j = 0; j < bakvaktTypes.length; j++) {
+            var bakvaktType = bakvaktTypes[j];
+            var bakvaktTime = state.bakvaktTimes[bakvaktType];
+            var bakvaktStart = bakvaktTime ? timeToMinutes(bakvaktTime.start) : NaN;
+            var bakvaktDuration = bakvaktTime ? Number(bakvaktTime.hours) * 60 : NaN;
+            if (!Number.isFinite(bakvaktStart) || !Number.isFinite(bakvaktDuration) ||
+                bakvaktStart + bakvaktDuration > 24 * 60) {
+                if (showMessage) alert('Kontroller standardtiden for bakvakt på ' + bakvaktLabels[bakvaktType] + '.');
                 return false;
             }
         }
@@ -3521,6 +3884,72 @@ window.VaktApp = window.VaktApp || {};
         });
 
         // ── Step 3: Calculate worker capacities ────────────────────────
+        var scheduleWarnings = new Set();
+
+        // One separate bakvakt per open day. Durations are fixed by weekday,
+        // while the configured start time decides the clock interval.
+        var bakvaktWorkers = state.bakvakter.map(function (worker, index) {
+            return {
+                id: worker.id,
+                name: worker.name,
+                assignedHours: 0,
+                assignedDays: 0,
+                sourceIndex: index
+            };
+        });
+        var bakvaktSlots = days.filter(function (day) {
+            return !day.isPadding && !day.isHoliday && !day.isClosed && day.dayOfWeek !== 6;
+        }).map(function (day) {
+            var timeType = day.dayOfWeek === 5
+                ? 'sat'
+                : (day.dayOfWeek === 1 || day.dayOfWeek === 3 ? 'long' : 'short');
+            var settings = state.bakvaktTimes[timeType];
+            var startMin = parseTime(settings.start);
+            var hours = Number(settings.hours);
+            return { day: day, startMin: startMin, endMin: startMin + (hours * 60), hours: hours };
+        });
+
+        bakvaktSlots.sort(function (a, b) {
+            return b.hours - a.hours || a.day.date.getTime() - b.day.date.getTime();
+        });
+
+        if (bakvaktWorkers.length === 0 && bakvaktSlots.length > 0) {
+            scheduleWarnings.add('Ingen bakvakter er lagt til. Åpne dager er merket «Mangler bakvakt».');
+        }
+        var bakvaktRotationOffset = bakvaktWorkers.length > 0
+            ? ((year * 12) + month) % bakvaktWorkers.length
+            : 0;
+        bakvaktSlots.forEach(function (slot) {
+            if (bakvaktWorkers.length === 0) {
+                slot.day.bakvakt = {
+                    workerId: null,
+                    name: 'Mangler bakvakt',
+                    startMin: slot.startMin,
+                    endMin: slot.endMin,
+                    hours: slot.hours
+                };
+                return;
+            }
+
+            var candidates = bakvaktWorkers.slice().sort(function (a, b) {
+                if (Math.abs(a.assignedHours - b.assignedHours) > 0.0001) return a.assignedHours - b.assignedHours;
+                if (a.assignedDays !== b.assignedDays) return a.assignedDays - b.assignedDays;
+                var rankA = (a.sourceIndex - bakvaktRotationOffset + bakvaktWorkers.length) % bakvaktWorkers.length;
+                var rankB = (b.sourceIndex - bakvaktRotationOffset + bakvaktWorkers.length) % bakvaktWorkers.length;
+                return rankA - rankB;
+            });
+            var selectedBakvakt = candidates[0];
+            selectedBakvakt.assignedHours += slot.hours;
+            selectedBakvakt.assignedDays++;
+            slot.day.bakvakt = {
+                workerId: selectedBakvakt.id,
+                name: selectedBakvakt.name,
+                startMin: slot.startMin,
+                endMin: slot.endMin,
+                hours: slot.hours
+            };
+        });
+
         var weeksInMonth = daysInMonth / 7;
         var totalRequiredHours = 0;
         days.forEach(function (d) { d.shifts.forEach(function (s) { totalRequiredHours += (s.req * s.hours); }); });
@@ -3587,8 +4016,6 @@ window.VaktApp = window.VaktApp || {};
 
         var totalAvailableHours = workers.reduce(function (sum, w) { return sum + w.targetHours; }, 0);
 
-        var scheduleWarnings = new Set();
-
         function isWorkerUnavailable(worker, day, shift) {
             var dateKey = day.dateKey || day.id;
             if (worker.dateUnavail && worker.dateUnavail.has(dateKey)) return true;
@@ -3628,7 +4055,7 @@ window.VaktApp = window.VaktApp || {};
             var candidatesByType = {};
             workers.forEach(function (worker) {
                 var fixedRule = (worker.fixedShifts || []).find(function (rule) {
-                    return Number(rule.dayOfWeek) === day.dayOfWeek;
+                    return Number(rule.dayOfWeek) === day.dayOfWeek && fixedRuleAppliesOnDate(rule, day.date);
                 });
                 if (!fixedRule) return;
 
@@ -3807,6 +4234,14 @@ window.VaktApp = window.VaktApp || {};
         app.lastScheduleData = {
             days: days,
             workers: workers,
+            bakvaktWorkers: bakvaktWorkers.map(function (worker) {
+                return {
+                    id: worker.id,
+                    name: worker.name,
+                    assignedHours: worker.assignedHours,
+                    assignedDays: worker.assignedDays
+                };
+            }),
             year: year,
             month: month,
             notes: app.monthNotes[year + '-' + month] || '',
@@ -3887,6 +4322,104 @@ window.VaktApp = window.VaktApp || {};
             }, 0);
         }, 0);
         app.renderStats(required, available);
+    }
+
+    function formatClock(minutes) {
+        var value = Number(minutes);
+        return String(Math.floor(value / 60)).padStart(2, '0') + ':' + String(value % 60).padStart(2, '0');
+    }
+
+    function bakvaktTimingForDay(day) {
+        var timeType = Number(day.dayOfWeek) === 5
+            ? 'sat'
+            : (Number(day.dayOfWeek) === 1 || Number(day.dayOfWeek) === 3 ? 'long' : 'short');
+        var settings = state.bakvaktTimes[timeType];
+        var parts = String(settings.start).split(':').map(Number);
+        var startMin = (parts[0] * 60) + parts[1];
+        return {
+            startMin: startMin,
+            endMin: startMin + (Number(settings.hours) * 60),
+            hours: Number(settings.hours)
+        };
+    }
+
+    function normalizedBakvaktForDay(day) {
+        var timing = bakvaktTimingForDay(day);
+        if (day.bakvakt && typeof day.bakvakt === 'object') {
+            return {
+                workerId: day.bakvakt.workerId == null ? null : day.bakvakt.workerId,
+                name: day.bakvakt.name || 'Mangler bakvakt',
+                startMin: Number.isFinite(Number(day.bakvakt.startMin)) ? Number(day.bakvakt.startMin) : timing.startMin,
+                endMin: Number.isFinite(Number(day.bakvakt.endMin)) ? Number(day.bakvakt.endMin) : timing.endMin,
+                hours: Number.isFinite(Number(day.bakvakt.hours)) ? Number(day.bakvakt.hours) : timing.hours
+            };
+        }
+        return {
+            workerId: null,
+            name: typeof day.bakvakt === 'string' && day.bakvakt.trim() ? day.bakvakt.trim() : 'Mangler bakvakt',
+            startMin: timing.startMin,
+            endMin: timing.endMin,
+            hours: timing.hours
+        };
+    }
+
+    function refreshBakvaktSnapshot() {
+        if (!app.lastScheduleData) return [];
+        var workersByKey = new Map();
+        function comparableName(value) {
+            return String(value || '').trim().toLocaleLowerCase('nb');
+        }
+        function keyForAssignment(assignment) {
+            if (assignment.workerId != null) return 'id:' + assignment.workerId;
+            var wantedName = comparableName(assignment.name);
+            var matchingKey = null;
+            workersByKey.forEach(function (worker, key) {
+                if (matchingKey === null && comparableName(worker.name) === wantedName) matchingKey = key;
+            });
+            return matchingKey || 'name:' + assignment.name;
+        }
+        (app.lastScheduleData.bakvaktWorkers || []).forEach(function (worker) {
+            var key = worker.id == null ? 'name:' + worker.name : 'id:' + worker.id;
+            workersByKey.set(key, { id: worker.id, name: worker.name, assignedHours: 0, assignedDays: 0 });
+        });
+        if (!app.viewingPublishedKey) {
+            (state.bakvakter || []).forEach(function (worker) {
+                var key = 'id:' + worker.id;
+                if (!workersByKey.has(key)) {
+                    workersByKey.set(key, { id: worker.id, name: worker.name, assignedHours: 0, assignedDays: 0 });
+                }
+            });
+        }
+        (app.lastScheduleData.days || []).forEach(function (day) {
+            if (!day.bakvakt) return;
+            var assignment = normalizedBakvaktForDay(day);
+            if (!assignment.name || assignment.name === 'Mangler bakvakt') return;
+            var key = keyForAssignment(assignment);
+            if (!workersByKey.has(key)) {
+                workersByKey.set(key, { id: assignment.workerId, name: assignment.name, assignedHours: 0, assignedDays: 0 });
+            }
+            var snapshot = workersByKey.get(key);
+            snapshot.name = assignment.name;
+            snapshot.assignedHours += Number(assignment.hours) || 0;
+            snapshot.assignedDays++;
+        });
+        app.lastScheduleData.bakvaktWorkers = Array.from(workersByKey.values());
+        return app.lastScheduleData.bakvaktWorkers;
+    }
+
+    function refreshBakvaktWarning() {
+        if (!app.lastScheduleData) return;
+        var oldGeneratedWarning = 'Ingen bakvakter er lagt til. Åpne dager er merket «Mangler bakvakt».';
+        var warnings = (app.lastScheduleData.warnings || []).filter(function (warning) {
+            return warning !== oldGeneratedWarning && !/^\d+ åpne dager mangler bakvakt\.$/.test(warning);
+        });
+        var missingCount = (app.lastScheduleData.days || []).filter(function (scheduleDay) {
+            if (scheduleDay.isPadding || scheduleDay.isClosed || scheduleDay.isHoliday || Number(scheduleDay.dayOfWeek) === 6) return false;
+            return normalizedBakvaktForDay(scheduleDay).name === 'Mangler bakvakt';
+        }).length;
+        if (missingCount > 0) warnings.push(missingCount + ' åpne dager mangler bakvakt.');
+        app.lastScheduleData.warnings = warnings;
+        if (app.renderScheduleWarnings) app.renderScheduleWarnings(warnings);
     }
 
     app.normalizeShiftPlaceholders = function (shift) {
@@ -4212,29 +4745,124 @@ window.VaktApp = window.VaktApp || {};
             col.appendChild(shiftsContainer);
 
             if (!day.isClosed && !day.isPadding && !day.isHoliday && day.dayOfWeek !== 6) {
-                var bakvaktBox = document.createElement('div');
+                var bakvaktAssignment = normalizedBakvaktForDay(day);
+                var bakvaktBox = document.createElement('button');
+                bakvaktBox.type = 'button';
                 bakvaktBox.className = 'bakvakt-box';
-                var bt = day.bakvakt ? day.bakvakt : 'Bakvakt...';
-                bakvaktBox.textContent = bt;
-                
-                var boxStyle = 'margin-top: auto; padding: 0.5rem; border-radius: 4px; font-size: 0.8rem; cursor: pointer; text-align: center; min-height: 2.25rem; display: flex; align-items: center; justify-content: center; transition: all 0.2s; margin-left: 0.4rem; margin-right: 0.4rem; margin-bottom: 0.4rem;';
-                if (day.bakvakt) {
-                    bakvaktBox.style.cssText = boxStyle + 'background: #fef9c3; border: 1px solid #facc15; color: #854d0e; font-weight: 600;';
-                } else {
-                    bakvaktBox.style.cssText = boxStyle + 'background: #f8fafc; border: 1px dashed #cbd5e1; color: #94a3b8; font-style: italic;';
-                }
+                if (bakvaktAssignment.name === 'Mangler bakvakt') bakvaktBox.classList.add('missing');
+                bakvaktBox.innerHTML = '<strong>Bakvakt</strong><span>' + app.escapeHtml(bakvaktAssignment.name) + '</span>' +
+                    '<small>(' + formatClock(bakvaktAssignment.startMin) + '–' + formatClock(bakvaktAssignment.endMin) + ')</small>';
+                bakvaktBox.setAttribute('aria-label', 'Bakvakt ' + bakvaktAssignment.name + ' ' + day.name + '. Trykk for å endre.');
 
-                bakvaktBox.addEventListener('click', function(ev) {
-                    ev.stopPropagation();
-                    var newText = prompt('Hvem / hva er bakvakt for ' + day.name + '?\n(La stå tom for å fjerne)', day.bakvakt || '');
-                    if (newText !== null) {
-                        day.bakvakt = newText.trim();
+                bakvaktBox.addEventListener('click', function (event) {
+                    event.stopPropagation();
+                    app.closeAllMenus();
+
+                    var menu = document.createElement('div');
+                    menu.className = 'day-context-menu bakvakt-menu';
+                    menu.setAttribute('role', 'dialog');
+                    menu.setAttribute('aria-modal', 'true');
+                    menu.setAttribute('aria-label', 'Velg bakvakt for ' + day.name);
+
+                    var header = document.createElement('div');
+                    header.className = 'modal-header';
+                    var heading = document.createElement('h2');
+                    heading.textContent = 'Bakvakt – ' + day.name;
+                    var closeButton = document.createElement('button');
+                    closeButton.type = 'button';
+                    closeButton.className = 'close-modal';
+                    closeButton.textContent = '×';
+                    closeButton.setAttribute('aria-label', 'Lukk');
+                    closeButton.addEventListener('click', function () {
+                        app.closeAllMenus();
+                        bakvaktBox.focus();
+                    });
+                    header.appendChild(heading);
+                    header.appendChild(closeButton);
+                    menu.appendChild(header);
+
+                    function chooseBakvakt(worker) {
+                        var timing = normalizedBakvaktForDay(day);
+                        day.bakvakt = {
+                            workerId: worker ? worker.id : null,
+                            name: worker ? worker.name : 'Mangler bakvakt',
+                            startMin: timing.startMin,
+                            endMin: timing.endMin,
+                            hours: timing.hours
+                        };
+                        refreshBakvaktWarning();
+                        refreshBakvaktSnapshot();
+                        app.closeAllMenus();
                         app.renderGrid(days);
                         app.persistScheduleEdit();
                     }
+
+                    var missingButton = document.createElement('button');
+                    missingButton.type = 'button';
+                    missingButton.className = 'day-menu-item bakvakt-missing-item';
+                    missingButton.textContent = 'Mangler bakvakt';
+                    missingButton.addEventListener('click', function () { chooseBakvakt(null); });
+                    menu.appendChild(missingButton);
+
+                    var separator = document.createElement('div');
+                    separator.className = 'day-menu-sep';
+                    menu.appendChild(separator);
+
+                    var sortedBakvakter = state.bakvakter.slice().sort(function (a, b) {
+                        return a.name.localeCompare(b.name, 'nb');
+                    });
+                    if (sortedBakvakter.length === 0) {
+                        var emptyText = document.createElement('p');
+                        emptyText.className = 'day-menu-empty';
+                        emptyText.textContent = 'Legg til bakvakter i venstremenyen først.';
+                        menu.appendChild(emptyText);
+                    }
+                    sortedBakvakter.forEach(function (worker) {
+                        var workerButton = document.createElement('button');
+                        workerButton.type = 'button';
+                        workerButton.className = 'day-menu-item emp-item';
+                        workerButton.textContent = worker.name;
+                        if (String(bakvaktAssignment.workerId) === String(worker.id)) {
+                            workerButton.classList.add('selected');
+                            workerButton.setAttribute('aria-current', 'true');
+                        }
+                        workerButton.addEventListener('click', function () { chooseBakvakt(worker); });
+                        menu.appendChild(workerButton);
+                    });
+
+                    var overlay = document.createElement('div');
+                    overlay.className = 'shift-menu-overlay';
+                    overlay.addEventListener('click', function (overlayEvent) {
+                        if (overlayEvent.target === overlay) {
+                            app.closeAllMenus();
+                            bakvaktBox.focus();
+                        }
+                    });
+                    overlay.addEventListener('keydown', function (keyEvent) {
+                        if (keyEvent.key === 'Escape') {
+                            keyEvent.preventDefault();
+                            app.closeAllMenus();
+                            bakvaktBox.focus();
+                            return;
+                        }
+                        if (keyEvent.key === 'Tab') {
+                            var focusable = Array.from(menu.querySelectorAll('button:not([disabled])'));
+                            if (!focusable.length) return;
+                            var first = focusable[0];
+                            var last = focusable[focusable.length - 1];
+                            if (keyEvent.shiftKey && document.activeElement === first) {
+                                keyEvent.preventDefault();
+                                last.focus();
+                            } else if (!keyEvent.shiftKey && document.activeElement === last) {
+                                keyEvent.preventDefault();
+                                first.focus();
+                            }
+                        }
+                    });
+                    overlay.appendChild(menu);
+                    document.body.appendChild(overlay);
+                    (sortedBakvakter.length ? menu.querySelector('.emp-item') : missingButton).focus();
                 });
-                bakvaktBox.addEventListener('mouseover', function() { bakvaktBox.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)'; });
-                bakvaktBox.addEventListener('mouseout', function() { bakvaktBox.style.boxShadow = 'none'; });
 
                 col.appendChild(bakvaktBox);
             }
@@ -4247,6 +4875,7 @@ window.VaktApp = window.VaktApp || {};
         if (app.lastScheduleData && app.lastScheduleData.workers) {
             app.renderEmployeeSummary(app.lastScheduleData.workers);
         }
+        if (app.lastScheduleData) app.renderBakvaktSummary(refreshBakvaktSnapshot());
     };
 
     app.renderEmployeeSummary = function (workers) {
@@ -4282,6 +4911,30 @@ window.VaktApp = window.VaktApp || {};
             html += '<div class="summary-row"><div class="s-name">' + app.escapeHtml(w.name) + '</div>' +
                 '<div class="s-hours" data-label="Tildelt"><strong>' + app.escapeHtml(assignedHours) + ' t</strong><span class="summary-detail">tilsvarer ' + app.escapeHtml(actualPercent) + ' %</span></div>' +
                 '<div class="s-target" data-label="Stillingsprosent"><strong>' + app.escapeHtml(positionPercent) + ' %</strong><span class="summary-detail">ca. ' + app.escapeHtml(targetHours) + ' t mål</span></div></div>';
+        });
+        html += '</div>';
+        summaryContainer.innerHTML = html;
+        app.elements.scheduleGrid.appendChild(summaryContainer);
+    };
+
+    app.renderBakvaktSummary = function (workers) {
+        if (!workers || workers.length === 0) return;
+        var sortedWorkers = workers.slice().sort(function (a, b) {
+            return b.assignedHours - a.assignedHours || a.name.localeCompare(b.name, 'nb');
+        });
+        var summaryContainer = document.createElement('div');
+        summaryContainer.className = 'month-summary bakvakt-summary';
+        var html = '<h3>Bakvaktoppsummering</h3><div class="summary-table">' +
+            '<div class="summary-row header"><div class="s-name">Bakvakt</div><div class="s-hours">Tildelt</div><div class="s-target">Dager</div></div>';
+        sortedWorkers.forEach(function (worker) {
+            var hours = Number(worker.assignedHours) || 0;
+            var days = Number(worker.assignedDays) || 0;
+            var average = days > 0 ? Math.round((hours / days) * 10) / 10 : 0;
+            html += '<div class="summary-row"><div class="s-name">' + app.escapeHtml(worker.name) + '</div>' +
+                '<div class="s-hours" data-label="Tildelt"><strong>' + app.escapeHtml(String(hours).replace('.', ',')) +
+                ' t</strong><span class="summary-detail">ca. ' + app.escapeHtml(String(average).replace('.', ',')) + ' t per dag</span></div>' +
+                '<div class="s-target" data-label="Dager"><strong>' + app.escapeHtml(days) + '</strong><span class="summary-detail">bakvaktdag' +
+                (days === 1 ? '' : 'er') + '</span></div></div>';
         });
         html += '</div>';
         summaryContainer.innerHTML = html;
@@ -4345,6 +4998,10 @@ window.VaktApp = window.VaktApp || {};
         return { day: 'Dagvakt', eve: 'Kveldsvakt', sat: 'Lørdagsvakt' }[shiftType] || 'Vakt';
     }
 
+    function getWeekPatternName(pattern) {
+        return { all: 'hver uke', odd: 'oddetallsuker', even: 'partallsuker' }[pattern] || 'hver uke';
+    }
+
     function getShiftMinutes(shiftType) {
         var times = state.standardTimes[shiftType];
         return times ? { startMin: parseTime(times.start), endMin: parseTime(times.end) } : null;
@@ -4356,11 +5013,16 @@ window.VaktApp = window.VaktApp || {};
             return;
         }
 
-        emp.fixedShifts.slice().sort(function (a, b) { return a.dayOfWeek - b.dayOfWeek; }).forEach(function (item) {
+        emp.fixedShifts.slice().sort(function (a, b) {
+            var patternOrder = { all: 0, odd: 1, even: 2 };
+            return a.dayOfWeek - b.dayOfWeek ||
+                (patternOrder[a.weekPattern || 'all'] - patternOrder[b.weekPattern || 'all']);
+        }).forEach(function (item) {
             var originalIndex = emp.fixedShifts.indexOf(item);
             var div = document.createElement('div');
             div.className = 'fixed-unavail-item';
-            div.innerHTML = '<span><strong>' + getDayName(Number(item.dayOfWeek)) + '</strong>: ' + getShiftName(item.shiftType) + '</span>' +
+            div.innerHTML = '<span><strong>' + getDayName(Number(item.dayOfWeek)) + '</strong>: ' + getShiftName(item.shiftType) +
+                ' <small>· ' + getWeekPatternName(item.weekPattern) + '</small></span>' +
                 '<button class="icon-btn remove-btn" type="button" style="color:#ef4444;" title="Fjern fast vakt" aria-label="Fjern fast vakt på ' + getDayName(Number(item.dayOfWeek)) + '">&times;</button>';
             div.querySelector('button').addEventListener('click', function () {
                 emp.fixedShifts.splice(originalIndex, 1);
@@ -4389,9 +5051,15 @@ window.VaktApp = window.VaktApp || {};
         var emp = state.employees[activeEmployeeIndexForModal];
         var dayOfWeek = Number(app.elements.modalFixedShiftDay.value);
         var shiftType = app.elements.modalFixedShiftType.value;
+        var weekPattern = app.elements.modalFixedShiftWeekPattern.value;
 
-        if (emp.fixedShifts.some(function (item) { return Number(item.dayOfWeek) === dayOfWeek; })) {
-            alert('Denne personen har allerede en fast vakt på ' + getDayName(dayOfWeek).toLowerCase() + '. Fjern den først hvis du vil bytte vakttype.');
+        var overlapsExistingRule = emp.fixedShifts.some(function (item) {
+            if (Number(item.dayOfWeek) !== dayOfWeek) return false;
+            var existingPattern = item.weekPattern || 'all';
+            return existingPattern === 'all' || weekPattern === 'all' || existingPattern === weekPattern;
+        });
+        if (overlapsExistingRule) {
+            alert('Denne personen har allerede en fast vakt som gjelder de samme ukene på ' + getDayName(dayOfWeek).toLowerCase() + '.');
             return false;
         }
 
@@ -4405,7 +5073,7 @@ window.VaktApp = window.VaktApp || {};
             return false;
         }
 
-        emp.fixedShifts.push({ dayOfWeek: dayOfWeek, shiftType: shiftType });
+        emp.fixedShifts.push({ dayOfWeek: dayOfWeek, shiftType: shiftType, weekPattern: weekPattern });
         renderFixedShiftList(emp);
         app.renderEmployees();
         app.saveState();
@@ -4554,6 +5222,7 @@ window.VaktApp = window.VaktApp || {};
         if (scrollableBody) scrollableBody.scrollTop = 0;
         app.elements.modalTitle.textContent = 'Innstillinger: ' + emp.name;
         app.elements.modalFixedShiftDay.value = '0';
+        app.elements.modalFixedShiftWeekPattern.value = 'all';
         updateFixedShiftTypeOptions();
         app.elements.fixedShiftForm.hidden = true;
         app.elements.btnAddFixedShift.hidden = false;
@@ -4746,7 +5415,9 @@ window.VaktApp = window.VaktApp || {};
         if (day.isPadding) return { date: dateText, content: '', isPadding: true };
 
         var content = '';
-        if (day.isClosed) {
+        if (Number(day.dayOfWeek) === 6) {
+            content = '';
+        } else if (day.isClosed) {
             content = 'Stengt';
         } else if (day.isHoliday) {
             content = day.holidayName || 'Helligdag';
@@ -4756,7 +5427,10 @@ window.VaktApp = window.VaktApp || {};
                 segments = segments.concat(buildShiftSegments(shift));
             });
             content = segments.join(' ');
-            if (day.bakvakt) content += (content ? ': ' : 'Bakvakt: ') + day.bakvakt;
+            if (day.bakvakt) {
+                var bakvaktName = typeof day.bakvakt === 'object' ? day.bakvakt.name : day.bakvakt;
+                if (bakvaktName) content += (content ? ': ' : 'Bakvakt: ') + bakvaktName;
+            }
         }
         return { date: dateText, content: content, isPadding: false };
     }
@@ -4816,7 +5490,7 @@ window.VaktApp = window.VaktApp || {};
                 var color = cell.isPadding ? '#A6A6A6' : '#222222';
                 var noteStyle = cell.isNoteLabel ? 'font-style:italic;' : '';
                 var cellText = cell.date ? escapeHtml(cell.date).replace(/\r?\n/g, '<br>') : '&nbsp;';
-                return '<td style="width:165px;height:20px;padding:5px 8px 1px;vertical-align:top;white-space:normal;mso-number-format:\'\\@\';background:' + background + ';color:' + color + ';font-family:Calibri,Arial,sans-serif;font-size:11pt;font-weight:500;' + noteStyle + '">' + cellText + '</td>';
+                return '<td align="left" style="width:165px;height:20px;padding:5px 8px 1px;vertical-align:top;text-align:left;white-space:normal;mso-number-format:\'\\@\';background:' + background + ';color:' + color + ';font-family:Calibri,Arial,sans-serif;font-size:11pt;font-weight:500;' + noteStyle + '">' + cellText + '</td>';
             }).join('');
             var contentCells = week.map(function (cell) {
                 var color = cell.isPadding ? '#A6A6A6' : '#222222';
@@ -4838,14 +5512,26 @@ window.VaktApp = window.VaktApp || {};
         return /[\t\r\n"]/.test(text) ? '"' + text.replace(/"/g, '""') + '"' : text;
     }
 
+    function quoteTsvDateCell(value) {
+        var text = String(value == null ? '' : value);
+        if (/^\d+$/.test(text)) text = "'" + text;
+        return quoteTsvCell(text);
+    }
+
     app.buildExcelTsv = function (model) {
         var rows = [];
         rows.push(model.weekdays);
         model.weeks.forEach(function (week) {
-            rows.push(week.map(function (cell) { return cell.date; }));
+            rows.push(week.map(function (cell) { return { value: cell.date, isDate: true }; }));
             rows.push(week.map(function (cell) { return cell.content; }));
         });
-        return rows.map(function (row) { return row.map(quoteTsvCell).join('\t'); }).join('\r\n');
+        return rows.map(function (row) {
+            return row.map(function (cell) {
+                return cell && typeof cell === 'object' && cell.isDate
+                    ? quoteTsvDateCell(cell.value)
+                    : quoteTsvCell(cell);
+            }).join('\t');
+        }).join('\r\n');
     };
 
     function copyHtmlSelection(tableHtml) {
@@ -4947,7 +5633,7 @@ window.VaktApp = window.VaktApp || {};
             return;
         }
         var heading = document.createElement('strong');
-        heading.textContent = 'Faste vakter som ikke kunne legges inn:';
+        heading.textContent = 'Dette bør sjekkes:';
         container.appendChild(heading);
         warnings.slice(0, 8).forEach(function (warning) {
             var line = document.createElement('div');
@@ -4980,6 +5666,18 @@ document.addEventListener('DOMContentLoaded', function () {
     app.elements = {
         employeesList: document.getElementById('employees-list'),
         addEmployeeBtn: document.getElementById('add-employee-btn'),
+        bakvakterList: document.getElementById('bakvakter-list'),
+        addBakvaktBtn: document.getElementById('add-bakvakt-btn'),
+        bakvaktTimeInputs: {
+            short: document.getElementById('bakvakt-short-start'),
+            long: document.getElementById('bakvakt-long-start'),
+            sat: document.getElementById('bakvakt-sat-start')
+        },
+        bakvaktTimeEnds: {
+            short: document.getElementById('bakvakt-short-end'),
+            long: document.getElementById('bakvakt-long-end'),
+            sat: document.getElementById('bakvakt-sat-end')
+        },
         modal: document.getElementById('unavailability-modal'),
         closeModals: document.querySelectorAll('#unavailability-modal .close-modal'),
         modalTitle: document.getElementById('modal-title'),
@@ -4990,6 +5688,7 @@ document.addEventListener('DOMContentLoaded', function () {
         fixedShiftForm: document.getElementById('fixed-shift-form'),
         modalFixedShiftDay: document.getElementById('modal-fixed-shift-day'),
         modalFixedShiftType: document.getElementById('modal-fixed-shift-type'),
+        modalFixedShiftWeekPattern: document.getElementById('modal-fixed-shift-week-pattern'),
         btnAddFixedShift: document.getElementById('btn-add-fixed-shift'),
         btnSaveFixedShift: document.getElementById('btn-save-fixed-shift'),
         modalFixedUnavailList: document.getElementById('modal-fixed-unavail-list'),
@@ -5103,6 +5802,26 @@ document.addEventListener('DOMContentLoaded', function () {
         return candidate;
     }
 
+    function bakvaktNameIsInUse(name, exceptIndex) {
+        var normalized = String(name || '').trim().toLocaleLowerCase('nb-NO');
+        return state.bakvakter.some(function (worker, index) {
+            return index !== exceptIndex && worker.name.trim().toLocaleLowerCase('nb-NO') === normalized;
+        });
+    }
+
+    function bakvaktNameIsReserved(name) {
+        return String(name || '').trim().toLocaleLowerCase('nb-NO') === 'mangler bakvakt';
+    }
+
+    function nextNewBakvaktName() {
+        var counter = 1;
+        var candidate;
+        do {
+            candidate = 'Ny bakvakt ' + counter++;
+        } while (bakvaktNameIsInUse(candidate, -1));
+        return candidate;
+    }
+
     // Render employee rows
     app.renderEmployees = function () {
         app.elements.employeesList.innerHTML = '';
@@ -5163,7 +5882,17 @@ document.addEventListener('DOMContentLoaded', function () {
             input.addEventListener('input', function (e) {
                 var idx = parseInt(e.target.dataset.nameIndex, 10);
                 var proposedName = e.target.value.trim() || 'Ansatt';
-                if (!nameIsReserved(proposedName) && !nameIsInUse(proposedName, idx)) state.employees[idx].name = proposedName;
+                if (!nameIsReserved(proposedName) && !nameIsInUse(proposedName, idx)) {
+                    state.employees[idx].name = proposedName;
+                    var row = e.target.closest('.employee-row');
+                    if (row) {
+                        e.target.setAttribute('aria-label', 'Navn for ' + proposedName);
+                        var settingsButton = row.querySelector('.calendar-btn');
+                        var removeButton = row.querySelector('.remove-btn');
+                        if (settingsButton) settingsButton.setAttribute('aria-label', 'Åpne innstillinger for ' + proposedName);
+                        if (removeButton) removeButton.setAttribute('aria-label', 'Fjern ' + proposedName);
+                    }
+                }
             });
             input.addEventListener('change', function (e) {
                 var idx = parseInt(e.target.dataset.nameIndex, 10);
@@ -5254,6 +5983,87 @@ document.addEventListener('DOMContentLoaded', function () {
 
     app.addEmployee = addEmployee;
 
+    app.renderBakvakter = function () {
+        var list = app.elements.bakvakterList;
+        list.innerHTML = '';
+        if (state.bakvakter.length === 0) {
+            list.innerHTML = '<p class="employees-empty">Ingen bakvakter er lagt til ennå.</p>';
+            return;
+        }
+
+        state.bakvakter.forEach(function (worker, index) {
+            var row = document.createElement('div');
+            row.className = 'bakvakt-worker-row';
+            row.dataset.bakvaktId = String(worker.id);
+            var safeName = app.escapeHtml(worker.name);
+            row.innerHTML = '<input type="text" value="' + safeName + '" data-bakvakt-name-index="' + index +
+                '" placeholder="Navn" aria-label="Navn for bakvakt ' + safeName + '">' +
+                '<button class="icon-btn remove-btn" type="button" data-bakvakt-remove-index="' + index +
+                '" title="Fjern bakvakt" aria-label="Fjern bakvakt ' + safeName + '">&times;</button>';
+            list.appendChild(row);
+        });
+
+        list.querySelectorAll('input[data-bakvakt-name-index]').forEach(function (input) {
+            input.addEventListener('focus', function (event) {
+                var index = Number(event.target.dataset.bakvaktNameIndex);
+                event.target.dataset.previousName = state.bakvakter[index].name;
+            });
+            input.addEventListener('input', function (event) {
+                var index = Number(event.target.dataset.bakvaktNameIndex);
+                var proposed = event.target.value.trim() || 'Bakvakt';
+                if (!bakvaktNameIsReserved(proposed) && !bakvaktNameIsInUse(proposed, index)) {
+                    state.bakvakter[index].name = proposed;
+                    var row = event.target.closest('.bakvakt-worker-row');
+                    event.target.setAttribute('aria-label', 'Navn for bakvakt ' + proposed);
+                    var removeButton = row && row.querySelector('.remove-btn');
+                    if (removeButton) removeButton.setAttribute('aria-label', 'Fjern bakvakt ' + proposed);
+                }
+            });
+            input.addEventListener('change', function (event) {
+                var index = Number(event.target.dataset.bakvaktNameIndex);
+                var rawName = String(event.target.value || '').trim();
+                var normalized = rawName
+                    ? app.shortenEmployeeName(rawName)
+                    : (event.target.dataset.previousName || state.bakvakter[index].name || 'Bakvakt');
+                if (bakvaktNameIsReserved(normalized) || bakvaktNameIsInUse(normalized, index)) {
+                    var previous = event.target.dataset.previousName || state.bakvakter[index].name;
+                    state.bakvakter[index].name = previous;
+                    event.target.value = previous;
+                    alert(bakvaktNameIsReserved(normalized)
+                        ? 'Dette navnet brukes av planleggeren. Velg et annet navn.'
+                        : 'Hver bakvakt må ha et unikt navn.');
+                    return;
+                }
+                state.bakvakter[index].name = normalized;
+                event.target.value = normalized;
+                event.target.dataset.previousName = normalized;
+                app.renderBakvakter();
+                app.saveState();
+            });
+        });
+
+        list.querySelectorAll('button[data-bakvakt-remove-index]').forEach(function (button) {
+            button.addEventListener('click', function (event) {
+                state.bakvakter.splice(Number(event.currentTarget.dataset.bakvaktRemoveIndex), 1);
+                app.renderBakvakter();
+                app.saveState();
+            });
+        });
+    };
+
+    function addBakvakt() {
+        var newIndex = state.bakvakter.length;
+        state.bakvakter.push({ id: app.nextBakvaktId++, name: nextNewBakvaktName() });
+        app.renderBakvakter();
+        var nameInput = app.elements.bakvakterList.querySelector('input[data-bakvakt-name-index="' + newIndex + '"]');
+        if (nameInput) {
+            try { nameInput.focus({ preventScroll: true }); } catch (error) { nameInput.focus(); }
+            nameInput.select();
+            nameInput.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+        }
+        app.saveState();
+    }
+
     function normalizeNorwegianTime(value) {
         var cleaned = String(value || '').trim().replace(/\s+/g, '').replace('.', ':');
         var hours;
@@ -5321,6 +6131,52 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    function formatMinutes(minutes) {
+        var hour = Math.floor(minutes / 60);
+        var minute = minutes % 60;
+        return String(hour).padStart(2, '0') + ':' + String(minute).padStart(2, '0');
+    }
+
+    function updateBakvaktTimeEnd(timeType) {
+        var settings = state.bakvaktTimes[timeType];
+        var endMinutes = timeToMinutes(settings.start) + (Number(settings.hours) * 60);
+        app.elements.bakvaktTimeEnds[timeType].textContent = formatMinutes(endMinutes);
+    }
+
+    function bindBakvaktTimeInput(input, timeType) {
+        input.addEventListener('focus', function () {
+            input.dataset.previousStart = state.bakvaktTimes[timeType].start;
+            input.select();
+        });
+        input.addEventListener('input', function () {
+            input.classList.remove('invalid-time');
+            input.setAttribute('aria-invalid', 'false');
+            var preview = normalizeNorwegianTime(input.value);
+            var durationMinutes = Number(state.bakvaktTimes[timeType].hours) * 60;
+            if (preview && timeToMinutes(preview) + durationMinutes <= 24 * 60) {
+                state.bakvaktTimes[timeType].start = preview;
+                updateBakvaktTimeEnd(timeType);
+            }
+        });
+        input.addEventListener('change', function () {
+            var normalized = normalizeTimeInput(input);
+            var durationMinutes = Number(state.bakvaktTimes[timeType].hours) * 60;
+            if (!normalized || timeToMinutes(normalized) + durationMinutes > 24 * 60) {
+                state.bakvaktTimes[timeType].start = input.dataset.previousStart || state.bakvaktTimes[timeType].start;
+                input.value = state.bakvaktTimes[timeType].start;
+                updateBakvaktTimeEnd(timeType);
+                input.classList.remove('invalid-time');
+                input.setAttribute('aria-invalid', 'false');
+                alert('Starttiden må gi plass til hele bakvakten før kl. 24:00.');
+                return;
+            }
+            state.bakvaktTimes[timeType].start = normalized;
+            input.dataset.previousStart = normalized;
+            updateBakvaktTimeEnd(timeType);
+            app.saveState();
+        });
+    }
+
     function clampRequirement(value) {
         var parsed = parseInt(value, 10);
         if (!Number.isFinite(parsed)) parsed = 0;
@@ -5358,6 +6214,9 @@ document.addEventListener('DOMContentLoaded', function () {
         bindStandardTimeInput(app.elements.stdInputs.eveEnd, 'eve', 'end');
         bindStandardTimeInput(app.elements.stdInputs.satStart, 'sat', 'start');
         bindStandardTimeInput(app.elements.stdInputs.satEnd, 'sat', 'end');
+        Object.keys(app.elements.bakvaktTimeInputs).forEach(function (timeType) {
+            bindBakvaktTimeInput(app.elements.bakvaktTimeInputs[timeType], timeType);
+        });
 
         [app.elements.customShiftStart, app.elements.customShiftEnd].forEach(function (input) {
             input.addEventListener('focus', function () { input.select(); });
@@ -5372,6 +6231,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         app.elements.generateBtn.addEventListener('click', app.generateSchedule);
         app.elements.addEmployeeBtn.addEventListener('click', addEmployee);
+        app.elements.addBakvaktBtn.addEventListener('click', addBakvakt);
 
         app.elements.modalFixedShiftDay.addEventListener('change', app.updateFixedShiftTypeOptions);
         app.elements.btnAddFixedShift.addEventListener('click', function () {
@@ -5385,6 +6245,7 @@ document.addEventListener('DOMContentLoaded', function () {
             app.elements.fixedShiftForm.hidden = true;
             app.elements.btnAddFixedShift.hidden = false;
             app.elements.btnAddFixedShift.setAttribute('aria-expanded', 'false');
+            app.elements.btnAddFixedShift.focus();
         });
         app.elements.copyExcelBtn.addEventListener('click', app.copyScheduleToExcel);
         app.elements.monthNotes.addEventListener('input', function (event) {
@@ -5807,6 +6668,10 @@ document.addEventListener('DOMContentLoaded', function () {
         sInp.dayStart.value = std.day.start; sInp.dayEnd.value = std.day.end;
         sInp.eveStart.value = std.eve.start; sInp.eveEnd.value = std.eve.end;
         sInp.satStart.value = std.sat.start; sInp.satEnd.value = std.sat.end;
+        Object.keys(app.elements.bakvaktTimeInputs).forEach(function (timeType) {
+            app.elements.bakvaktTimeInputs[timeType].value = state.bakvaktTimes[timeType].start;
+            updateBakvaktTimeEnd(timeType);
+        });
     }
 
     // Boot
@@ -5821,6 +6686,7 @@ document.addEventListener('DOMContentLoaded', function () {
     populateMonthNotes();
     populateInputsFromState();
     app.renderEmployees();
+    app.renderBakvakter();
     setupEventListeners();
     
     if (app.lastScheduleData && app.lastScheduleData.days) {
